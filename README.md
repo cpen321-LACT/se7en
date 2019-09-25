@@ -34,3 +34,39 @@ We will be using two main branches, frontend and backend (more can be made as de
 git checkout [branch_name]
 ```
 you can read on git branches online
+
+## REST endpoints
+Below is a description of the REST endpoints we will be using to implement Se7en. Each endpoint in this documentation is accompanied with a sample JSON object.
+
+## POST
+
+**\create_user** : Send a new user object to the backend. 
+
+       {'user_id' : '1', 
+        'name' : 'Julia Rubin', 
+        'email' : 'email@gmail.com', 
+        'password' : 'password123',}
+        
+**\events\ {event_id}** : Send a calendar event to the backend. 
+
+       {'time_start' : '23:00', 
+        'time_end' : '24:00', 
+        'date' : ['1', '3', '5'],  
+        'subject' : 'CPEN', 
+        'course_number' : '321',
+        'location' : 'MCLD'}
+
+## PUT
+
+**\add_friend \ {user_id} \ {friend_id}** : Add a friend with id ```{friend_id}``` to the user with ```{user_id}```. 
+
+      {'friend_id' : '2'}
+      
+Note: I think we can skip sending a JSON object because all info needed is passed through the endpoint
+
+## GET
+
+
+## DELETE
+
+
