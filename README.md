@@ -59,8 +59,6 @@ Below is a description of the REST endpoints we will be using to implement Se7en
 ## PUT
 
 **\add_friend \ {user_id} \ {friend_id}** : Add a friend with id ```{friend_id}``` to the user with ```{user_id}```. 
-
-      {'friend_id' : '2'}
       
 Note: I think we can skip sending a JSON object because all info needed is passed through the endpoint
 
