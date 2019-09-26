@@ -47,7 +47,7 @@ Below is a description of the REST endpoints we will be using to implement Se7en
         'email' : 'email@gmail.com', 
         'password' : 'password123',}
         
-**\events\ {event_id}** : Send a calendar event to the backend. 
+**\events** : Send a calendar event to the backend. 
 
        {'time_start' : '23:00', 
         'time_end' : '24:00', 
