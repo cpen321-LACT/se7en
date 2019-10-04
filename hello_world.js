@@ -2,7 +2,7 @@ const express = require('express');
 const mongocli = require('mongodb').MongoClient;
 
 const app = express();
-app.use(express.json);
+app.use(express.json());
 
 var db;
 
@@ -21,7 +21,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
 /* 
 *   Client GETs the desired list from the database
 */
-app.get('\list', (req,res) => {
+app.get('/list', (req,res) => {
     db.collection("list").find().toArray((err,result) => {
         if (err) return console.log(err)
         res.send(result);
@@ -31,7 +31,7 @@ app.get('\list', (req,res) => {
 /* 
 *   Client POSTs data into the list endpoint
 */
-app.post('\list', (req,res) => {
+app.post('/list', (req,res) => {
     db.collection("list").insertOne({"task":req.body.task, "info":req.body.info}, (err, result) => {
         /*
         * Example of error checking
@@ -48,7 +48,7 @@ app.post('\list', (req,res) => {
 /* 
 *   Client PUTS data into the list endpoint
 */
-app.put('\list', (req,res) => {
+app.put('/list', (req,res) => {
     db.collection("list").updateOne({"task":req.body.task}, {$set:{"info":req.body.info}}, (err, result) => {
         /*
         * Example of error checking
@@ -65,7 +65,7 @@ app.put('\list', (req,res) => {
 /* 
 *   Client DELETEs data from the list endpoint
 */
-app.delete('\list', (req,res) => {
+app.delete('/list', (req,res) => {
     db.collection("list").deleteOne({"task":req.body.task}, (err, result) => {
         /*
         * Example of error checking
