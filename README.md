@@ -40,31 +40,43 @@ Below is a description of the REST endpoints we will be using to implement Se7en
 
 ## POST
 
-**\create_user** : Send a new user object to the backend. 
+**\user\{user_id}\sign_up** : Send a new user object to the backend. 
 
-       {'user_id' : '1', 
-        'name' : 'Julia Rubin', 
-        'email' : 'email@gmail.com', 
-        'password' : 'password123',}
-        
-**\events** : Send a calendar event to the backend. 
-
-       {'time_start' : '23:00', 
-        'time_end' : '24:00', 
-        'date' : ['1', '3', '5'],  
-        'subject' : 'CPEN', 
-        'course_number' : '321',
-        'location' : 'MCLD'}
+       // external API
+ 
 
 ## PUT
 
-**\add_friend \ {user_id} \ {friend_id}** : Add a friend with id ```{friend_id}``` to the user with ```{user_id}```. 
+**\user\ {user_id}\info** : update a user's information. 
+
+       {'year_level' : '3', 
+       'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'], 
+       'sex' : 'Male',
+       'name' : 'John Doe'}
+
+**\user\ {user_id} \schedule** : update a user's schedule with a study event. 
+
+       {'time' : '13:00 - 14:00', 
+        'date' : 'Oct. 4, 2019'
+        'subject' : 'CPEN 321', 
+        'location' : 'Irving K. Barber'}
+
+**\user\ {user_id} \preferences** : update a user's preferences. 
+
+       {'kindness' : '2', 
+        'patience' : '6',
+        'hard_working' : '4', 
+        'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'], 
+        'sex' : ['Male', 'Female'],
+        'year_level' : ['3','4']}
       
-Note: I think we can skip sending a JSON object because all info needed is passed through the endpoint
 
 ## GET
+**\user\ {user_id} \matches** : get a sorted list of user's matches based on preferences. 
 
+       {'matches' : [{user_id_0}, {user_id_1}, {user_id_2}, {user_id_3}]} 
 
 ## DELETE
+**\user\ {user_id} \schedule\ {schedule_id}** : delete a user's study event. 
 
 
