@@ -46,7 +46,7 @@ Below is a description of the REST endpoints we will be using to implement Se7en
         'user_is_waiting_to_match_with' : [‘user_id_3’, ‘user_id_4’,...],
         'currently_matched_with’ : [‘user_id_5’, ‘user_id_6’,...]} 
 
-`\schedule\{user_id}` : Get the user with user_id's schedule. 
+`\schedule\{user_id}` : Get the schedule of the user with user_id. 
 
        { ‘user_id’ : 0, 
          'time' : '13:00 - 14:00', 
@@ -54,7 +54,7 @@ Below is a description of the REST endpoints we will be using to implement Se7en
          'subject' : 'CPEN 321', 
          'location' : 'Irving K. Barber'}
 
-`\user\{user_id}\info` : Get the user with user_id's information. 
+`\user\{user_id}\info` : Get the information of the user with user_id. 
 
        {'year_level' : 3, 
        'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...], 
@@ -69,7 +69,7 @@ Below is a description of the REST endpoints we will be using to implement Se7en
        'email' : ‘john.doe@gmail.com’,
        'name' : 'John Doe'}
 
-`\user\{user_id}\preferences` : Get the user with user_id's preferences.
+`\user\{user_id}\preferences` : Get the preferences of the user with user_id.
 
          { 'user_id' : '0', 
            'kindness' : '2', 
@@ -86,13 +86,13 @@ Below is a description of the REST endpoints we will be using to implement Se7en
 
 ## PUT
 
-`\user\{user_id}\info` : Update the user with user_id's information. 
+`\user\{user_id}\info` : Update the information of the user with user_id. 
 
 
-`\schedule\{user_id}` : Update the users with user_id's schedule with a study event. 
+`\schedule\{user_id}` : Update the schedule of the user with user_id. 
 
 
-`\user\{user_id}\preferences` : Update the user with user_id's preferences. 
+`\user\{user_id}\preferences` : Update the preferences of user with user_id. 
 
 
 `\user\{user_id_a}\matches\{user_id_b}` : Match user with user_id user_id_a with user with user_id user_id_b and vice versa.
