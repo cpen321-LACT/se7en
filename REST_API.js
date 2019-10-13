@@ -244,7 +244,7 @@ app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
 
 
 /*
- * Get the user with user_id's schedule.
+ * Get the user with user_id's schedule at a specific time.
  *
  * Below is a sample JSON output:
  * 
@@ -257,7 +257,33 @@ app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
  * TODO: Write error checking code.
  * TODO: Implement this function.
  */
-app.get('/schedule/{user_id}', (req,res) => {
+app.get('/schedule/{user_id}/single_time', (req,res) => {
+    schedule_db.collection("schedule_clt").find({}, {projection : {"time" : req.body.time, "date": req.body.date, 
+    "user_id" : req.body.user_id}}).toArray((err, result) => {
+        if (err) return console.log(err);
+        res.send(result);
+    })
+})
+
+/*
+ * Get the user with user_id's whole schedule.
+ *
+ * Below is a sample JSON output:
+ * 
+ * { ‘user_id’ : 0, 
+ *   'time' : '13:00 - 14:00', 
+ *   'date' : 'Oct. 4, 2019'
+ *   'subject' : 'CPEN 321', 
+ *   'location' : 'Irving K. Barber'}
+ * 
+ * TODO: Write error checking code.
+ * TODO: Implement this function.
+ */
+app.get('/schedule/:user_id', (req,res) => {
+    schedule_db.collection("schedule_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+        if (err) return console.log(err);
+        res.send(result);
+    })
 })
 
 /*
@@ -267,7 +293,7 @@ app.get('/schedule/{user_id}', (req,res) => {
  * TODO: Implement this function. 
  */
 app.post('/schedule/{user_id}', (req,res) => {
-    db.collection("sched_clt").insertOne(
+    schedule_db.collection("sched_clt").insertOne(
         {'user_id' : req.body.user_id, 
          'time' : req.body.time, 
          'date' : req.body.date,  
@@ -289,6 +315,31 @@ app.post('/schedule/{user_id}', (req,res) => {
  * TODO: Implement this function. 
  */
 app.put('/schedule/{user_id}', (req,res) => {
+    var query = {"user_id" : req.body.user_id};
+    var newValues = {$set: req.body}; 
+    schedule_db.collection("schedule_clt").updateOne(query, newValues,(err, result) => {
+    if (req.body == null){
+     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
+     return;
+    }
+     if (err) return console.log(err);
+     res.send("Schedules have been updated.\n");
+    })
+})
+
+/*
+ * Delete the whole schedule  
+ * !! We will need to find a way to differentiate between study events. !!
+ * 
+ * TODO: Write error checking code.
+ * TODO: Implement this function. 
+ */
+app.delete('/user/{user_id}/schedule', (req,res) => {
+    var query = {"user_id" : req.body.user_id};
+    schedule_db.collection("schedule_clt").updateOne(query, (err, result) => {
+        if (err) return console.log(err);
+        res.send("deleted the schedule\n");
+    })
 })
 
 /*
@@ -298,7 +349,12 @@ app.put('/schedule/{user_id}', (req,res) => {
  * TODO: Write error checking code.
  * TODO: Implement this function. 
  */
-app.delete('/user/{user_id}/schedule/{event_id}', (req,res) => {
+app.delete('/user/{user_id}/schedule/single_delete', (req,res) => {
+    var query = {"user_id" : req.body.user_id, "time" : req.body.time, "date" : req.body.date};
+    schedule_db.collection("schedule_clt").updateOne(query, (err, result) => {
+        if (err) return console.log(err);
+        res.send("deleted the specific time\n");
+    })
 })
 
 
