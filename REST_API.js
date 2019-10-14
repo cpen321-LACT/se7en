@@ -214,12 +214,74 @@ app.get('/user/:user_id/matches', (req,res) => {
 
     /* TODO: implement complex logic */
 
-    user_db.collection("info_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+    /*
+     *  get the standard vars from the user_id
+     */
+
+    var query = {"year_level" : req.body.year_level, 
+                 "courses" : req.body.courses,
+                 "sex" : req.body.sex,
+                 "name" : req.body.name };
+
+    /* Filter all standard criteria to an array */
+    user_db.collection("info_clt").find(query).toArray((err,result) => {
+        if (err) return console.log(err); })
+
+    /* 
+     * Call for the function generateMatch which sort all the matches
+     * and return an array "ret" of potential matches and put that into the database
+     */
+    var ret = generateMatch(req.body.kindness, req.body.hard_working, req.body.patience, result);
+
+    var query = {"user_id" : req.body.user_id};
+    var newValues = {$set:{'potential_matches' : ret}}; 
+    schedule_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
+    if (req.body == null){
+     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
+     return;
+    }
+    
+    /* Return the potential match array */
+    user_db.collection("matches_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
         if (err) return console.log(err);
 
-        //res.send(result);
+        res.send(result);
     })
 })
+
+
+/*
+ *  A helper function used for sorting algorithm 
+ */
+function generateMatch(kindness, hard_working, patience, array){
+    var score = [[],[]];
+    for(var i = 0; i < array.length; i++){
+        score[i][0] =   Math.abs(kindness - array[i].kindness) +
+                        Math.abs(hard_working - array[i].hard_working) +
+                        Math.abs(patience - array[i].patience);
+        score[i][1] =   array[i].user_id;
+    }
+    /* Do insertion sort */
+    for(var i = 0; i < array.length; i++){
+        var sc = score[i][0];
+        var id = score[i][1];
+        var j = i;
+        while(j>0 && score[j-1][0] > sc){
+            score[j][0] = score[j-1][0];
+            score[j][1] = score[j-1][1];
+            j--;
+        }
+        score[j][0] = sc;
+        score[j][1] = id; 
+    }
+    var ret = [];
+    for(var i = 0; i < array.length; i++){
+       ret[i] = score[i][1];
+    }
+
+    return ret;
+}
+
 
 /*
  * Match user with user_id user_id_a with user with user_id user_id_b and vice versa.
@@ -336,7 +398,7 @@ app.put('/schedule/{user_id}', (req,res) => {
  */
 app.delete('/user/{user_id}/schedule', (req,res) => {
     var query = {"user_id" : req.body.user_id};
-    schedule_db.collection("schedule_clt").updateOne(query, (err, result) => {
+    schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
         if (err) return console.log(err);
         res.send("deleted the schedule\n");
     })
@@ -351,7 +413,7 @@ app.delete('/user/{user_id}/schedule', (req,res) => {
  */
 app.delete('/user/{user_id}/schedule/single_delete', (req,res) => {
     var query = {"user_id" : req.body.user_id, "time" : req.body.time, "date" : req.body.date};
-    schedule_db.collection("schedule_clt").updateOne(query, (err, result) => {
+    schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
         if (err) return console.log(err);
         res.send("deleted the specific time\n");
     })
