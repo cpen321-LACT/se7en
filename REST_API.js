@@ -18,7 +18,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   user_db = client.db('user_db') 
   schedule_db = client.db('schedule_db') 
 
-  /* User Database*/
+  /* User Database */
   user_db.createCollection("info_clt", function(err, res) { 
     if (err) throw err;
     console.log("Info collection created!");
@@ -32,11 +32,12 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
     console.log("Matches collection created!");
   });
 
-  /* Schedule Database*/
+  /* Schedule Database */
   schedule_db.createCollection("schedule_clt", function(err, res) { 
     if (err) throw err;
     console.log("Schedule collection created!");
   });
+
 
   app.listen(3000, function() {
       console.log('server is up!')
@@ -49,8 +50,9 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  * Post the preferences of the user with user_id.
  * 
  * TODO: Write error checking code.
+ * TESTED: Works
  */
-app.post('/user/:user_id/preferences', (req,res) => {
+app.post('/user/preferences', (req,res) => {
     user_db.collection("preferences_clt").insertOne(
         {'user_id' : req.body.user_id, 
          'kindness' : req.body.kindness, 
@@ -64,7 +66,7 @@ app.post('/user/:user_id/preferences', (req,res) => {
      return;
     }
      if (err) return console.log(err);
-     res.send("Preferences have been added.\n");
+     res.send("Preferences have been added. ٩(^ᴗ^)۶\n");
     })
 })
 
@@ -73,18 +75,19 @@ app.post('/user/:user_id/preferences', (req,res) => {
  *
  * Below is a sample JSON output:
  * 
- * {'user_id' : '0', 
- *  'kindness' : '2', 
- *  'patience' : '6'
- *  'hard_working' : '4', 
+ * {'user_id' : 0, 
+ *  'kindness' : 2, 
+ *  'patience' : 6,
+ *  'hard_working' : 4, 
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...], 
  *  'sex' : ['Male', 'Female'],
- *  'year_level' : [‘3’, ‘4’, ...]}
+ *  'year_level' : [3, 4, ...]}
  * 
  * TODO: Write error checking code.
+ * TESTED: Works
  */
 app.get('/user/:user_id/preferences', (req,res) => {
-    user_db.collection("preferences_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+    user_db.collection("preferences_clt").find({user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result);
     })
@@ -94,9 +97,10 @@ app.get('/user/:user_id/preferences', (req,res) => {
  * Update the preferences of the user with user_id.
  * 
  * TODO: Write error checking code.
+ * TESTED: Works
  */
 app.put('/user/:user_id/preferences', (req,res) => {
-    var query = {"user_id" : req.body.user_id};
+    var query = {"user_id" : parseInt(req.body.user_id)};
     var newValues = {$set: req.body}; 
     user_db.collection("preferences_clt").updateOne(query, newValues,(err, result) => {
     if (req.body == null){
@@ -104,7 +108,7 @@ app.put('/user/:user_id/preferences', (req,res) => {
      return;
     }
      if (err) return console.log(err);
-     res.send("Preferences have been added.\n");
+     res.send("Preferences have been updated. ٩(^ᴗ^)۶\n");
     })
 })
 
@@ -128,11 +132,10 @@ app.put('/user/:user_id/preferences', (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  * 
- * TODO: Write error checking code.
- * TODO: Implement this function.
+ * TESTED: Works
  */
 app.get('/user/:user_id/info', (req,res) => {
-    user_db.collection("info_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+    user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result);
     })
@@ -141,30 +144,32 @@ app.get('/user/:user_id/info', (req,res) => {
 /*
  * Sign up a new user. Also initialize thier matches to no one.
  * 
- * TODO: Write error checking code.
- * TODO: Implement this function. 
+ * TESTED : Works
  */
 app.post('/user', (req,res) => {
+    console.log(req.body)
     user_db.collection("info_clt").insertOne(
-        {'year_level' : req.body.year_level, 
-         'sex' : req.body.sex, 
-         'number_of_ratings' : req.body.number_of_ratings,  
-         'kindness_rating' : req.body.kindness_rating, 
-         'patience_rating' : req.body.patience_rating,
-         'hard_working_rating' : req.body.hard_working_rating,
-         'authentication_token' : req.body.authentication_token,
-         'password' : req.body.password,
-         'user_id' : req.body.user_id,
-         'email' : req.body.email,
-         'name' : req.body.name},(err, result) => {
-    if (0){
+        {"year_level" : req.body.year_level, 
+         "sex" : req.body.sex, 
+         "number_of_ratings" : req.body.number_of_ratings,  
+         "kindness_rating" : req.body.kindness_rating, 
+         "patience_rating" : req.body.patience_rating,
+         "hard_working_rating" : req.body.hard_working_rating,
+         "authentication_token" : req.body.authentication_token,
+         "password" : req.body.password,
+         "user_id" : req.body.user_id,
+         "email" : req.body.email,
+         "name" : req.body.name},(err, result) => {
+    if (req.body.year_level == null){
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
      return;
     }
      if (err) return console.log(err);
-     res.send("User information has been added.\n");
+        res.send("error");
     })
-
+   //res.send("done");
+    console.log("after insert")
+    /*
     user_db.collection("matches_clt").insertOne(
         {'user_id' : req.body.user_id, 
          'potential_matches' : [], 
@@ -172,26 +177,41 @@ app.post('/user', (req,res) => {
          'currently_matched_with' : []},(err, result) => {
 
      if (err) return console.log(err);
-     res.send("User matches initialization success.\n");
+     //res.send("User matches initialization success.\n");
     })
+    */
 })
 
 /*
  * Update the information of user with user_id's information.
  * 
- * TODO: Write error checking code.
- * TODO: Implement this function. 
+ * TESTED : Works
  */
-app.put('/user/:user_id/info', (req,res) => {
-    var query = {"user_id" : req.body.user_id};
-    var newValues = {$set: req.body}; 
+app.put('/user/info', (req,res) => {
+    if (req.body == null){
+        console.log("(┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+       }
+    console.log("hai")
+    var query = {user_id : req.body.user_id};
+    var newValues = {$set: {year_level : req.body.year_level, 
+                            sex : req.body.sex, 
+                            number_of_ratings : req.body.number_of_ratings,  
+                            kindness_rating : req.body.kindness_rating, 
+                            patience_rating : req.body.patience_rating,
+                            hard_working_rating : req.body.hard_working_rating,
+                            authentication_token : req.body.authentication_token,
+                            password : req.body.password,
+                            user_id : req.body.user_id,
+                            email : req.body.email,
+                            name : req.body.name}}; 
     user_db.collection("info_clt").updateOne(query, newValues,(err, result) => {
     if (req.body == null){
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
      return;
     }
      if (err) return console.log(err);
-     res.send("Preferences have been added.\n");
+     res.send("User info has been updated.\n");
     })
 })
 
@@ -209,6 +229,7 @@ app.put('/user/:user_id/info', (req,res) => {
  * 
  * TODO: Write error checking code.
  * TODO: Implement this function.
+ * TODO: Test
  */
 app.get('/user/:user_id/matches', (req,res) => {
 
@@ -226,6 +247,7 @@ app.get('/user/:user_id/matches', (req,res) => {
  * 
  * TODO: Write error checking code.
  * TODO: Implement this function. 
+ * TODO: Test
  */
 app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
 })
@@ -234,7 +256,8 @@ app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
  * Unmatch user with user_id with user with match_id and vice versa.
  * 
  * TODO: Write error checking code.
- * TODO: Implement this function. 
+ * TODO: Implement this function.
+ * TODO: Test
  */
 app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
 })
@@ -255,11 +278,11 @@ app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
  *   'location' : 'Irving K. Barber'}
  * 
  * TODO: Write error checking code.
- * TODO: Implement this function.
+ * Tested: Works
  */
-app.get('/schedule/{user_id}/single_time', (req,res) => {
-    schedule_db.collection("schedule_clt").find({}, {projection : {"time" : req.body.time, "date": req.body.date, 
-    "user_id" : req.body.user_id}}).toArray((err, result) => {
+app.get('/schedule/:user_id/single_time', (req,res) => {
+    var query = {time : req.body.time, date: req.body.date, user_id : parseInt(req.body.user_id)};
+    schedule_db.collection("schedule_clt").find(query).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result);
     })
@@ -277,10 +300,11 @@ app.get('/schedule/{user_id}/single_time', (req,res) => {
  *   'location' : 'Irving K. Barber'}
  * 
  * TODO: Write error checking code.
- * TODO: Implement this function.
+ * Tested: Works
  */
 app.get('/schedule/:user_id', (req,res) => {
-    schedule_db.collection("schedule_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+    var query = {user_id : parseInt(req.params.user_id)};
+    schedule_db.collection("schedule_clt").find(query).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result);
     })
@@ -290,10 +314,10 @@ app.get('/schedule/:user_id', (req,res) => {
  * Add an event the schedule of the user with with user_id.
  * 
  * TODO: Write error checking code.
- * TODO: Implement this function. 
+ * Tested: Works
  */
-app.post('/schedule/{user_id}', (req,res) => {
-    schedule_db.collection("sched_clt").insertOne(
+app.post('/schedule', (req,res) => {
+    schedule_db.collection("schedule_clt").insertOne(
         {'user_id' : req.body.user_id, 
          'time' : req.body.time, 
          'date' : req.body.date,  
@@ -304,7 +328,7 @@ app.post('/schedule/{user_id}', (req,res) => {
      return;
     }
      if (err) return console.log(err);
-     res.send("schedule has been updated.\n");
+     res.send("Schedule has been posted.\n");
     })
 })
 
@@ -312,9 +336,10 @@ app.post('/schedule/{user_id}', (req,res) => {
  * Update the schedule of the user with with user_id.
  * 
  * TODO: Write error checking code.
- * TODO: Implement this function. 
+ * TODO: Test
+ * TODO: Talk about this function
  */
-app.put('/schedule/{user_id}', (req,res) => {
+app.put('/schedule/:user_id', (req,res) => {
     var query = {"user_id" : req.body.user_id};
     var newValues = {$set: req.body}; 
     schedule_db.collection("schedule_clt").updateOne(query, newValues,(err, result) => {
@@ -333,10 +358,12 @@ app.put('/schedule/{user_id}', (req,res) => {
  * 
  * TODO: Write error checking code.
  * TODO: Implement this function. 
+ * Tested: Works
  */
-app.delete('/user/{user_id}/schedule', (req,res) => {
-    var query = {"user_id" : req.body.user_id};
-    schedule_db.collection("schedule_clt").updateOne(query, (err, result) => {
+app.delete('/user/:user_id/schedule', (req,res) => {
+    var query = {"user_id" : parseInt(req.params.user_id)};
+    console.log(parseInt(req.params.user_id));
+    schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
         if (err) return console.log(err);
         res.send("deleted the schedule\n");
     })
@@ -348,66 +375,13 @@ app.delete('/user/{user_id}/schedule', (req,res) => {
  * 
  * TODO: Write error checking code.
  * TODO: Implement this function. 
+ * TODO: Test
+ * TODO: Talk about this function
  */
-app.delete('/user/{user_id}/schedule/single_delete', (req,res) => {
+app.delete('/user/:user_id/schedule/single_delete', (req,res) => {
     var query = {"user_id" : req.body.user_id, "time" : req.body.time, "date" : req.body.date};
-    schedule_db.collection("schedule_clt").updateOne(query, (err, result) => {
+    schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
         if (err) return console.log(err);
         res.send("deleted the specific time\n");
-    })
-})
-
-
-/*---------------------------- TESTING ---------------------------- */
-app.get('/user', (req,res) => {
-    db.collection("users").find().toArray((err, result) => {
-     if (err) return console.log(err);
-     res.send(result);
-    })
-})
-
-/*
- * Sign up a new user.
- * 
- * TODO: Write error checking code.
- * TODO: Implement this function. 
- */
-app.post('/user', (req,res) => {
-    db.collection("users").insertOne(
-        {'year_level' : req.body.year_level, 
-         /*'sex' : req.body.sex, 
-         'number_of_ratings' : req.body.number_of_ratings,  
-         'kindness_rating' : req.body.kindness_rating, 
-         'patience_rating' : req.body.patience_rating,
-         'hard_working_rating' : req.body.hard_working_rating,
-         'authentication_token' : req.body.authentication_token,
-         'password' : req.body.password,
-         'user_id' : req.body.user_id,
-         'email' : req.body.email,*/
-         'name' : req.body.name},(err, result) => {
-    if (0){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-     if (err) return console.log(err);
-     res.send("User information has been updated.\n");
-    })
-})
-
-app.put('/user', (req,res) => {
-    db.collection("users").updateOne({'name':req.body.name}, {$set:{'year_level' : req.body.year_level}},(err, result) => {
-    if (0){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-     if (err) return console.log(err);
-     res.send("User information has been updated.\n");
-    })
-})
-
-app.delete('/user', (req,res) => {
-    db.collection("users").deleteOne({"name":req.body.name}, (err, result) => {
-        if (err) return console.log(err);
-        res.send("deleted\n");
     })
 })
