@@ -234,37 +234,47 @@ app.put('/user/info', (req,res) => {
 app.get('/user/:user_id/matches/potential_matches', (req,res) => {
 
     /* TODO: implement complex logic */
-
-    /*
-     *  get the standard vars from the user_id
-     */
-
+    /*_________________________________________________________
+     * Get the infor array of standard vars from the user_id 
+     *_________________________________________________________ */
     var query = {"year_level" : req.body.year_level, 
                  "courses" : req.body.courses,
                  "sex" : req.body.sex,
                  "name" : req.body.name };
-
     /* Filter all standard criteria to an array */
-    user_db.collection("info_clt").find(query).toArray((err,result) => {
-        if (err) return console.log(err); })
+    user_db.collection("info_clt").find(query).toArray((err,infor_array) => {
+        if (err) return console.log(err); }
+     
+    /*_________________________________________________________
+     * Get the schedule array of specific time 
+     *_________________________________________________________ */
+    var query = {"time" : req.body.time, 
+                 "date" : req.body.date};
+    /* Filter all standard time to an array */
+    schedule_db.collection("schedule_clt").find(query).toArray((err,schedule_array) => {
+        if (err) return console.log(err); }
 
-    /* 
+    /*_________________________________________________________
+     * Call the time-filter function
      * Call for the function generateMatch which sort all the matches
      * and return an array "ret" of potential matches and put that into the database
-     */
-    var ret = generateMatch(req.body.kindness, req.body.hard_working, req.body.patience, result);
+     *_________________________________________________________ */
+    var std_match_array = time_filter_match(infor_array, schedule_array);   
+    var ret = generateMatch(req.body.kindness, req.body.hard_working, req.body.patience, std_match_array);
 
-    var query = {"user_id" : req.body.user_id};
+    var query = {"user_id" : parseInt(req.body.user_id),
+                 "time" : req.body.time, 
+                 "date" : req.body.date};
     var newValues = {$set:{'potential_matches' : ret}}; 
-    schedule_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
-    if (req.body == null){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-    
+    user_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
+        if(req.body == null){
+        res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
+        return;}
+    })    
     /* Return the potential match array */
-    user_db.collection("matches_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+    user_db.collection("match_clt").find(query).toArray((err,result) => {
         if (err) return console.log(err);
+        /* return the potential matches */
         res.send(result);
     })
 })
@@ -301,6 +311,20 @@ function generateMatch(kindness, hard_working, patience, array){
 
     return ret;
 }
+/* A helper function that filters the array by the time, dat */
+function time_filter_match(infor_array, schedule_array){
+    var i = 0;
+    while(i < infor_array.length){
+        var infor = infor_array[i];
+        for(var j = 0; j < schedule_array.length; j++){
+            if(infor.user_id == schedule_array[j].user_id){
+                i++;
+                break;
+            }
+        }
+        infor_array.splice(i,1);
+    }
+}
 
 
 /*
@@ -315,7 +339,6 @@ function generateMatch(kindness, hard_working, patience, array){
  * TODO: Test
  */
 app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
-
     var query_user_a = { user_id_a : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
     var query_user_b = { user_id_b : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
 
