@@ -231,7 +231,7 @@ app.put('/user/info', (req,res) => {
  * TODO: Implement this function.
  * TODO: Test
  */
-app.get('/user/:user_id/matches', (req,res) => {
+app.get('/user/:user_id/matches/potential_matches', (req,res) => {
 
     /* TODO: implement complex logic */
 
@@ -265,7 +265,6 @@ app.get('/user/:user_id/matches', (req,res) => {
     /* Return the potential match array */
     user_db.collection("matches_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
         if (err) return console.log(err);
-
         res.send(result);
     })
 })
@@ -305,14 +304,82 @@ function generateMatch(kindness, hard_working, patience, array){
 
 
 /*
- * Match user with user_id user_id_a with user with user_id user_id_b and vice versa.
+ * Match user with user_id user_id_a with user with user_id user_id_b.
+ *
+ * Update currently_matched_with array for user_a and user_b
+ * 
+ * { "time" : "12:00-1:00", "date" : "Oct. 3, 2019"}
  * 
  * TODO: Write error checking code.
  * TODO: Implement this function. 
  * TODO: Test
  */
 app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
+
+    var query_user_a = { user_id_a : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
+    var query_user_b = { user_id_b : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
+
+    /*
+     * Check if user_b is in user_a's request list
+     *
+     * If yes:
+     *  1) remove user_b from request list of user_a and remove user_a from user_b's wait list
+     *  2) add both to currently matched with
+     *
+     * If no:
+     *  1) add user_a to user_b's request list and add user_b to user_a's wait list
+     */
+
+    /* Get user_a's matches */
+    user_db.collection("matches_clt").find(query_user_a).toArray((err, user_a_matches) => {
+        if (err) return console.log(err);
+    })
+    /* Get user_b's matches */
+    user_db.collection("matches_clt").find(query_user_b).toArray((err, user_b_matches) => {
+        if (err) return console.log(err);
+    })
+
+    /* Add user_b to user_a's matches*/
+    user_a_matches['currently_matched_with'].append(parseInt(req.params.user_id_b));
+
+    /* Add user_a to user_b's matches*/
+    user_b_matches['currently_matched_with'].append(parseInt(req.params.user_id_a));
+
+    /* Update user_a's matches */
+    user_db.collection("matches_clt").updateOne(query_user_a, user_a_matches).toArray((err, update_result_a) => {
+        if (err) return console.log(err);
+    })
+    /* Update user_b's matches */
+    user_db.collection("matches_clt").updateOne(query_user_a, user_b_matches).toArray((err, update_result_b) => {
+        if (err) return console.log(err);
+    })
+    res.send("Successfully added matches.");
+
 })
+
+/*
+ * Get who the user is currently matched with
+ * TODO: Test
+ */
+app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
+    user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
+        if (err) return console.log(err);
+        res.send(result['potential_matches']);
+    })
+})
+
+/*
+ * Get who the user is waiting to match with
+ * TODO: Test
+ */
+app.get('/user/:user_id/matches/user_is_waiting_to_match_with', (req,res) => {
+    user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
+        if (err) return console.log(err);
+        res.send(result['user_is_waiting_to_match_with']);
+    })
+})
+
+
 
 /*
  * Unmatch user with user_id with user with match_id and vice versa.
@@ -321,7 +388,7 @@ app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
  * TODO: Implement this function.
  * TODO: Test
  */
-app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
+app.delete('/user/:user_id/matches/:match_id', (req,res) => {
 })
 
 
