@@ -14,6 +14,8 @@ import {
   RefreshControl,
   Switch,
 } from 'react-native';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 addLocale('en', {
   months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
@@ -44,6 +46,8 @@ export default class Calendar extends React.Component {
         startDate: this.generateDates(0),
         endDate: this.generateDates(2),
         color: 'blue',
+        subject: 'CPEN 321',
+        location: 'MCLD 215'
       },
       {
         id: 2,
@@ -62,21 +66,26 @@ export default class Calendar extends React.Component {
     ];
   
     return (
-    	<View style={styles.container_calendar}>
-    		<StatusBar barStyle="light-content" backgroundColor="#4286f4" />
-          	<View style={styles.navBar}>
-          		<Text style={styles.navBarTitle}>Calendar</Text>
-        	</View>
-    		<WeekView
- 				events={events}
-          		selectedDate={this.selectedDate}
-          		numberOfDays={7}
-          		onEventPress={(event) => Alert.alert('eventId:' + event.id)}
-          		headerStyle={styles.header_calendar}
-          		formatDateHeader="ddd D"
-          		locale="en"
-        	/>
-        </View>
+        	<View style={{flex:1, backgroundColor: '#f3f3f3'}}>
+        	{<View style={styles.container_calendar}>
+    			<StatusBar barStyle="light-content" backgroundColor="#4286f4" />
+          		<View style={styles.navBar}>
+          			<Text style={styles.navBarTitle}>Calendar</Text>
+        		</View>
+    			<WeekView
+ 					events={events}
+          			selectedDate={this.selectedDate}
+          			numberOfDays={7}
+          			onEventPress={(event) => Alert.alert('Event: ' + event.id,
+          											 	('Time: ' + event.startDate.getUTCHours() + ':' + event.startDate.getUTCMinutes() + ' - ' + event.endDate.getUTCHours() + ':' + event.endDate.getUTCMinutes() + '\nDate: ' + (event.startDate.getUTCMonth() + 1) + '/' + event.startDate.getUTCDate() + '/' + event.startDate.getUTCFullYear() + '\nSubject: ' + event.subject + '\nLocation: ' + event.location))}
+          			headerStyle={styles.header_calendar}
+          			formatDateHeader="ddd D"
+          			locale="en"
+        		/>
+        	</View>}
+		    <ActionButton buttonColor="rgba(231,76,60,1)">
+        	</ActionButton>
+      </View>
     );
   }
 }
