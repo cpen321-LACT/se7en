@@ -165,7 +165,7 @@ app.post('/user', (req,res) => {
      return;
     }
      if (err) return console.log(err);
-        res.send("error");
+        res.send("goi it");
     })
    //res.send("done");
     console.log("after insert")
@@ -243,7 +243,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
                  "name" : req.body.name };
     /* Filter all standard criteria to an array */
     user_db.collection("info_clt").find(query).toArray((err,infor_array) => {
-        if (err) return console.log(err); }
+        if (err) return console.log(err); })
      
     /*_________________________________________________________
      * Get the schedule array of specific time 
@@ -252,7 +252,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
                  "date" : req.body.date};
     /* Filter all standard time to an array */
     schedule_db.collection("schedule_clt").find(query).toArray((err,schedule_array) => {
-        if (err) return console.log(err); }
+        if (err) return console.log(err); })
 
     /*_________________________________________________________
      * Call the time-filter function
@@ -339,45 +339,87 @@ function time_filter_match(infor_array, schedule_array){
  * TODO: Test
  */
 app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
-    var query_user_a = { user_id_a : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
-    var query_user_b = { user_id_b : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
+    var query_user_a = { user_id : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
+    var query_user_b = { user_id : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
 
-    /*
-     * Check if user_b is in user_a's request list
-     *
-     * If yes:
-     *  1) remove user_b from request list of user_a and remove user_a from user_b's wait list
-     *  2) add both to currently matched with
-     *
-     * If no:
-     *  1) add user_a to user_b's request list and add user_b to user_a's wait list
-     */
+    console.log(query_user_a)
 
-    /* Get user_a's matches */
-    user_db.collection("matches_clt").find(query_user_a).toArray((err, user_a_matches) => {
+
+    var user_a_match_doc;
+    var user_b_match_doc;
+
+    /* Get user_a's match document for a specific time and date */
+    user_db.collection("matches_clt").find(query_user_a).toArray((err, a) => {
         if (err) return console.log(err);
+        user_a_match_doc = a;
     })
-    /* Get user_b's matches */
-    user_db.collection("matches_clt").find(query_user_b).toArray((err, user_b_matches) => {
+    console.log(user_a_match_doc)
+    /* Get user_b's match document for a specific time and date */
+    user_db.collection("matches_clt").find(query_user_b).toArray((err, b) => {
         if (err) return console.log(err);
+        user_b_match_doc = b;
     })
 
-    /* Add user_b to user_a's matches*/
-    user_a_matches['currently_matched_with'].append(parseInt(req.params.user_id_b));
+    console.log("User a's match document before update:\n");
+    console.log(user_a_match_doc)
+    console.log('\n')
 
-    /* Add user_a to user_b's matches*/
-    user_b_matches['currently_matched_with'].append(parseInt(req.params.user_id_a));
+    console.log("User b's match document before update:\n");
+    console.log(user_b_match_doc)
+    console.log('\n')
+
+    /* If user_b has already requested to match with user_a */
+    if (user_b_match_doc['request'].includes(parseInt(req.params.user_id_a))) {
+        
+        console.log("user_b has already requested to match with user_a\n")
+        console.log(user_a_match_doc['match'])
+        console.log('\n')
+        console.log(user_b_match_doc['match'])
+        console.log('\n')
+
+        /* user_b is user_a's match */
+        user_a_match_doc['match'] = parseInt(req.params.user_id_b);
+        /* user_a to user_b's match */
+        user_b_match_doc['match'] = parseInt(req.params.user_id_a);
+
+        /* if user_a was waiting for user_b, remove user_b from wait list */
+        if (user_a_match_doc['wait'].includes(parseInt(req.params.user_id_b))){
+            user_a_match_doc['wait'].splice(array.indexOf(parseInt(req.params.user_id_b)), 1)
+            console.log("user_a was waiting for user_b, remove user_b from wait list\n")
+        }
+    }
+    else {
+        console.log("Adding user_a to user_b's request list:\n");
+        /* user_a has requested to match with user_b*/
+        user_b_match_doc['request'].append(parseInt(req.params.user_id_a));
+        console.log(user_b_match_doc['request'])
+        console.log('\n')
+
+        console.log("Adding user_b to user_a's wait list:\n");
+        /* user_a is waiting to match with user_b */
+        user_a_match_doc['wait'].append(parseInt(req.params.user_id_b));
+        console.log(user_a_match_doc['wait'])
+        console.log('\n')
+    }
 
     /* Update user_a's matches */
-    user_db.collection("matches_clt").updateOne(query_user_a, user_a_matches).toArray((err, update_result_a) => {
+    user_db.collection("matches_clt").updateOne(query_user_a, user_a_match_doc).toArray((err, update_result_a) => {
         if (err) return console.log(err);
     })
     /* Update user_b's matches */
-    user_db.collection("matches_clt").updateOne(query_user_a, user_b_matches).toArray((err, update_result_b) => {
+    user_db.collection("matches_clt").updateOne(query_user_a, user_b_match_doc).toArray((err, update_result_b) => {
         if (err) return console.log(err);
     })
-    res.send("Successfully added matches.");
 
+    console.log("User a's match document after update:\n");
+    console.log(user_a_match_doc)
+    console.log('\n')
+
+    console.log("User b's match document after update:\n");
+    console.log(user_b_match_doc)
+    console.log('\n')
+
+    res.send("Successfully added matches.");
 })
 
 /*
@@ -385,9 +427,24 @@ app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
  * TODO: Test
  */
 app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
-    user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
+    var cur_matches = [];
+    var i;
+    /* Find all the match documents for a specified user */
+    user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, matches) => {
         if (err) return console.log(err);
-        res.send(result['potential_matches']);
+        /* Generate the current matches */
+        for (i = 0; i < matches.length-1; i++){
+            /* if the user has a match */
+            if (matches[i]['match'] != null) { 
+                /* Add the match to the list */
+                cur_matches.append(
+                    {'time' : matches[i]['time'], 
+                    'date' : matches[i]['date'], 
+                    'match' : matches[i]['match']})
+            }
+        }
+        /* Return JSON object*/
+        res.send({'current_matches' : cur_matches})
     })
 })
 
@@ -398,7 +455,7 @@ app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
 app.get('/user/:user_id/matches/user_is_waiting_to_match_with', (req,res) => {
     user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
         if (err) return console.log(err);
-        res.send(result['user_is_waiting_to_match_with']);
+        res.send(result['wait']);
     })
 })
 
@@ -469,6 +526,7 @@ app.get('/schedule/:user_id', (req,res) => {
  * Tested: Works
  */
 app.post('/schedule', (req,res) => {
+    /* Create schedule object */
     schedule_db.collection("schedule_clt").insertOne(
         {'user_id' : req.body.user_id, 
          'time' : req.body.time, 
@@ -480,7 +538,23 @@ app.post('/schedule', (req,res) => {
      return;
     }
      if (err) return console.log(err);
-     res.send("Schedule has been posted.\n");
+     console.log('schedule added')
+    })
+    /* Create a match object for that schedule */
+    user_db.collection("matches_clt").insertOne(
+        {'user_id' : req.body.user_id, 
+         'time' : req.body.time, 
+         'date' : req.body.date,  
+         'wait' : [],
+         'request' : [],
+         'match' : null},(err, result) => {
+    if (0){
+     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
+     return;
+    }
+     if (err) return console.log(err);
+     console.log('matches document init done')
+     res.send("Schedule has been posted")
     })
 })
 
@@ -536,5 +610,18 @@ app.delete('/user/:user_id/schedule/single_delete', (req,res) => {
         if (err) return console.log(err);
         res.send("deleted the specific time\n");
         })
-    })
 })
+
+/* 
+ * 1) Create user_a - user_id = 0
+ * 2) Create user_b - user_id = 1
+ * 3) Create a schedule event for user_a
+ * 4) Create a schedule event for user_b
+ * 5) Match user_a and user_b
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
