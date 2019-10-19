@@ -235,7 +235,7 @@ app.get('/user/:user_id/matches', (req,res) => {
 
     /* TODO: implement complex logic */
     /*_________________________________________________________
-     * get the infor array of standard vars from the user_id 
+     * Get the infor array of standard vars from the user_id 
      *_________________________________________________________ */
     var query = {"year_level" : req.body.year_level, 
                  "courses" : req.body.courses,
@@ -251,7 +251,7 @@ app.get('/user/:user_id/matches', (req,res) => {
     var query = {"time" : req.body.time, 
                  "date" : req.body.date};
     /* Filter all standard time to an array */
-    user_db.collection("schedule_clt").find(query).toArray((err,schedule_array) => {
+    schedule_db.collection("schedule_clt").find(query).toArray((err,schedule_array) => {
         if (err) return console.log(err); }
 
     /*_________________________________________________________
@@ -262,18 +262,19 @@ app.get('/user/:user_id/matches', (req,res) => {
     var std_match_array = time_filter_match(infor_array, schedule_array);   
     var ret = generateMatch(req.body.kindness, req.body.hard_working, req.body.patience, std_match_array);
 
-    var query = {"user_id" : req.body.user_id};
+    var query = {"user_id" : parseInt(req.body.user_id),
+                 "time" : req.body.time, 
+                 "date" : req.body.date};
     var newValues = {$set:{'potential_matches' : ret}}; 
-    schedule_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
-    if (req.body == null){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-    
+    user_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
+        if(req.body == null){
+        res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
+        return;}
+    })    
     /* Return the potential match array */
-    user_db.collection("matches_clt").find({}, {projection : {"user_id" : req.body.user_id}}).toArray((err, result) => {
+    user_db.collection("match_clt").find(query).toArray((err,result) => {
         if (err) return console.log(err);
-
+        /* return the potential matches */
         res.send(result);
     })
 })
