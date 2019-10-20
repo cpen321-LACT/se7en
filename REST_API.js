@@ -243,7 +243,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
                  "name" : req.body.name };
     /* Filter all standard criteria to an array */
     user_db.collection("info_clt").find(query).toArray((err,infor_array) => {
-        if (err) return console.log(err); })
+        if (err) return console.log(err); 
      
     /*_________________________________________________________
      * Get the schedule array of specific time 
@@ -252,7 +252,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
                  "date" : req.body.date};
     /* Filter all standard time to an array */
     schedule_db.collection("schedule_clt").find(query).toArray((err,schedule_array) => {
-        if (err) return console.log(err); })
+        if (err) return console.log(err); 
 
     /*_________________________________________________________
      * Call the time-filter function
@@ -435,7 +435,12 @@ function person_match_delete(user_id, time, date){
  *  End of helper funtions used for the match algorithm 
  *______________________________________________________________________________________*/
 
-
+app.get('/test',  (req,res) => {
+    user_db.collection("matches_clt").find().toArray((err, a) => {
+        console.log(a)
+        res.send(a)
+    })
+})
 /*
  * Match user with user_id user_id_a with user with user_id user_id_b.
  *
@@ -447,12 +452,11 @@ function person_match_delete(user_id, time, date){
  * TODO: Implement this function. 
  * TODO: Test
  */
-app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
-    var query_user_a = { user_id : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
-    var query_user_b = { user_id : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
+app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
+    var query_user_a = { "user_id" : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
+    var query_user_b = { "user_id" : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
 
     console.log(query_user_a)
-
 
     var user_a_match_doc;
     var user_b_match_doc;
@@ -520,11 +524,11 @@ app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
             }
 
             /* Update user_a's matches */
-            user_db.collection("matches_clt").updateOne(query_user_a, {$set: {user_a_match_doc}}, (err, update_result_a) => {
+            user_db.collection("matches_clt").updateOne(query_user_a, {$set: {'wait' : user_a_match_doc['wait'], 'request' : user_a_match_doc['request'], 'match' : user_a_match_doc['match']}}, (err, update_result_a) => {
                 if (err) return console.log(err);
 
                     /* Update user_b's matches */
-                user_db.collection("matches_clt").updateOne(query_user_a, {$set: {user_b_match_doc}}, (err, update_result_b) => {
+                user_db.collection("matches_clt").updateOne(query_user_b, {$set: {'wait' : user_b_match_doc['wait'], 'request' : user_b_match_doc['request'], 'match' : user_b_match_doc['match']}}, (err, update_result_b) => {
                     if (err) return console.log(err);
 
                     console.log("User a's match document after update:\n");
