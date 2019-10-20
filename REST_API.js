@@ -280,14 +280,146 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
 
 
 /*
- * Match user with user_id user_id_a with user with user_id user_id_b and vice versa.
+ * Match user with user_id user_id_a with user with user_id user_id_b.
+ *
+ * Update currently_matched_with array for user_a and user_b
+ * 
+ * { "time" : "12:00-1:00", "date" : "Oct. 3, 2019"}
  * 
  * TODO: Write error checking code.
  * TODO: Implement this function. 
  * TODO: Test
  */
 app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
+    var query_user_a = { user_id : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
+    var query_user_b = { user_id : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
 
+    console.log(query_user_a)
+
+
+    var user_a_match_doc;
+    var user_b_match_doc;
+
+    var user_a_match_doc_list;
+    var user_b_match_doc_list;
+
+    /* Get user_a's match document for a specific time and date */
+    user_db.collection("matches_clt").find(query_user_a).toArray((err, a) => {
+        if (err) return console.log(err);
+        user_a_match_doc = a[0];
+
+        /* Get user_b's match document for a specific time and date */
+        user_db.collection("matches_clt").find(query_user_b).toArray((err, b) => {
+            if (err) return console.log(err);
+            user_b_match_doc = b[0];
+
+            console.log("User a's match document before update:\n");
+            console.log(user_a_match_doc)
+            console.log('\n')
+        
+            console.log("User b's match document before update:\n");
+            console.log(user_b_match_doc)
+            console.log('\n')
+
+            console.log(user_b_match_doc['request'].includes(parseInt(req.params.user_id_a)))
+
+
+            /* If user_b has already requested to match with user_a */
+            if (user_b_match_doc['request'].includes(parseInt(req.params.user_id_a))) {
+
+                console.log("user_b has already requested to match with user_a\n")
+                console.log(user_a_match_doc['match'])
+                console.log('\n')
+                console.log(user_b_match_doc['match'])
+                console.log('\n')
+            
+                /* user_b is user_a's match */
+                user_a_match_doc['match'] = parseInt(req.params.user_id_b);
+                /* user_a to user_b's match */
+                user_b_match_doc['match'] = parseInt(req.params.user_id_a);
+            
+                /* if user_a was waiting for user_b, remove user_b from wait list */
+                if (user_a_match_doc['wait'].includes(parseInt(req.params.user_id_b))){
+                    user_a_match_doc['wait'].splice(array.indexOf(parseInt(req.params.user_id_b)), 1)
+                    console.log("user_a was waiting for user_b, remove user_b from wait list\n")
+                }
+            } else {
+                console.log("Adding user_a to user_b's request list:\n");
+                /* user_a has requested to match with user_b*/
+                user_b_match_doc['request'].push(parseInt(req.params.user_id_a));
+                console.log(user_b_match_doc['request'])
+                console.log('\n')
+                console.log(user_b_match_doc)
+                console.log('\n')
+
+            
+                console.log("Adding user_b to user_a's wait list:\n");
+                /* user_a is waiting to match with user_b */
+                user_a_match_doc['wait'].push(parseInt(req.params.user_id_b));
+                console.log(user_a_match_doc['wait'])
+                console.log('\n')
+                console.log(user_a_match_doc)
+                console.log('\n')
+            }
+
+            /* Update user_a's matches */
+            user_db.collection("matches_clt").updateOne(query_user_a, {$set: {user_a_match_doc}}, (err, update_result_a) => {
+                if (err) return console.log(err);
+
+                    /* Update user_b's matches */
+                user_db.collection("matches_clt").updateOne(query_user_a, {$set: {user_b_match_doc}}, (err, update_result_b) => {
+                    if (err) return console.log(err);
+
+                    console.log("User a's match document after update:\n");
+                    console.log(user_a_match_doc)
+                    console.log('\n')
+                
+                    console.log("User b's match document after update:\n");
+                    console.log(user_b_match_doc)
+                    console.log('\n')
+                
+                    res.send("Successfully added matches.");
+                })
+            })
+        })
+    })
+})
+
+/*
+ * Get who the user is currently matched with
+ * TODO: Test
+ */
+app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
+    var cur_matches = [];
+    var i;
+    /* Find all the match documents for a specified user */
+    user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, matches) => {
+        if (err) return console.log(err);
+        /* Generate the current matches */
+        for (i = 0; i < matches.length-1; i++){
+            /* if the user has a match */
+            if (matches[i]['match'] != null) { 
+                /* Add the match to the list */
+                cur_matches.append(
+                    {'time' : matches[i]['time'], 
+                    'date' : matches[i]['date'], 
+                    'match' : matches[i]['match']})
+            }
+        }
+        /* Return JSON object*/
+        res.send({'current_matches' : cur_matches})
+    })
+})
+
+/*
+ * Get who the user is waiting to match with
+ * TODO: Test
+ */
+app.get('/user/:user_id/matches/user_is_waiting_to_match_with', (req,res) => {
+    user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
+        if (err) return console.log(err);
+        res.send(result['wait']);
+    })
 })
 
 /*
@@ -298,6 +430,10 @@ app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
  * TODO: Test
  */
 app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
+    var err1 = person_match_delete(req.param.user_id_a, req.body.time, req.body.date);
+    var err2 = person_match_delete(req.param.user_id_b, req.body.time, req.body.date);
+    if(err1 || err2) return console.log(err);
+    res.send("Successfully unmatch.");
 })
 
 
@@ -429,7 +565,8 @@ function person_match_delete(user_id, time, date){
                  "date" : date};
     var newValues = {$set:{'match' : null}}; 
     user_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
-        if (err) return console.log(err); })
+        if (err) return 1; 
+        return 0; })
 }
 /*______________________________________________________________________________________
  *  End of helper funtions used for the match algorithm 
