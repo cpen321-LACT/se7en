@@ -248,7 +248,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
     /*_________________________________________________________
      * Get the schedule array of specific time 
      *_________________________________________________________ */
-    var query = {"time" : req.body.time, 
+    var query = {"time" : req.body.time,
                  "date" : req.body.date};
     /* Filter all standard time to an array */
     schedule_db.collection("schedule_clt").find(query).toArray((err,schedule_array) => {
@@ -259,7 +259,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
      * Call for the function generateMatch which sort all the matches
      * and return an array "ret" of potential matches and put that into the database
      *_________________________________________________________ */
-    var std_match_array = time_filter_match(infor_array, schedule_array);   
+    var std_match_array = time_filter_match(infor_array, schedule_array);    
     var ret = generateMatch(req.body.kindness, req.body.hard_working, req.body.patience, std_match_array);
 
     var query = {"user_id" : parseInt(req.body.user_id),
@@ -268,21 +268,45 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
     var newValues = {$set:{'potential_matches' : ret}}; 
     user_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
         if(req.body == null){
-        res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-        return;}
-    })    
+            res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
+            return;}
     /* Return the potential match array */
     user_db.collection("match_clt").find(query).toArray((err,result) => {
         if (err) return console.log(err);
         /* return the potential matches */
         res.send(result);
-    })
+    }) }) }) })
 })
 
 
 /*
- *  A helper function used for sorting algorithm 
+ * Match user with user_id user_id_a with user with user_id user_id_b and vice versa.
+ * 
+ * TODO: Write error checking code.
+ * TODO: Implement this function. 
+ * TODO: Test
  */
+app.put('/user/:user_id_a/matches/:user_id_b', (req,res) => {
+
+})
+
+/*
+ * Unmatch user with user_id with user with match_id and vice versa.
+ * 
+ * TODO: Write error checking code.
+ * TODO: Implement this function.
+ * TODO: Test
+ */
+app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
+})
+
+
+
+/*______________________________________________________________________________________
+ * Helper funtions used for the match algorithm 
+ *______________________________________________________________________________________*/
+
+/* A helper function used for sorting algorithm */
 function generateMatch(kindness, hard_working, patience, array){
     var score = [[],[]];
     for(var i = 0; i < array.length; i++){
@@ -315,9 +339,9 @@ function generateMatch(kindness, hard_working, patience, array){
 function time_filter_match(infor_array, schedule_array){
     var i = 0;
     while(i < infor_array.length){
-        var infor = infor_array[i];
+        var infor = parseInt(infor_array[i].user_id);
         for(var j = 0; j < schedule_array.length; j++){
-            if(infor.user_id == schedule_array[j].user_id){
+            if(infor.user_id == parseInt(schedule_array[j].user_id)){
                 i++;
                 break;
             }
@@ -325,6 +349,91 @@ function time_filter_match(infor_array, schedule_array){
         infor_array.splice(i,1);
     }
 }
+/*
+ *  Delete the the matching with given time and user_id.
+ *  Modify other user_id matches as needed. 
+ *  This will call for all_request_delete, all_wait_delete, and person_match_delete
+ */
+function matches_delete(user_id, time, date){
+    /* Read the match object into an object */
+    user_db.collection("match_clt").find(query).toArray((err,result) => {
+        if (err) return console.log(err);
+        var matches = JSON_stringify(result); 
+        var wait = matches.wait;            /* Will later update the request list of people that this person requested */
+        var request = matches.request;      /* Delete this list won't affect other people's matches */
+        var match_person = matches.match;   /* Will later update the matched person's "match" to NULL  */
+        /* Delete requests to others */
+        all_request_delete(user_id, wait, time, date);
+        all_wait_delete(user_id, request, time, date);
+        if(match_person != null) person_match_delete(match_person, time, date);
+
+        /* Delete the matching person */
+
+        /* Delete the match object */
+        var query = {"user_id" : user_id, "time" : time, "date" : date};
+        user_db.collection("schedule_clt").deleteOne(query, (err, result) => {
+            if (err) return console.log(err);
+        }) 
+    })
+    
+}
+/* Delete the all the requests that the given user_id sent */
+function all_request_delete(user_id, wait, time, date){
+    for(var i = 0; i < wait.length; i++){
+        var requested_id = wait[i];
+        var query = {"user_id" : parseInt(requested_id),
+                     "time" : time, 
+                     "date" : date};
+        user_db.collection("match_clt").find(query).toArray((err,result) => {
+            if (err) return console.log(err);
+            result = JSON.stringify(result);
+            var request = result.request;
+            /* Find the id and delete it */
+            for(var j = 0; j < request.length; j++){
+                if(parseInt(request[j]) == pareInt(user_id)){
+                    request.splice(j,1);
+                    break;
+                }
+            }
+            user_db.collection("matchs_clt").updateOne(query, request,(err, result) => {
+                if (err) return console.log(err); })
+        })
+    }
+}
+function all_wait_delete(user_id, request, time, date){
+    for(var i = 0; i < request.length; i++){
+        var waited_id = request[i];
+        var query = {"user_id" : parseInt(waited_id),
+                     "time" : time, 
+                     "date" : date};
+        user_db.collection("match_clt").find(query).toArray((err,result) => {
+            if (err) return console.log(err);
+            result = JSON.stringify(result);
+            var wait = result.wait;
+            /* Find the id and delete it */
+            for(var j = 0; j < wait.length; j++){
+                if(parseInt(wait[j]) == pareInt(user_id)){
+                    wait.splice(j,1);
+                    break;
+                }
+            }
+            user_db.collection("matchs_clt").updateOne(query, wait,(err, result) => {
+                if (err) return console.log(err); })
+        })
+    }
+}
+/* Delete the matching of 2 people */
+function person_match_delete(user_id, time, date){
+    var query = {"user_id" : parseInt(user_id),
+                 "time" : time, 
+                 "date" : date};
+    var newValues = {$set:{'match' : null}}; 
+    user_db.collection("matchs_clt").updateOne(query, newValues,(err, result) => {
+        if (err) return console.log(err); })
+}
+/*______________________________________________________________________________________
+ *  End of helper funtions used for the match algorithm 
+ *______________________________________________________________________________________*/
 
 
 /*
@@ -598,6 +707,7 @@ app.put('/schedule/:user_id', (req,res) => {
  * Tested: Works
  */
 app.delete('/user/:user_id/schedule', (req,res) => {
+    /* Now actually delete the schedule */
     var query = {"user_id" : parseInt(req.params.user_id)};
     console.log(parseInt(req.params.user_id));
     schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
@@ -607,7 +717,7 @@ app.delete('/user/:user_id/schedule', (req,res) => {
 })
 
 /*
- * Delete a study event with event_id of the user with user_id. 
+ * Delete a study event with of the user with user_id at a certain time and date. 
  * !! We will need to find a way to differentiate between study events. !!
  * 
  * TODO: Write error checking code.
@@ -616,23 +726,16 @@ app.delete('/user/:user_id/schedule', (req,res) => {
  * TODO: Talk about this function
  */
 app.delete('/user/:user_id/schedule/single_delete', (req,res) => {
+    /* 
+     *  Before deleting the schedule, we need to delete the matching first 
+     *  This function is written in the matches sections
+     */
+    matches_delete(req.body.user_id, req.body.time, req.body.date);
+
+     /* Now actually delete the schedule */
     var query = {"user_id" : req.body.user_id, "time" : req.body.time, "date" : req.body.date};
     schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
         if (err) return console.log(err);
         res.send("deleted the specific time\n");
         })
-})
-
-/* 
- * 1) Create user_a - user_id = 0
- * 2) Create user_b - user_id = 1
- * 3) Create a schedule event for user_a
- * 4) Create a schedule event for user_b
- * 5) Match user_a and user_b
- * 
- * 
- * 
- * 
- * 
- * 
- */
+    })
