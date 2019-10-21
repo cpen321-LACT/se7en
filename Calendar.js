@@ -66,7 +66,7 @@ export default class Calendar extends React.Component {
     ];
   
     return (
-        	<View style={{flex:1, backgroundColor: '#f3f3f3'}}>
+        <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
         	{<View style={styles.container_calendar}>
     			<StatusBar barStyle="light-content" backgroundColor="#4286f4" />
           		<View style={styles.navBar}>
@@ -83,7 +83,7 @@ export default class Calendar extends React.Component {
           			locale="en"
         		/>
         	</View>}
-		    <ActionButton buttonColor="rgba(231,76,60,1)">
+		    <ActionButton buttonColor="rgba(66,134,244,1)">
         	</ActionButton>
       </View>
     );

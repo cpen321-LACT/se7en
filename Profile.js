@@ -1,10 +1,11 @@
-'use strict'
+'use strict';
 
 import React, { Component } from 'react';
 import {
   AppRegistry,
   StyleSheet,
   Text,
+  TextInput,
   Alert,
   View,
   StatusBar,
@@ -13,68 +14,117 @@ import {
   RefreshControl,
   Switch,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Entypo'
-import { SettingsScreen, SettingsData, Chevron } from 'react-native-settings-screen'
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {
+  SettingsScreen,
+  SettingsData,
+  Chevron,
+} from 'react-native-settings-screen';
+import PropType from 'prop-types';
 
-const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif'
+const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 
 const user = () => (
   <View style={styles.heroContainer}>
-  	<Image source={{uri: 'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639'}} style={styles.heroImage} />
+    <Image
+      source={{
+        uri:
+          'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639',
+      }}
+      style={styles.heroImage}
+    />
     <View style={{ flex: 1 }}>
       <Text style={styles.heroTitle}>Pepehands</Text>
       <Text style={styles.heroSubtitle}>pepe@hands.com</Text>
     </View>
-    <Chevron/>
+    <Chevron />
   </View>
-)
+);
 
 export default class Profile extends React.Component {
-	state = {
-		refreshing: false,
-	}
+  state = {
+  	year_level: '3',
+  	courses: ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
+  	sex: 'Male',
+  	number_of_ratings: 1.0,
+  	kindness_rating: 2.0,
+  	patience_rating: 3.0,
+  	hard_working_rating: 4.0,
+  	authentication_token: 'abcdef123456',
+  	password: '',
+  	user_id: '123456',
+  	email: 'pepe@hands.com',
+  	name: 'Pepe',
+  }
 
-  	settingsData: SettingsData = [
-    	{ type: 'CUSTOM_VIEW', key: 'user', render: user },
-    	{
-      		type: 'SECTION',
-      		header: 'My Section'.toUpperCase(),
-      		footer:'Donec sed odio dui. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.',
-    		rows: [
-        		{
-          			title: 'A row',
-          			showDisclosureIndicator: true,
-        		},
-        		{ title: 'A non-tappable row' },
-       			{
-          			title: 'This row has a',
-          			subtitle: 'Subtitle',
-          			showDisclosureIndicator: true,
-        		},
-    		],
-    	},
-		{
-		  type: 'CUSTOM_VIEW',
-		  render: () => (
-		    <Text
-		      style={{
-		        alignSelf: 'center',
-		        fontSize: 18,
-		        color: '#999',
-		        marginBottom: 40,
-		        marginTop: -30,
-		        fontFamily,
-		      }}
-		    >
-		      v1.0.0
-		    </Text>
-		  ),
-		},
-	  ]
+//  	componentDidMount() {
+//  		fetch('URL HERE', {
+//  			method: 'GET',
+//  		})
+//  		.then((response) => response.json)
+//  		.then((responseJson) => {
+//  			console.log(responseJson);
+//  			this.setState({
+//  				year_level: responseJson.year_level,
+//  				courses: responseJson.courses,
+//  				sex: responseJson.sex,
+//  				number_of_ratings: responseJson.number_of_ratings,
+//  				kindness_rating: responseJson.kindness_rating,
+//  				patience_rating: responseJson.patience_rating,
+//  				hard_working_rating: responseJson.hard_working_rating,
+//  				authentication_token: responseJson.authentication_token,
+//  				password: responseJson.password,
+//  				user_id: responseJson.user_id,
+//  				email: responseJson.email,
+//  				name: responseJson.name,
+//  			})
+//  		})
+//  		.catch((error) ={
+//  			console.error(error);
+//  		});
+//  	}
+
+  settingsData: SettingsData = [
+    { type: 'CUSTOM_VIEW', key: 'user', render: user },
+    {
+      type: 'SECTION',
+      header: 'My info'.toUpperCase(),
+      footer:
+        'Donec sed odio dui. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.',
+      rows: [
+        {
+          title: 'Name: ' + this.state.name,
+          subtitle: 'User ID: ' + this.state.user_id,
+        },
+        { title: 'Email: ' + this.state.email},
+        { title: 'Sex: ' + this.state.sex},
+        { title: 'Year level: ' + this.state.year_level},
+        { title: 'Courses: ' + this.state.courses},
+      ],
+    },
+    {
+      type: 'CUSTOM_VIEW',
+      render: () => (
+        <Text
+          style={{
+            alignSelf: 'center',
+            fontSize: 18,
+            color: '#999',
+            marginBottom: 40,
+            marginTop: -30,
+            fontFamily,
+          }}>
+          v1.0.0
+        </Text>
+      ),
+    },
+  ];
 
   render() {
     return (
-      <View style={styles.container}>
+    <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
+      {<View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#4286f4" />
         <View style={styles.navBar}>
           <Text style={styles.navBarTitle}>Settings</Text>
@@ -82,24 +132,18 @@ export default class Profile extends React.Component {
         <SettingsScreen
           data={this.settingsData}
           globalTextStyle={{ fontFamily }}
-          scrollViewProps={{
-            refreshControl: (
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={() => {
-                  this.setState({ refreshing: true })
-                  setTimeout(() => this.setState({ refreshing: false }), 3000)
-                }}
-              />
-            ),
-          }}
         />
+      </View>}
+      
+      <ActionButton buttonColor="rgba(66,134,244,1)"
+  		onPress={() => {}}
+	  />
       </View>
-    )
+    );
   }
 }
 
-const statusBarHeight = Platform.OS === 'ios' ? 35 : 0
+const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
 
 const styles = StyleSheet.create({
   container: {
@@ -150,4 +194,5 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
   },
-})
+});
+
