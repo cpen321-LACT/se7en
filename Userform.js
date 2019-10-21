@@ -1,7 +1,7 @@
 import React,{Component} from 'react';
 import {Modal, Text, View,Button, TextInput, Style} from 'react-native';
 
-export default class Userform extends Component{
+class Userform extends Component{
 	
 	state ={
 		modalVisible: false,
