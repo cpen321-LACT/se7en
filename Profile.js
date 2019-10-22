@@ -28,7 +28,6 @@ import {
 import PropType from 'prop-types';
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
-import RNPickerSelect from 'react-native-picker-select';
 
 const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 
@@ -162,6 +161,7 @@ export default class Profile extends React.Component {
 //	      name: responseJson.name,
 //	    })
 //	    Alert.alert("Updated successfully!")
+//		this.setState({userEdit: false})
 //	  }
 //	  else {
 //	    Alert.alert("Update failed. Please retry!")
@@ -290,6 +290,7 @@ export default class Profile extends React.Component {
               <TextField
                 label="Sex: "
                 value={this.state.sex}
+                clearTextOnFocus={true}
               />
             </View>
             

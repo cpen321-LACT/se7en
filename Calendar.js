@@ -13,9 +13,13 @@ import {
   Platform,
   RefreshControl,
   Switch,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { TextField } from 'react-native-material-textfield';
+import { TextButton } from 'react-native-material-buttons';
 
 addLocale('en', {
   months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
@@ -27,6 +31,19 @@ addLocale('en', {
 const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif'
 
 export default class Calendar extends React.Component {
+  state = {
+    userEdit: false,
+    scheduleArray: [
+    	{id: 0, startDate: new Date('October 21, 2019 03:24:00'), endDate: new Date('October 21, 2019 06:24:00'), color: 'blue', subject: 'CPEN 321', location: 'MCLD 215'} 
+    ],
+    tmpId: 0,
+    tmpStartDate: new Date(),
+    tmpEndDate: new Date(),
+    tmpSubject: '',
+    tmpLocation: '',
+    
+  }
+  
   selectedDate = new Date();
 
   generateDates = (hours, minutes) => {
@@ -37,35 +54,55 @@ export default class Calendar extends React.Component {
     	}
     	return date;
   };
+  
+  renderUserform() {
+    this.setState({ userEdit: true });
+    console.log('userform requested!');
+  }
+
+  unrenderUserform() {
+    this.setState({ userEdit: false });
+    console.log('go back!');
+  }
+  
+//  addSchedule() {
+//    fetch('URL HERE', {method: 'GET',})
+//	   .then((response) => response.json)
+//	   .then((responseJson) => {
+//	  		console.log(responseJson);
+//	  		fetch('URL HERE', {method: 'PUT',})
+//	  			body: JSON.stringify({
+//	  				user_id: responseJson.user_id,
+//	  				startDate: this.state.tmpStartDate,
+//	  				endDate: this.state.tmpEndDate,
+//	  				subject: this.state.tmpSubject,
+//	  				location: this.state.tmpLocation,
+//	  			})
+//	  		.then((response) => response.json)
+//	  		.then((responseJson) => {
+//	  			console.log(responseJson);
+//	  			if(responseJson.confirmation === 'true') {
+//	  				var tmp = {id: this.state.tmpId, startDate: this.state.tmpStartDate, endDate: this.state.tmpEndDate, color: 'blue', subject: this.state.tmpSubject, location: this.state.tmpLocation}
+//	  				this.setState(scheduleArray=>{state.scheduleArray.concat(tmp)})
+//	  				this.setState({tmpId: tmpId + 1})
+//					Alert.alert("Added new scheduly successfully")
+//					this.setState({userEdit: false})
+//	  			}
+//	  			else {
+//	  				Alert.alert("Adding new schedule failed")
+//	  			}
+//	  		})	
+//	  	})
+//		.catch((error) ={
+//			console.error(error);
+//		});
+//  }
   	
   render() {
-    const events = [
-      {
-        id: 1,
-        description: 'Event 1',
-        startDate: this.generateDates(0),
-        endDate: this.generateDates(2),
-        color: 'blue',
-        subject: 'CPEN 321',
-        location: 'MCLD 215'
-      },
-      {
-        id: 2,
-        description: 'Event 2',
-        startDate: this.generateDates(1),
-        endDate: this.generateDates(4),
-        color: 'red',
-      },
-      {
-        id: 3,
-        description: 'Event 3',
-        startDate: this.generateDates(-5),
-        endDate: this.generateDates(-3),
-        color: 'green',
-      },
-    ];
-  
-    return (
+    var tmpEvents = [];
+    var tmpEvent = [];
+    if(!this.state.userEdit){
+      return (
         <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
         	{<View style={styles.container_calendar}>
     			<StatusBar barStyle="light-content" backgroundColor="#4286f4" />
@@ -73,7 +110,7 @@ export default class Calendar extends React.Component {
           			<Text style={styles.navBarTitle}>Calendar</Text>
         		</View>
     			<WeekView
- 					events={events}
+ 					events={this.state.scheduleArray}
           			selectedDate={this.selectedDate}
           			numberOfDays={7}
           			onEventPress={(event) => Alert.alert('Event: ' + event.id,
@@ -81,12 +118,76 @@ export default class Calendar extends React.Component {
           			headerStyle={styles.header_calendar}
           			formatDateHeader="ddd D"
           			locale="en"
-        		/>
+        		/> 	
         	</View>}
-		    <ActionButton buttonColor="rgba(66,134,244,1)">
-        	</ActionButton>
-      </View>
-    );
+		    <ActionButton 
+		      buttonColor="rgba(66,134,244,1)"
+		      onPress={() => this.renderUserform()}
+        	/>
+        </View>
+      );
+    }
+    
+    else {
+      return (
+        <SafeAreaView style={styles.safeContainer}>
+          <View style={styles.navBar}>
+            <Text style={styles.navBarTitle}>Add to Calendar</Text>
+          </View>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled">
+            <View style={styles.input_container}>
+              <TextField
+                label="Start date: "
+                value={''}
+                clearTextOnFocus={true}
+                onChangeText = {(data)=> this.state.tmpStartDate = data}
+              />
+              
+              <TextField
+                label="End date: "
+                value={this.state.tmpEndDate}
+                clearTextOnFocus={true}
+                onChangeText = {(data)=> this.state.tmpEndDate = data}
+              />
+              
+              <TextField
+                label="Subject: "
+                value={''}
+                clearTextOnFocus={true}
+                onChangeText = {(data)=> this.state.tmpSubject = data}
+              />
+              
+              <TextField
+                label="Location: "
+                value={''}
+                clearTextOnFocus={true}
+                onChangeText = {(data)=> this.state.tmpLocation = data}
+              />
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="go back"
+                onPress={() => this.unrenderUserform()}
+              />
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="add"
+                onPress={() => this.addSchedule()}
+              />
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      );
+    }
   }
 }
 
@@ -114,5 +215,28 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily,
     fontSize: 17,
+  },
+  scroll: {
+    backgroundColor: 'transparent',
+  },
+
+  input_container: {
+    margin: 8,
+    marginTop: Platform.select({ ios: 2, android: 2 }),
+    flex: 1,
+  },
+
+  contentContainer: {
+    padding: 8,
+  },
+
+  buttonContainer: {
+    paddingTop: 8,
+    margin: 8,
+  },
+
+  safeContainer: {
+    flex: 1,
+    backgroundColor: 'white',
   },
 });
