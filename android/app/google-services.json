@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "382480813736",
+    "firebase_url": "https://se7en-eda5c.firebaseio.com",
+    "project_id": "se7en-eda5c",
+    "storage_bucket": "se7en-eda5c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:382480813736:android:c9fbbe1a3b0270b12a7c9d",
+        "android_client_info": {
+          "package_name": "com.se7en"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "382480813736-21hs91p6hs7829qihq77ip2gpfs7nkms.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAer1NZveBZbH5iBnHGfgWYBLxuMhG8Y9g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "382480813736-21hs91p6hs7829qihq77ip2gpfs7nkms.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
