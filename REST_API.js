@@ -239,8 +239,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
      *_________________________________________________________ */
     var query = {"year_level" : req.body.year_level, 
                  "courses" : req.body.courses,
-                 "sex" : req.body.sex,
-                 "name" : req.body.name };
+                 "sex" : req.body.sex};
     /* Filter all standard criteria to an array */
     user_db.collection("info_clt").find(query).toArray((err,infor_array) => {
         if (err) return console.log(err); 
@@ -605,8 +604,8 @@ app.delete('/user/:user_id/matches/:match_id', (req,res) => {
  * TODO: Write error checking code.
  * Tested: Works
  */
-app.get('/schedule/:user_id/single_time', (req,res) => {
-    var query = {time : req.body.time, date: req.body.date, user_id : parseInt(req.body.user_id)};
+app.get('/schedule/:user_id/:event_id', (req,res) => {
+    var query = {event_id : parseInt(req.body.event_id), user_id : parseInt(req.body.user_id)};
     schedule_db.collection("schedule_clt").find(query).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result);
@@ -645,6 +644,7 @@ app.post('/schedule', (req,res) => {
     /* Create schedule object */
     schedule_db.collection("schedule_clt").insertOne(
         {'user_id' : req.body.user_id, 
+         'event_id' : req.body.event_id,
          'time' : req.body.time, 
          'date' : req.body.date,  
          'subject' : req.body.subject, 
@@ -663,6 +663,7 @@ app.post('/schedule', (req,res) => {
          'date' : req.body.date,  
          'wait' : [],
          'request' : [],
+         'potential_matches' : [],
          'match' : -1},(err, result) => {
     if (0){
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
@@ -681,11 +682,11 @@ app.post('/schedule', (req,res) => {
  * TODO: Test
  * TODO: Talk about this function
  */
-app.put('/schedule/:user_id', (req,res) => {
-    var query = {"user_id" : req.body.user_id};
+app.put('/schedule/:user_id/:event_id', (req,res) => {
+    var query = {"user_id" : parseInt(req.body.user_id), "event_id" : parseInt(req.body.event_id)};
     var newValues = {$set: req.body}; 
     schedule_db.collection("schedule_clt").updateOne(query, newValues,(err, result) => {
-    if (req.body == null){
+    if (req.body == null) {
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
      return;
     }
