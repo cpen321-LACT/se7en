@@ -157,7 +157,7 @@ app.post('/user', (req,res) => {
          "hard_working_rating" : req.body.hard_working_rating,
          "authentication_token" : req.body.authentication_token,
          "password" : req.body.password,
-         "user_id" : req.body.user_id,
+         "user_id" : parseInt(req.body.user_id),
          "email" : req.body.email,
          "name" : req.body.name},(err, result) => {
     if (req.body.year_level == null){
@@ -316,16 +316,8 @@ app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
                 /* user_a to user_b's match */
                 user_b_match_doc['match'] = parseInt(req.params.user_id_a);
 
-
-                // console.log(user_a_match_doc)
-                // console.log(user_b_match_doc)
-
                 user_b_match_doc['wait'].splice(user_b_match_doc['wait'].indexOf(parseInt(req.params.user_id_a)), 1)
                 user_a_match_doc['request'].splice( user_a_match_doc['request'].indexOf(parseInt(req.params.user_id_b)), 1)
-
-
-                console.log(user_a_match_doc)
-                console.log(user_b_match_doc)
 
             } 
             else {
