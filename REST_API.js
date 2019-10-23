@@ -249,9 +249,11 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
 
       if (user_schedule_event[0] == null){
         res.send("There are no users in the database\n")
-      }
+        return;
+      } else {
       var time = user_schedule_event[0].time;
       var date = user_schedule_event[0].date;
+    }
 
     /*_________________________________________________________
      * Get the schedule array of specific time
