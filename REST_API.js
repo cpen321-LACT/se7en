@@ -417,7 +417,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
  * 
  * Sample JSON input:
  * { "event_id_a : 0, "event_id_b" : 2}
- *
+ * Adam: to test
  */
 app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
     var query_user_a = { user_id : parseInt(req.params.user_id_a), "event_id" : parseInt(req.body.event_id_a)};
@@ -483,7 +483,7 @@ app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
 
 /*
  * Get who the user is currently matched with
- * TODO: Test
+ * Adam: To test
  */
 app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
     var cur_matches = [];
@@ -512,7 +512,7 @@ app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
 
 /*
  * Get who the user is waiting to match with
- * TODO: Test
+ * Adam: To test
  */
 app.get('/user/:user_id/matches/user_is_waiting_to_match_with', (req,res) => {
     user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
@@ -524,9 +524,9 @@ app.get('/user/:user_id/matches/user_is_waiting_to_match_with', (req,res) => {
 /*
  * Unmatch user with user_id with user with match_id and vice versa.
  * This will call helper function person_match_delete()
- * TODO: Test
+ * Tung: Can you test this 
  */
-app.delete('/user/{user_id}/matches/{match_id}', (req,res) => {
+app.delete('/user/:user_id/matches/:match_id', (req,res) => {
     var err1 = person_match_delete(req.param.user_id_a, req.body.time, req.body.date);
     var err2 = person_match_delete(req.param.user_id_b, req.body.time, req.body.date);
     if(err1 || err2) return console.log(err);
@@ -550,25 +550,12 @@ function generateMatch(kindness, hard_working, patience, array){
         score[i] = new Array(2);
     }
 
-    // console.log(typeof(kindness))
-    // console.log(typeof(array[0].kindness))
-
-
     for(var i = 0; i < array.length; i++){
         score[i][0] =   Math.abs(kindness - array[i].kindness) +
                         Math.abs(hard_working - array[i].hard_working) +
                         Math.abs(patience - array[i].patience);
         score[i][1] =   array[i].user_id;
-        // console.log("score:")
-        // console.log(kindness - array[i].kindness)
-        // console.log(Math.abs(parseFloat(kindness) - parseFloat(array[i].kindness)) +
-        //                 Math.abs(parseFloat(hard_working) - parseFloat(array[i].hard_working)) +
-        //                 Math.abs(parseFloat(patience) - parseFloat(array[i].patience)))
-        // console.log(score[i][0])
-        // console.log(score[i][1])
     }
-    // console.log("Score after calculation:")
-    // console.log(score)
     /* Do insertion sort */
     for(var i = 0; i < array.length; i++){
         var sc = score[i][0]; //score
@@ -750,8 +737,6 @@ app.delete('/delete_all_matches',  (req,res) => {
  *   'date' : 'Oct. 4, 2019'
  *   'course' : 'CPEN 321',
  *   'location' : 'Irving K. Barber'}
- *
- * TODO: Write error checking code.
  */
 app.get('/schedule/:user_id/:event_id', (req,res) => {
     var query = {event_id : parseInt(req.body.event_id), user_id : parseInt(req.body.user_id)};
@@ -777,9 +762,6 @@ app.get('/schedule/:user_id/:event_id', (req,res) => {
  *   'date' : 'Oct. 4, 2019'
  *   'course' : 'CPEN 321',
  *   'location' : 'Irving K. Barber'}
- *
- * TODO: Write error checking code.
- * Tested: Works
  */
 app.get('/schedule/:user_id', (req,res) => {
     var query = {user_id : parseInt(req.params.user_id)};
@@ -794,10 +776,7 @@ app.get('/schedule/:user_id', (req,res) => {
 })
 
 /*
- * Add an event the schedule of the user with with user_id.
- *
- * TODO: Write error checking code.
- * Tested: Works
+ * Add an event the schedule of the user with with user_id.\
  */
 app.post('/schedule', (req,res) => {
 
