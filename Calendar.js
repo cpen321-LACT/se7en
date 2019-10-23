@@ -39,24 +39,18 @@ export default class Calendar extends React.Component {
     super(props);
     this.state = {
       userEdit: false,
-
-      scheduleArray: [{id: 0, startDate: new Date('October 21, 2019 03:24:00'), endDate: new Date('October 21, 2019 06:24:00'), color: 'blue', description: 'CPEN 321', location: 'MCLD 215'}
-    ],
-
+      calendar_refreshing: false,
+      scheduleArray: [],
       tmpId: 0,
       tmpColor: 'blue',
       tmpDate: '0',
-
       tmpStartTimeString: '',
       tmpStartTime: new Date(),
       tmpEndTimeString: '',
       tmpEndTime: new Date(),
-
       tmpSubject: '',
       tmpLocation: '',
       data: [],
-
-      celendar_refreshing: false,
     };
   }
 
@@ -121,24 +115,27 @@ export default class Calendar extends React.Component {
 
   refreshMatches(){
  	   //ask for matches
- 	 		//let url = baseURL + 'user/:' + this.props.user_id + '/matches/potential_matches';
-      // console.log(url);
- 	  	// fetch(url, {
- 			// 	method: 'GET'})
-      //  .then((response) => response.text())
- 	    //  .then((responseJson) => {
-      //     this.setState({data: responseJson})
- 			//     console.log(this.state.data[0].potential_matches);
- 			//  })
+ 	 		let url = baseURL + 'user/:' + this.props.user_id + '/matches/potential_matches';
+      console.log(url);
+ 	  	fetch(url, {
+ 				method: 'GET'})
+       .then((response) => response.text())
+ 	     .then((responseJson) => {
+          this.setState({data: responseJson})
+ 			    console.log(this.state.data[0].potential_matches);
+ 			 })
+   }
+
+   wait(timeout) {
+     return new Promise(resolve => {
+        setTimeout(resolve, timeout);
+     });
    }
 
    _onRefresh = () => {
-     console.log('refreshing');
-     console.log(this.state.calendar_refreshing);
      this.setState({calendar_refreshing:true});
      this.refreshMatches();
      this.setState({calendar_refreshing:false});
-     console.log(this.state.calendar_refreshing);
    }
 
   render() {
@@ -150,8 +147,8 @@ export default class Calendar extends React.Component {
               <ScrollView
                 refreshControl={
                   <RefreshControl
-                    refreshing={this.calendar_refreshing}
-                    onRefresh={this._onRefresh}
+                   refreshing={this.state.calendar_refreshing}
+                   onRefresh={this._onRefresh}
                   />
                 }>
                 <View style={styles.container_calendar}>
@@ -166,7 +163,7 @@ export default class Calendar extends React.Component {
 
                   			numberOfDays={7}
                   			onEventPress={(event) => Alert.alert('Event: ' + event.id,
-                  											 	('Time: ' + event.startDate.getUTCHours() + ':' + event.startDate.getUTCMinutes() + ' - ' + event.endDate.getUTCHours() + ':' + event.endDate.getUTCMinutes() + '\nDate: ' + (event.startDate.getUTCMonth() + 1) + '/' + event.startDate.getUTCDate() + '/' + event.startDate.getUTCFullYear() + '\nSubject: ' + event.subject + '\nLocation: ' + event.location))}
+                  											 	('Time: ' + event.startDate.getHours() + ':' + event.startDate.getMinutes() + ' - ' + event.endDate.getHours() + ':' + event.endDate.getMinutes() + '\nDate: ' + (event.startDate.getUTCMonth() + 1) + '/' + event.startDate.getUTCDate() + '/' + event.startDate.getUTCFullYear() + '\nSubject: ' + event.subject + '\nLocation: ' + event.location))}
                   			headerStyle={styles.header_calendar}
                   			formatDateHeader="ddd D"
                   			locale="en"
@@ -197,26 +194,30 @@ export default class Calendar extends React.Component {
 
             <TextField
               label="Date: "
-              value={'1 to 7'}
+              value={''}
+              title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
               clearTextOnFocus={true}
               onChangeText = {(data)=> this.setState({tmpDate: data}) }
             />
               <TextField
                 label="Start time: "
-                value={'20 30'}
+                value={''}
+                title="Enter in form 'hh mm'"
                 clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({tmpStartTimeString: data}) }
               />
 
               <TextField
                 label="End time: "
-                value={'21 30'}
+                value={''}
+                title="Enter in form 'hh mm'"
                 clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({ tmpEndTimeString: data}) }
               />
               <TextField
                 label="Subject: "
                 value={''}
+                title="This is a required field or it would show CPEN 321 by default"
                 clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({ tmpSubject: data})}
               />
@@ -238,7 +239,7 @@ export default class Calendar extends React.Component {
                 onPress={() => this.unrenderUserform()}
               />
               <TextButton
-                style={{ margin: 4 }}
+                style={{ margin: 4 }}// XXX:
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="add"

@@ -20,6 +20,7 @@ import {
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 export const baseURL = Platform.OS === 'android' ?
     'http://10.0.2.2:3000/':'http://localhost:3000/';
@@ -29,6 +30,7 @@ export default class Login extends Component {
     super(props);
     this.state = {
 		  data: [],
+      login_secureTextEntry: true,
 	  };
   }
 
@@ -43,13 +45,18 @@ export default class Login extends Component {
 		 })
 	   .then((response) => response.json())
 	   .then((responseJson) => {
-				this.setState({data: responseJson})
-		   	if(this.state.data[0].password === this.props.password) {
-					this.props.logVisibleChange();
-				}
-				else {
-					Alert.alert("Wrong user ID or password!");
-				}
+        if(typeof(responseJson) !== 'undefined') {
+          this.setState({data:responseJson})
+          if(typeof(this.state.data[0]) !== 'undefined' && (this.state.data[0].password === this.props.password)) {
+              this.props.logVisibleChange();
+          }
+          else {
+            Alert.alert("Incorrect user ID or password!");
+          }
+        }
+        else {
+          Alert.alert("Incorrect user ID or password!");
+        }
 		  })
       .catch((error) => {
         console.error(error);
@@ -86,6 +93,26 @@ export default class Login extends Component {
 	// facebooklogin(){
 	// }
 
+  onAccessoryPress() {
+      this.setState({ login_secureTextEntry: !this.state.login_secureTextEntry });
+  }
+
+  login_renderPasswordAccessory() {
+      let name = this.state.login_secureTextEntry?
+        'visibility':
+        'visibility-off';
+
+      return (
+        <MaterialIcon
+          size={24}
+          name={name}
+          color={TextField.defaultProps.baseColor}
+          onPress={() => this.onAccessoryPress()}
+          suppressHighlighting={true}
+        />
+      );
+  }
+
 	render() {
     return (
 			<SafeAreaView style={styles.safeContainer}>
@@ -106,6 +133,8 @@ export default class Login extends Component {
 							label="Password: "
 							value={''}
 							clearTextOnFocus={true}
+              secureTextEntry={this.state.login_secureTextEntry}
+              renderRightAccessory={this.login_renderPasswordAccessory()}
 							onChangeText = {(data)=> this.props.passwordChange(data)}
 						/>
 					</View>

@@ -42,9 +42,9 @@ export default class Profile extends React.Component {
       secureTextEntry: true,
       refreshing: false,
       tmpName: '',
-      tmpUser_id: 0,
+      tmpUser_id: '0',
       tmpPassword: '',
-      tmpSex: '',
+      tmpSex: '0',
       tmpEmail: '',
       tmpCourses: '',
       tmpYearLevel: '',
@@ -147,14 +147,21 @@ export default class Profile extends React.Component {
    .then((response) => response.json())
    .then((responseJson) => {
      //console.log(responseJson)
-     this.setState({data:responseJson})
-     this.props.yearLevelChange(this.state.data[0].year_level);
-     this.props.coursesChange(this.state.data[0].courses);
-     this.props.sexChange(this.state.data[0].sex);
-     this.props.passwordChange(this.state.data[0].password);
-     this.props.usernameChange(this.state.data[0].user_id);
-     this.props.emailChange(this.state.data[0].email);
-     this.props.nameChange(this.state.data[0].name);
+     if(typeof(responseJson) !== 'undefined') {
+       this.setState({data:responseJson})
+       if(typeof(this.state.data) !== 'undefined') {
+         this.props.yearLevelChange(this.state.data[0].year_level);
+         this.props.coursesChange(this.state.data[0].courses);
+         this.props.sexChange(this.state.data[0].sex);
+         this.props.passwordChange(this.state.data[0].password);
+         this.props.usernameChange(this.state.data[0].user_id);
+         this.props.emailChange(this.state.data[0].email);
+         this.props.nameChange(this.state.data[0].name);
+       }
+       else {
+         // Do nothing
+       }
+     }
    })
    .catch((error) => {
 		 console.error(error);
@@ -162,7 +169,7 @@ export default class Profile extends React.Component {
  }
 
  pushUserInfo() {
-   let fetchURL = baseURL + 'user/' + this.props.user_id + '/info';
+   let fetchURL = baseURL + 'user/info';
    fetch(fetchURL, {
    	 method: 'PUT',
      headers: {
@@ -220,7 +227,7 @@ export default class Profile extends React.Component {
   }
 
   onAccessoryPress() {
-      this.setState({ secureTextEntry: !secureTextEntry });
+      this.setState({ secureTextEntry: !this.state.secureTextEntry });
   }
 
   renderPasswordAccessory() {
@@ -303,7 +310,7 @@ export default class Profile extends React.Component {
                 label="Name: "
                 value={this.props.name}
                 characterRestriction={20}
-                clearTextOnFocus={true}
+                //clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({tmpName:data})}
               />
 
@@ -311,7 +318,7 @@ export default class Profile extends React.Component {
                 label="User ID: "
                 value={this.props.user_id}
                 characterRestriction={20}
-                clearTextOnFocus={true}
+                //clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({tmpUser_id:data})}
               />
 
@@ -319,7 +326,7 @@ export default class Profile extends React.Component {
                 label="Password: "
                 value={this.props.password}
                 characterRestriction={20}
-                clearTextOnFocus={true}
+                //clearTextOnFocus={true}
                 secureTextEntry={this.state.secureTextEntry}
                 renderRightAccessory={this.renderPasswordAccessory()}
                 onChangeText = {(data)=> this.setState({tmpPassword:data})}
@@ -329,14 +336,16 @@ export default class Profile extends React.Component {
                 label="Year level: "
                 value={this.props.year_level}
                 characterRestriction={20}
-                clearTextOnFocus={true}
+                //clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({tmpYearLevel:data})}
               />
 
               <TextField
-                label="Sex: "
+                label="Sex:"
                 value={this.props.sex}
-                clearTextOnFocus={true}
+                characterRestriction={1}
+                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
+                //clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({tmpSex:data})}
               />
 
@@ -344,7 +353,7 @@ export default class Profile extends React.Component {
                 label="Email: "
                 value={this.props.email}
                 keyboardType="email-address"
-                clearTextOnFocus={true}
+                //clearTextOnFocus={true}
                 onChangeText = {(data)=> this.setState({tmpEmail:data})}
               />
 
@@ -375,7 +384,7 @@ export default class Profile extends React.Component {
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="log"
-                onPress={() => console.log(this.state.tmpYearLevel + ',' + this.state.tmpCourses + ',' + this.state.tmpSex + ',' + this.state.tmpPassword + ',' + this.state.tmpUser_id + ',' + this.state.tmpEmail + ',' + this.state.tmpName)}
+                onPress={() => console.log(this.state.tmpSex)}
               />
             </View>
           </ScrollView>
