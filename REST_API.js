@@ -4,7 +4,7 @@ const mongocli = require('mongodb').MongoClient;
 const app = express();
 app.use(express.json());
 
-var hi = require('./errorCheck');
+var errorCheck = require('./errorCheck');
 
 
 var user_db;
@@ -64,25 +64,27 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  */
 app.post('/user/preferences', (req,res) => {
 
-    var user_query = {user_id : parseInt(req.body.user_id)};
+    errorCheck.userInDB(user_db, req);
 
-    /* Check if the user exists in the database */
-    user_db.collection("info_clt").find(user_query).toArray((err, user) => {
+    // var user_query = {user_id : parseInt(req.body.user_id)};
 
-    if (isEmpty(user)){
-        res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-    }
+    // /* Check if the user exists in the database */
+    // user_db.collection("info_clt").find(user_query).toArray((err, user) => {
 
-    if (isEmpty(req.body)){
-        res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-    } 
+    // if (isEmpty(user)){
+    //     res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+    //     return;
+    // }
 
-    if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
-        res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-    }
+    // if (isEmpty(req.body)){
+    //     res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+    //     return;
+    // } 
+
+    // if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
+    //     res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+    //     return;
+    // }
 
     /* Add the users preferences */
     user_db.collection("preferences_clt").insertOne(
@@ -95,7 +97,7 @@ app.post('/user/preferences', (req,res) => {
          'year_level'   : req.body.year_level},(err, result) => {
      if (err) return console.log(err);
      res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
-    })  })
+    })  //})
 })
 
 /*
