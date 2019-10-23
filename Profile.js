@@ -29,47 +29,42 @@ import PropType from 'prop-types';
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
 
+export const baseURL = Platform.OS === 'android' ?
+    'http://10.0.2.2:3000/':'http://localhost:3000/';
+
 const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 
-const user = () => (
-  <View style={styles.heroContainer}>
-    <Image
-      source={{
-        uri:
-          'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639',
-      }}
-      style={styles.heroImage}
-    />
-    <View style={{ flex: 1 }}>
-      <Text style={styles.heroTitle}>Pepehands</Text>
-      <Text style={styles.heroSubtitle}>pepe@hands.com</Text>
-    </View>
-    <Chevron />
-  </View>
-);
-
 export default class Profile extends React.Component {
-  state = {
-    year_level: '3',
-    courses: ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
-    sex: 'Male',
-    number_of_ratings: 1.0,
-    kindness_rating: 2.0,
-    patience_rating: 3.0,
-    hard_working_rating: 4.0,
-    authentication_token: 'abcdef123456',
-    password: 'concac1234',
-    user_id: '123456',
-    email: 'pepe@hands.com',
-    name: 'Pepe',
-    text: '',
-    userEdit: false,
-    secureTextEntry: true,
-    refreshing: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      userEdit: false,
+      secureTextEntry: true,
+      refreshing: false,
+      tmpName: '',
+      tmpUser_id: 0,
+      tmpPassword: '',
+      tmpSex: '',
+      tmpEmail: '',
+      tmpCourses: '',
+      tmpYearLevel: '',
+      data: [],
+    };
+  }
 
   settingsData: SettingsData = [
-    { type: 'CUSTOM_VIEW', key: 'user', render: user },
+    {
+      type: 'CUSTOM_VIEW',
+      render: () => (
+        <View style={styles.heroContainer}>
+          <Image source={{uri:'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639',}} style={styles.heroImage}/>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.heroTitle}>{this.props.name}</Text>
+            <Text style={styles.heroSubtitle}>User ID: {this.props.user_id}</Text>
+          </View>
+        </View>
+      )
+    },
     {
       type: 'SECTION',
       header: 'My info'.toUpperCase(),
@@ -77,13 +72,49 @@ export default class Profile extends React.Component {
         'Donec sed odio dui. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.',
       rows: [
         {
-          title: 'Name: ' + this.state.name,
-          subtitle: 'User ID: ' + this.state.user_id,
+          title: 'Name',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.name}
+            </Text>
+          ),
         },
-        { title: 'Email: ' + this.state.email },
-        { title: 'Sex: ' + this.state.sex },
-        { title: 'Year level: ' + this.state.year_level },
-        { title: 'Courses: ' + this.state.courses },
+        {
+          title: 'Email',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.email}
+            </Text>
+          ),
+        },
+        {
+          title: 'Sex',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.sex}
+            </Text>
+          ),
+        },
+        {
+          title: 'Year level',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.year_level}
+            </Text>
+          ),
+        },
+        {
+          title: 'Courses',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+            </Text>
+          ),
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.courses}
+            </Text>
+          ),
+        },
       ],
     },
     {
@@ -103,74 +134,80 @@ export default class Profile extends React.Component {
       ),
     },
   ];
-  
-//  getUserInfo() {
-//    fetch('URL HERE', {
-//    	method: 'GET',})
-//	.then((response) => response.json)
-//	.then((responseJson) => {
-//	  console.log(responseJson);
-//	  this.setState({
-//	    year_level: responseJson.year_level,
-//	    courses: responseJson.courses,
-//	    sex: responseJson.sex,
-//	    number_of_ratings: responseJson.number_of_ratings,
-//	    kindness_rating: responseJson.kindness_rating,
-//	    patience_rating: responseJson.patience_rating,
-//	    hard_working_rating: responseJson.hard_working_rating,
-//	    authentication_token: responseJson.authentication_token,
-//	    password: responseJson.password,
-//	    user_id: responseJson.user_id,
-//	    email: responseJson.email,
-//	    name: responseJson.name,
-//	  })
-//	})
-//	.catch((error) ={
-//		console.error(error);
-//	});
-//  }
 
-//  updateUserInfo(in_year_level, in_courses, in_sex, in_password, in_user_id, in_email, in_name) {
-//    fetch('URL HERE', {
-//    	method: 'PUT',})
-//    	body: JSON.stringify({
-//    	  year_level: in_year_level,
-//	  courses: in_courses,
-//	  sex: in_sex,
-//	  password: in_password,
-//	  user_id: in_user_id,
-//	  email: in_email,
-//	  name: in_name,
-//    	})
-//	.then((response) => response.json)
-//	.then((responseJson) => {
-//	  console.log(responseJson);
-//	  if(responseJson.confirmation === 'true') {
-//	    this.setState({
-//	      year_level: responseJson.year_level,
-//	      courses: responseJson.courses,
-//	      sex: responseJson.sex,
-//	      number_of_ratings: responseJson.number_of_ratings,
-//	      kindness_rating: responseJson.kindness_rating,
-//	      patience_rating: responseJson.patience_rating,
-//	      hard_working_rating: responseJson.hard_working_rating,
-//	      authentication_token: responseJson.authentication_token,
-//	      password: responseJson.password,
-//	      user_id: responseJson.user_id,
-//	      email: responseJson.email,
-//	      name: responseJson.name,
-//	    })
-//	    Alert.alert("Updated successfully!")
-//		this.setState({userEdit: false})
-//	  }
-//	  else {
-//	    Alert.alert("Update failed. Please retry!")
-//	  }
-//	})
-//	.catch((error) ={
-//		console.error(error);
-//	});
-//  }
+ getUserInfo() {
+   let fetchURL = baseURL + 'user/' + this.props.user_id + '/info';
+   fetch(fetchURL, {
+   	 method: 'GET',
+     headers: {
+       Accept: 'application/json',
+       'Content-Type': 'application/json',
+     },
+	 })
+   .then((response) => response.json())
+   .then((responseJson) => {
+     //console.log(responseJson)
+     this.setState({data:responseJson})
+     this.props.yearLevelChange(this.state.data[0].year_level);
+     this.props.coursesChange(this.state.data[0].courses);
+     this.props.sexChange(this.state.data[0].sex);
+     this.props.passwordChange(this.state.data[0].password);
+     this.props.usernameChange(this.state.data[0].user_id);
+     this.props.emailChange(this.state.data[0].email);
+     this.props.nameChange(this.state.data[0].name);
+   })
+   .catch((error) => {
+		 console.error(error);
+	 });
+ }
+
+ pushUserInfo() {
+   let fetchURL = baseURL + 'user/' + this.props.user_id + '/info';
+   fetch(fetchURL, {
+   	 method: 'PUT',
+     headers: {
+       Accept: 'application/json',
+       'Content-Type': 'application/json',
+     },
+   	 body: JSON.stringify({
+   	   year_level: this.state.tmpYearLevel,
+	     courses: this.state.tmpCourses,
+	     sex: this.state.tmpSex,
+       number_of_ratings : this.props.number_of_ratings,
+       kindness_rating : this.props.kindness_rating,
+       patience_rating : this.props.patience_rating,
+       hard_working_rating : this.props.hard_working_rating,
+       authentication_token : this.props.authentication_token,
+	     password: this.state.tmpPassword,
+	     user_id: this.state.tmpUser_id,
+	     email: this.state.tmpEmail,
+	     name: this.state.tmpName,
+   	 }),
+   })
+  .then((response) => response.text())
+  .then((responseJson) => {
+	  console.log(responseJson);
+    this.props.yearLevelChange(this.state.tmpYearLevel);
+    this.props.coursesChange(this.state.tmpCourses);
+    this.props.sexChange(this.state.tmpSex);
+    this.props.passwordChange(this.state.tmpPassword);
+    this.props.usernameChange(this.state.tmpUser_id);
+    this.props.emailChange(this.state.tmpEmail);
+    this.props.nameChange(this.state.tmpName);
+    Alert.alert("Updated successfully!")
+		this.setState({userEdit: false})
+    // console.log(this.props.year_level);
+    // console.log(this.props.courses);
+    // console.log(this.props.sex);
+    // console.log(this.props.password);
+    // console.log(this.props.user_id);
+    // console.log(this.props.email);
+    // console.log(this.props.name);
+	})
+	.catch((error) => {
+		console.error(error);
+	});
+ }
 
   renderUserform() {
     this.setState({ userEdit: true });
@@ -181,11 +218,11 @@ export default class Profile extends React.Component {
     this.setState({ userEdit: false });
     console.log('go back!');
   }
-  
+
   onAccessoryPress() {
       this.setState({ secureTextEntry: !secureTextEntry });
   }
-  
+
   renderPasswordAccessory() {
       let name = this.state.secureTextEntry?
         'visibility':
@@ -201,18 +238,19 @@ export default class Profile extends React.Component {
         />
       );
   }
-  
+
   wait(timeout) {
     return new Promise(resolve => {
        setTimeout(resolve, timeout);
     });
   }
-  
+
   _onRefresh = () => {
     this.setState({refreshing: true});
-    // this.getUserInfo().then(() => this.setState({refreshing: false}));
-    Alert.alert("Refreshing");
-    this.wait(2000).then(() => this.setState({refreshing: false}));
+    this.getUserInfo();
+    this.setState({refreshing: false});
+    //Alert.alert("Refreshing");
+    //this.wait(2000).then(() => this.setState({refreshing: false}));
   }
 
   render() {
@@ -239,8 +277,8 @@ export default class Profile extends React.Component {
                   globalTextStyle={{ fontFamily }}
                 />
               </View>
-             </ScrollView> 
-          </SafeAreaView>  
+             </ScrollView>
+          </SafeAreaView>
           }
 
           <ActionButton
@@ -263,47 +301,58 @@ export default class Profile extends React.Component {
             <View style={styles.input_container}>
               <TextField
                 label="Name: "
-                value={this.state.name}
+                value={this.props.name}
                 characterRestriction={20}
                 clearTextOnFocus={true}
+                onChangeText = {(data)=> this.setState({tmpName:data})}
               />
-            </View>
-            <View style={styles.input_container}>
+
               <TextField
                 label="User ID: "
-                value={this.state.user_id}
+                value={this.props.user_id}
                 characterRestriction={20}
                 clearTextOnFocus={true}
+                onChangeText = {(data)=> this.setState({tmpUser_id:data})}
               />
-            </View>
-            <View style={styles.input_container}>
+
               <TextField
                 label="Password: "
-                value={this.state.password}
+                value={this.props.password}
                 characterRestriction={20}
                 clearTextOnFocus={true}
                 secureTextEntry={this.state.secureTextEntry}
                 renderRightAccessory={this.renderPasswordAccessory()}
+                onChangeText = {(data)=> this.setState({tmpPassword:data})}
               />
-            </View>
-            <View style={styles.input_container}>
+
+              <TextField
+                label="Year level: "
+                value={this.props.year_level}
+                characterRestriction={20}
+                clearTextOnFocus={true}
+                onChangeText = {(data)=> this.setState({tmpYearLevel:data})}
+              />
+
               <TextField
                 label="Sex: "
-                value={this.state.sex}
+                value={this.props.sex}
                 clearTextOnFocus={true}
+                onChangeText = {(data)=> this.setState({tmpSex:data})}
               />
-            </View>
-            
-            <View style={styles.input_container}>
+
               <TextField
                 label="Email: "
-                value={this.state.email}
+                value={this.props.email}
                 keyboardType="email-address"
                 clearTextOnFocus={true}
+                onChangeText = {(data)=> this.setState({tmpEmail:data})}
               />
-            </View>
-            <View style={styles.input_container}>
-              <TextField label="Courses: " value={this.state.courses} />
+
+              <TextField
+                label="Courses: "
+                value={this.props.courses}
+                onChangeText = {(data)=> this.setState({tmpCourses:data})}
+              />
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
@@ -319,7 +368,14 @@ export default class Profile extends React.Component {
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="change"
-                onPress={() => this.updateUserInfo()}
+                onPress={() => this.pushUserInfo()}
+              />
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="log"
+                onPress={() => console.log(this.state.tmpYearLevel + ',' + this.state.tmpCourses + ',' + this.state.tmpSex + ',' + this.state.tmpPassword + ',' + this.state.tmpUser_id + ',' + this.state.tmpEmail + ',' + this.state.tmpName)}
               />
             </View>
           </ScrollView>
@@ -405,4 +461,3 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
-
