@@ -5,12 +5,13 @@ const app = express();
 app.use(express.json());
 
 var errorCheck = require('./errorCheck');
+var preferences = require('./preferences');
 
 
 var user_db;
 var schedule_db;
 
-var isEmpty = function(obj) {
+var doesntExist = function(obj) {
     return Object.keys(obj).length === 0;
 }
 
@@ -61,43 +62,48 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  * Will return an error if...
  * - the user does not exist in the database
  * - the sum of kindness, patience and hard_working does not equal 12
+ * - you send a sex that is not in range
  */
 app.post('/user/preferences', (req,res) => {
 
-    errorCheck.userInDB(user_db, req);
+    var user_query = {user_id : parseInt(req.body.user_id)};
 
-    // var user_query = {user_id : parseInt(req.body.user_id)};
+    /* Check if the user exists in the database */
+    user_db.collection("info_clt").find(user_query).toArray((err, user) => {
 
-    // /* Check if the user exists in the database */
-    // user_db.collection("info_clt").find(user_query).toArray((err, user) => {
+        if (doesntExist(user)){
+            res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
 
-    // if (isEmpty(user)){
-    //     res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-    //     return;
-    // }
+        if (doesntExist(req.body)){
+            res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        } 
 
-    // if (isEmpty(req.body)){
-    //     res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
-    //     return;
-    // } 
+        if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
+            res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
 
-    // if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
-    //     res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-    //     return;
-    // }
+        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
+            res.status(400).send("THERE ARE ONLY 3 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
 
-    /* Add the users preferences */
-    user_db.collection("preferences_clt").insertOne(
-        {'user_id'      : parseInt(req.body.user_id),
-         'kindness'     : parseFloat(req.body.kindness),
-         'patience'     : parseFloat(req.body.patience),
-         'hard_working' : parseFloat(req.body.hard_working),
-         'courses'      : req.body.courses,
-         'sex'          : parseInt(req.body.sex),
-         'year_level'   : req.body.year_level},(err, result) => {
-     if (err) return console.log(err);
-     res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
-    })  //})
+        /* Add the users preferences */
+        user_db.collection("preferences_clt").insertOne(
+            {'user_id'      : parseInt(req.body.user_id),
+             'kindness'     : parseFloat(req.body.kindness),
+             'patience'     : parseFloat(req.body.patience),
+             'hard_working' : parseFloat(req.body.hard_working),
+             'courses'      : req.body.courses,
+             'sex'          : parseInt(req.body.sex),
+             'year_level'   : req.body.year_level},(err, result) => {
+         if (err) return console.log(err);
+         res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
+        })  
+    })
 })
 
 /*
@@ -112,19 +118,18 @@ app.post('/user/preferences', (req,res) => {
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
  *  'sex' : 1,
  *  'year_level' : [3, 4, ...]}
- *
- * TODO: Write error checking code.
- * TESTED: Works
  */
 app.get('/user/:user_id/preferences', (req,res) => {
 
     var user_query = {user_id : parseInt(req.params.user_id)};
 
-
-
-    user_db.collection("preferences_clt").find(user_query).toArray((err, result) => {
-        if (err) return console.log(err);
-        res.send(result);
+    user_db.collection("preferences_clt").find(user_query).toArray((err, user) => {
+        if (doesntExist(user)){
+            res.status(400).send("You are trying to GET preferences of a user that doesn't exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        } else {
+            res.send(user);
+        }
     })
 })
 
@@ -133,26 +138,40 @@ app.get('/user/:user_id/preferences', (req,res) => {
  *
  * Below is a sample JSON input:
  *
- * {'user_id' : 0,
- *  'kindness' : 2,
+ * {'kindness' : 2,
  *  'patience' : 6,
  *  'hard_working' : 4,
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
- *  'sex' : ['Male', 'Female'],
+ *  'sex' : 0,
  *  'year_level' : [3, 4, ...]}
- *
- * TESTED: Works
  */
 app.put('/user/:user_id/preferences', (req,res) => {
-    var query = {"user_id" : parseInt(req.body.user_id)};
+    var user_query = {"user_id" : parseInt(req.params.user_id)};
     var newValues = {$set: req.body};
-    user_db.collection("preferences_clt").updateOne(query, newValues,(err, result) => {
-    if (req.body == null){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-     if (err) return console.log(err);
-     res.send("Preferences have been updated. ٩(^ᴗ^)۶\n");
+
+    /* Check if the user exists in the database */
+    user_db.collection("info_clt").find(user_query).toArray((err, user) => {
+
+        if (doesntExist(req.body)){
+            res.status(400).send("you sent a null body (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+        if (doesntExist(user)){
+            res.status(400).send("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+        if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
+            res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+        /* No errors, update the user preferences */
+        user_db.collection("preferences_clt").updateOne(user_query, newValues,(err, result) => {
+            if (err) return console.log(err);
+            res.send("Preferences have been updated. ٩(^ᴗ^)۶\n");
+        })
     })
 })
 
@@ -165,86 +184,148 @@ app.put('/user/:user_id/preferences', (req,res) => {
  *
  * {'year_level' : 3,
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
- *  'sex' : 'Male',
+ *  'sex' : 0,
  *  'number_of_ratings' : 15,
  *  'kindness' : 3.4,
  *  'patience' : 7.6,
  *  'hard_working' : 1.0,
  *  'authentication_token' : ‘abcdef123456789’,
  *  'password' : ‘johndoe@123’,
- *  'user_id' : ‘0’,
+ *  'user_id' : 0,
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
- *
- * TESTED: Works
  */
 app.get('/user/:user_id/info', (req,res) => {
-    user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
+    user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
+        if (doesntExist(user)){
+            res.status(400).send("You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
         if (err) return console.log(err);
-        res.send(result);
+        res.send(user_info);
     })
 })
 
 /*
  * Sign up a new user. Also initialize thier matches to no one.
  *
- * TESTED : Works
+ * Below is a sample JSON input:
+ *
+ * {'year_level' : 3,
+ *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
+ *  'sex' : 0,
+ *  'number_of_ratings' : 15,
+ *  'kindness' : 3.4,
+ *  'patience' : 7.6,
+ *  'hard_working' : 1.0,
+ *  'authentication_token' : ‘abcdef123456789’,
+ *  'password' : ‘johndoe@123’,
+ *  'user_id' : 0,
+ *  'email' : ‘john.doe@gmail.com’,
+ *  'name' : 'John Doe'}
  */
 app.post('/user', (req,res) => {
-    console.log(req.body)
-    user_db.collection("info_clt").insertOne(
-        {"year_level" : req.body.year_level,
-         "sex" : parseInt(req.body.sex),
-         "courses" : req.body.courses,
-         "number_of_ratings" : parseInt(req.body.number_of_ratings),
-         "kindness" : parseFloat(req.body.kindness),
-         "patience" : parseFloat(req.body.patience),
-         "hard_working" : parseFloat(req.body.hard_working),
-         "authentication_token" : req.body.authentication_token,
-         "password" : req.body.password,
-         "user_id" : parseInt(req.body.user_id),
-         "email" : req.body.email,
-         "name" : req.body.name},(err, result) => {
-    if (req.body.year_level == null){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-     if (err) return console.log(err);
-        res.send("goi it");
+
+
+    user_db.collection("info_clt").find({ user_id : parseInt(req.body.user_id)}).toArray((err, user_info) => {
+        if (!doesntExist(user_info)){
+            res.status(400).send("The user with this user_id already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+        if (doesntExist(req.body)){
+            res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        } 
+
+        if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
+            res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
+            res.status(400).send("THERE ARE ONLY 3 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+
+        user_db.collection("info_clt").insertOne(
+            {"year_level"           : req.body.year_level,
+             "sex"                  : parseInt(req.body.sex),
+             "courses"              : req.body.courses,
+             "number_of_ratings"    : parseInt(req.body.number_of_ratings),
+             "kindness"             : parseFloat(req.body.kindness),
+             "patience"             : parseFloat(req.body.patience),
+             "hard_working"         : parseFloat(req.body.hard_working),
+             "authentication_token" : req.body.authentication_token,
+             "password"             : req.body.password,
+             "user_id"              : parseInt(req.body.user_id),
+             "email"                : req.body.email,
+             "name"                 : req.body.name},(err, result) => {
+
+
+         if (err) return console.log(err);
+            res.send("The user has been added to the database!");
+        }) 
     })
-    console.log("after insert")
 })
 
 /*
  * Update the information of user with user_id's information.
  *
- * TESTED : Works
+ * Below is a sample JSON input:
+ *
+ * {'year_level' : 3,
+ *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
+ *  'sex' : 0,
+ *  'number_of_ratings' : 15,
+ *  'kindness' : 3.4,
+ *  'patience' : 7.6,
+ *  'hard_working' : 1.0,
+ *  'authentication_token' : ‘abcdef123456789’,
+ *  'password' : ‘johndoe@123’,
+ *  'user_id' : 0,
+ *  'email' : ‘john.doe@gmail.com’,
+ *  'name' : 'John Doe'}
  */
 app.put('/user/info', (req,res) => {
-    if (req.body == null){
-        console.log("(┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-       }
     var query = {user_id : parseInt(req.body.user_id)};
-    var newValues = {$set: {year_level : parseInt(req.body.year_level),
-                            sex : parseInt(req.body.sex), // 0 = Male, 1 = Female, for preferences, 2 = Male or Female
-                            courses : req.body.courses,
-                            number_of_ratings : parseInt(req.body.number_of_ratings),
-                            kindness : parseFloat(req.body.kindness),
-                            patience : parseFloat(req.body.patience),
-                            hard_working : parseFloat(req.body.hard_working),
+    var newValues = {$set: {year_level           : parseInt(req.body.year_level),
+                            sex                  : parseInt(req.body.sex), 
+                            courses              : req.body.courses,
+                            number_of_ratings    : parseInt(req.body.number_of_ratings),
+                            kindness             : parseFloat(req.body.kindness),
+                            patience             : parseFloat(req.body.patience),
+                            hard_working         : parseFloat(req.body.hard_working),
                             authentication_token : req.body.authentication_token,
-                            password : req.body.password,
-                            user_id : parseInt(req.body.user_id),
-                            email : req.body.email,
-                            name : req.body.name}};
-    user_db.collection("info_clt").updateOne(query, newValues,(err, result) => {
-    if (req.body == null){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-     if (err) return console.log(err);
-     res.send("ヽ(＾Д＾)ﾉ\n");
+                            password             : req.body.password,
+                            user_id              : parseInt(req.body.user_id),
+                            email                : req.body.email,
+                            name                 : req.body.name}};
+
+    user_db.collection("info_clt").find({ user_id : parseInt(req.body.user_id)}).toArray((err, user_info) => {
+        if (!doesntExist(user_info)){
+            res.status(400).send("The user with this user_id already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+        if (doesntExist(req.body)){
+            res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        } 
+
+        if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
+            res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
+            res.status(400).send("THERE ARE ONLY 3 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+            return;
+        }
+
+        user_db.collection("info_clt").updateOne(query, newValues,(err, result) => {
+             if (err) return console.log(err);
+             res.send("The user info has been updated! ヽ(＾Д＾)ﾉ\n");
+        })
     })
 })
 
@@ -261,9 +342,8 @@ app.put('/user/info', (req,res) => {
  *  'kindness' : 3,
  *  'hard_working' : 3,
  *  'patience' : 6}
-
- * Implement complex logic
- * TODO: Test
+ * 
+ *  Tung: can you change this so it doesnt require a body to work
  */
 app.get('/user/:user_id/matches/potential_matches', (req,res) => {
     /*_________________________________________________________
@@ -349,11 +429,19 @@ app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
     /* Get user_a's match document for a specific time and date */
     user_db.collection("matches_clt").find(query_user_a).toArray((err, a) => {
         if (err) return console.log(err);
+        if (doesntExist(a)){
+            res.send("User A doesn't exist\n")
+            return;
+        }
         user_a_match_doc = a[0];
 
         /* Get user_b's match document for a specific time and date */
         user_db.collection("matches_clt").find(query_user_b).toArray((err, b) => {
             if (err) return console.log(err);
+            if (doesntExist(b)){
+                res.send("User B doesn't exist\n")
+                return;
+            }
             user_b_match_doc = b[0];
 
 
@@ -403,6 +491,9 @@ app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
     /* Find all the match documents for a specified user */
     user_db.collection("matches_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, matches) => {
         if (err) return console.log(err);
+        if (doesntExist(matches)){
+            res.send("The user with user_id doesnt have any matches\n")
+        }
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
