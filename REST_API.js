@@ -246,6 +246,10 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
                            "event_id" : parseInt(req.body.event_id)};
 
     schedule_db.collection("schedule_clt").find(time_date_query).toArray((err, user_schedule_event) => {
+
+      if (user_schedule_event[0] == null){
+        res.send("There are no users in the database\n")
+      }
       var time = user_schedule_event[0].time;
       var date = user_schedule_event[0].date;
 
