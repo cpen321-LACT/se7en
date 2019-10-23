@@ -4,9 +4,19 @@ const mongocli = require('mongodb').MongoClient;
 const app = express();
 app.use(express.json());
 
+var hi = require('./errorCheck');
+
+
 var user_db;
 var schedule_db;
 
+var isEmpty = function(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+var isAcceptablePreferences = function(a,b,c) {
+    return a + b + c == 12;
+}
 
 /*
 * Connect to the mongodb database
@@ -38,7 +48,6 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
     console.log("Schedule collection created!");
   });
 
-
   app.listen(3000, function() {
       console.log('server is up!')
   })
@@ -49,25 +58,44 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
 /*
  * Post the preferences of the user with user_id.
  *
- * TODO: Write error checking code.
- * TESTED: Works
+ * Will return an error if...
+ * - the user does not exist in the database
+ * - the sum of kindness, patience and hard_working does not equal 12
  */
 app.post('/user/preferences', (req,res) => {
-    user_db.collection("preferences_clt").insertOne(
-        {'user_id' : req.body.user_id,
-         'kindness' : req.body.kindness,
-         'patience' : req.body.patience,
-         'hard_working' : req.body.hard_working,
-         'courses' : req.body.courses,
-         'sex' : req.body.sex,
-         'year_level' : req.body.year_level},(err, result) => {
-    if (0){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
+
+    var user_query = {user_id : parseInt(req.body.user_id)};
+
+    /* Check if the user exists in the database */
+    user_db.collection("info_clt").find(user_query).toArray((err, user) => {
+
+    if (isEmpty(user)){
+        res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
     }
+
+    if (isEmpty(req.body)){
+        res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+    } 
+
+    if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
+        res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+    }
+
+    /* Add the users preferences */
+    user_db.collection("preferences_clt").insertOne(
+        {'user_id'      : parseInt(req.body.user_id),
+         'kindness'     : parseFloat(req.body.kindness),
+         'patience'     : parseFloat(req.body.patience),
+         'hard_working' : parseFloat(req.body.hard_working),
+         'courses'      : req.body.courses,
+         'sex'          : parseInt(req.body.sex),
+         'year_level'   : req.body.year_level},(err, result) => {
      if (err) return console.log(err);
-     res.send("Preferences have been added. ٩(^ᴗ^)۶\n");
-    })
+     res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
+    })  })
 })
 
 /*
@@ -76,18 +104,23 @@ app.post('/user/preferences', (req,res) => {
  * Below is a sample JSON output:
  *
  * {'user_id' : 0,
- *  'kindness' : 2,
- *  'patience' : 6,
- *  'hard_working' : 4,
+ *  'kindness' : 2.0,
+ *  'patience' : 6.0,
+ *  'hard_working' : 4.0,
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
- *  'sex' : ['Male', 'Female'],
+ *  'sex' : 1,
  *  'year_level' : [3, 4, ...]}
  *
  * TODO: Write error checking code.
  * TESTED: Works
  */
 app.get('/user/:user_id/preferences', (req,res) => {
-    user_db.collection("preferences_clt").find({user_id : parseInt(req.params.user_id)}).toArray((err, result) => {
+
+    var user_query = {user_id : parseInt(req.params.user_id)};
+
+
+
+    user_db.collection("preferences_clt").find(user_query).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result);
     })
@@ -661,6 +694,7 @@ app.get('/schedule/:user_id/:event_id', (req,res) => {
  * Below is a sample JSON output:
  *
  * { ‘user_id’ : 0,
+ *   'event_id' : 0,
  *   'time' : '13:00 - 14:00',
  *   'date' : 'Oct. 4, 2019'
  *   'course' : 'CPEN 321',
