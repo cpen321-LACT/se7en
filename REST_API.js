@@ -299,8 +299,8 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
  * TODO: Test
  */
 app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
-    var query_user_a = { user_id : parseInt(req.params.user_id_a), "time" : req.body.time, "date" : req.body.date};
-    var query_user_b = { user_id : parseInt(req.params.user_id_b), "time" : req.body.time, "date" : req.body.date};
+    var query_user_a = { user_id : parseInt(req.params.user_id_a), "event_id" : parseInt(req.body.event_id)};
+    var query_user_b = { user_id : parseInt(req.params.user_id_b), "event_id" : parseInt(req.body.event_id)};
 
     var user_a_match_doc;
     var user_b_match_doc;
