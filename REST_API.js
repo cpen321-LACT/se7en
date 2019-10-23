@@ -225,9 +225,9 @@ app.put('/user/info', (req,res) => {
         console.log("(┛ಠ_ಠ)┛彡┻━┻\n");
         return;
        }
-    var query = {user_id : pareseInt(req.body.user_id)};
-    var newValues = {$set: {year_level : pareseInt(req.body.year_level),
-                            sex : pareseInt(req.body.sex), // 0 = Male, 1 = Female, for preferences, 2 = Male or Female
+    var query = {user_id : parseInt(req.body.user_id)};
+    var newValues = {$set: {year_level : parseInt(req.body.year_level),
+                            sex : parseInt(req.body.sex), // 0 = Male, 1 = Female, for preferences, 2 = Male or Female
                             courses : req.body.courses,
                             number_of_ratings : parseInt(req.body.number_of_ratings),
                             kindness : parseFloat(req.body.kindness),
