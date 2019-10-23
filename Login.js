@@ -116,6 +116,9 @@ export default class Login extends Component {
 	render() {
     return (
 			<SafeAreaView style={styles.safeContainer}>
+        <View style={styles.navBar}>
+          <Text style={styles.navBarTitle}>SE7EN</Text>
+        </View>
 				<ScrollView
 					style={styles.scroll}
 					contentContainerStyle={styles.contentContainer}
@@ -178,6 +181,9 @@ export default class Login extends Component {
    }
 }
 
+const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
+const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
+
 const styles = StyleSheet.create({
   scroll: {
     backgroundColor: 'transparent',
@@ -201,5 +207,18 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  navBar: {
+    backgroundColor: '#4286f4',
+    height: 44 + statusBarHeight,
+    alignSelf: 'stretch',
+    paddingTop: statusBarHeight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navBarTitle: {
+    color: '#FFF',
+    fontFamily,
+    fontSize: 17,
   },
 });
