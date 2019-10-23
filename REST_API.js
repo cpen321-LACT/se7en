@@ -414,14 +414,14 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
  * Match user with user_id user_id_a with user with user_id user_id_b.
  *
  * Update currently_matched_with array for user_a and user_b
+ * 
+ * Sample JSON input:
+ * { "event_id_a : 0, "event_id_b" : 2}
  *
- * { "time" : "12:00-1:00", "date" : "Oct. 3, 2019"}
- *
- * TODO: Test
  */
 app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
-    var query_user_a = { user_id : parseInt(req.params.user_id_a), "event_id" : parseInt(req.body.event_id)};
-    var query_user_b = { user_id : parseInt(req.params.user_id_b), "event_id" : parseInt(req.body.event_id)};
+    var query_user_a = { user_id : parseInt(req.params.user_id_a), "event_id" : parseInt(req.body.event_id_a)};
+    var query_user_b = { user_id : parseInt(req.params.user_id_b), "event_id" : parseInt(req.body.event_id_b)};
 
     var user_a_match_doc;
     var user_b_match_doc;
@@ -592,14 +592,6 @@ function generateMatch(kindness, hard_working, patience, array){
 /* A helper function that filters the array by the time, date */
 function time_filter_match(infor_array, schedule_array, user_id){
     var filtered_matches = [];
-    // console.log("Before:")
-    //
-    // console.log("Info:")
-    // console.log(infor_array)
-    //
-    // console.log("Schedule:")
-    // console.log(schedule_array)
-
     for(var i = 0; i < infor_array.length; i++){
         var infor = parseInt(infor_array[i].user_id);
         for(var j = 0; j < schedule_array.length; j++){
@@ -608,18 +600,6 @@ function time_filter_match(infor_array, schedule_array, user_id){
             }
         }
     }
-    console.log("Filtered Matches:")
-    console.log(filtered_matches)
-    // console.log("After:")
-    //
-    // console.log("Info:")
-    // console.log(infor_array)
-    //
-    // console.log("Schedule:")
-    // console.log(schedule_array)
-    //
-    // console.log("returning:")
-    // console.log(filtered_matches)
     return filtered_matches;
 }
 /*
@@ -765,17 +745,22 @@ app.delete('/delete_all_matches',  (req,res) => {
  * Below is a sample JSON output:
  *
  * { ‘user_id’ : 0,
+ *   'event_id' : 0,
  *   'time' : '13:00 - 14:00',
  *   'date' : 'Oct. 4, 2019'
  *   'course' : 'CPEN 321',
  *   'location' : 'Irving K. Barber'}
  *
  * TODO: Write error checking code.
- * Tested: Works
  */
 app.get('/schedule/:user_id/:event_id', (req,res) => {
     var query = {event_id : parseInt(req.body.event_id), user_id : parseInt(req.body.user_id)};
+
     schedule_db.collection("schedule_clt").find(query).toArray((err, result) => {
+        if (doesntExist(result)){
+            res.send("The study event with event_id for user with user_id doesn't exist\n")
+            return;
+        }
         if (err) return console.log(err);
         res.send(result);
     })
@@ -798,9 +783,13 @@ app.get('/schedule/:user_id/:event_id', (req,res) => {
  */
 app.get('/schedule/:user_id', (req,res) => {
     var query = {user_id : parseInt(req.params.user_id)};
-    schedule_db.collection("schedule_clt").find(query).toArray((err, result) => {
+    schedule_db.collection("schedule_clt").find(query).toArray((err, schedule) => {
         if (err) return console.log(err);
-        res.send(result);
+        if (doesntExist(schedule)){
+            res.send("The user with user_id doesn't have any study events\n")
+            return;
+        }
+        res.send(schedule);
     })
 })
 
@@ -811,43 +800,51 @@ app.get('/schedule/:user_id', (req,res) => {
  * Tested: Works
  */
 app.post('/schedule', (req,res) => {
-    /* Create schedule object */
-    console.log(req.body)
-    schedule_db.collection("schedule_clt").insertOne(
-        {'user_id' : parseInt(req.body.user_id),
-         'event_id' : parseInt(req.body.event_id),
-         'time' : req.body.time,
-         'date' : req.body.date,
-         'course' : req.body.course,
-         'location' : req.body.location},(err, result) => {
-    if (0){
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
-    }
-     if (err) return console.log(err);
-     console.log('schedule added')
-    })
-    /* Create a match object for that schedule */
-    user_db.collection("matches_clt").insertOne(
-        {'user_id' : parseInt(req.body.user_id),
-         'event_id' : parseInt(req.body.event_id),
-         'time' : req.body.time,
-         'date' : req.body.date,
-         'wait' : [],
-         'request' : [],
-         'potential_matches' : [],
-         'match' : -1},(err, result) => {
-           if (err) return console.log(err);
-           console.log('matches document init done')
-           res.send("Schedule has been posted")
+
+    if (doesntExist(req.body)){
+        res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+    } 
+
+    user_db.collection("info_clt").find({ user_id : parseInt(req.body.user_id)}).toArray((err, user_info) => {
+
+        if (doesntExist(user_info)){
+            res.send("You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻\n")
+            return;
+        }
+
+        /* Create schedule object */
+        schedule_db.collection("schedule_clt").insertOne(
+            {'user_id' : parseInt(req.body.user_id),
+             'event_id' : parseInt(req.body.event_id),
+             'time' : req.body.time,
+             'date' : req.body.date,
+             'course' : req.body.course,
+             'location' : req.body.location},(err, result) => {
+            if (err) return console.log(err);
+            console.log('Schedule added')
+        })
+        /* Create a match object for that schedule */
+        user_db.collection("matches_clt").insertOne(
+            {'user_id' : parseInt(req.body.user_id),
+             'event_id' : parseInt(req.body.event_id),
+             'time' : req.body.time,
+             'date' : req.body.date,
+             'wait' : [],
+             'request' : [],
+             'potential_matches' : [],
+             'match' : -1},(err, result) => {
+               if (err) return console.log(err);
+               console.log('matches document init done')
+               res.send("Schedule has been posted!! :)")
+        })
     })
 })
 
 /*
  * Update the schedule of the user with with user_id.
  *
- * TODO: Write error checking code.
- * TODO: Test
+ * Tung: Can you add error checking here
  */
 app.put('/schedule/:user_id/:event_id', (req,res) => {
     /* First need to delete the current corresponding maches */
@@ -883,7 +880,7 @@ app.put('/schedule/:user_id/:event_id', (req,res) => {
 /*
  * Delete every event in the user's schedule
  *
- * Test
+ * Tung: Can you add error checking here
  */
 app.delete('/user/:user_id/schedule/:num_events', (req,res) => {
     /* Delete every single corresponding match */
@@ -903,10 +900,7 @@ app.delete('/user/:user_id/schedule/:num_events', (req,res) => {
  * Delete a study event with of the user with user_id at a certain time and date.
  * !! We will need to find a way to differentiate between study events. !!
  *
- * TODO: Write error checking code.
- * TODO: Implement this function.
- * TODO: Test
- * TODO: Talk about this function
+ * Tung: Can you add error checking here
  */
 app.delete('/user/:user_id/schedule/:event_id', (req,res) => {
     /*
