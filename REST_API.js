@@ -64,9 +64,9 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  * - the sum of kindness, patience and hard_working does not equal 12
  * - you send a sex that is not in range
  */
-app.post('/user/preferences', (req,res) => {
+app.post('/user/:user_id/preferences', (req,res) => {
 
-    var user_query = {user_id : parseInt(req.body.user_id)};
+    var user_query = {user_id : parseInt(req.params.user_id)};
 
     /* Check if the user exists in the database */
     user_db.collection("info_clt").find(user_query).toArray((err, user) => {
@@ -93,7 +93,7 @@ app.post('/user/preferences', (req,res) => {
 
         /* Add the users preferences */
         user_db.collection("preferences_clt").insertOne(
-            {'user_id'      : parseInt(req.body.user_id),
+            {'user_id'      : parseInt(req.params.user_id),
              'kindness'     : parseFloat(req.body.kindness),
              'patience'     : parseFloat(req.body.patience),
              'hard_working' : parseFloat(req.body.hard_working),
@@ -224,10 +224,9 @@ app.get('/user/:user_id/info', (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
-app.post('/user', (req,res) => {
+app.post('/user/:user_id', (req,res) => {
 
-
-    user_db.collection("info_clt").find({ user_id : parseInt(req.body.user_id)}).toArray((err, user_info) => {
+    user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
         if (!doesntExist(user_info)){
             res.status(400).send("The user with this user_id already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
@@ -258,7 +257,7 @@ app.post('/user', (req,res) => {
              "hard_working"         : parseFloat(req.body.hard_working),
              "authentication_token" : req.body.authentication_token,
              "password"             : req.body.password,
-             "user_id"              : parseInt(req.body.user_id),
+             "user_id"              : parseInt(req.params.user_id),
              "email"                : req.body.email,
              "name"                 : req.body.name},(err, result) => {
 
@@ -287,8 +286,8 @@ app.post('/user', (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
-app.put('/user/info', (req,res) => {
-    var query = {user_id : parseInt(req.body.user_id)};
+app.put('/user/:user_id/info', (req,res) => {
+    var query = {user_id : parseInt(req.params.user_id)};
     var newValues = {$set: {year_level           : parseInt(req.body.year_level),
                             sex                  : parseInt(req.body.sex), 
                             courses              : req.body.courses,
@@ -298,11 +297,10 @@ app.put('/user/info', (req,res) => {
                             hard_working         : parseFloat(req.body.hard_working),
                             authentication_token : req.body.authentication_token,
                             password             : req.body.password,
-                            user_id              : parseInt(req.body.user_id),
                             email                : req.body.email,
                             name                 : req.body.name}};
 
-    user_db.collection("info_clt").find({ user_id : parseInt(req.body.user_id)}).toArray((err, user_info) => {
+    user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
         if (!doesntExist(user_info)){
             res.status(400).send("The user with this user_id already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
@@ -335,7 +333,7 @@ app.put('/user/info', (req,res) => {
  * Get a sorted list of the user with user_id's potential,
  * waiting and current matches.
  *
- * Below is a sample JSON output:
+ * Below is a sample JSON input:
  *  {'user_id’: 0,
  *   'year_level' : 3,
  *  'event_id': 2,
@@ -482,7 +480,7 @@ app.post('/user/:user_id_a/matches/:user_id_b', (req,res) => {
 })
 
 /*
- * Get who the user is currently matched with
+ * Get who the user is currently matched with.
  * Adam: To test
  */
 app.get('/user/:user_id/matches/currently_matched_with', (req,res) => {
@@ -727,7 +725,7 @@ app.delete('/delete_all_matches',  (req,res) => {
 
 
 /*
- * Get the user with user_id's schedule at a specific time.
+ * Get the user with user_id's schedule at a specific study event.
  *
  * Below is a sample JSON output:
  *
@@ -739,7 +737,7 @@ app.delete('/delete_all_matches',  (req,res) => {
  *   'location' : 'Irving K. Barber'}
  */
 app.get('/schedule/:user_id/:event_id', (req,res) => {
-    var query = {event_id : parseInt(req.body.event_id), user_id : parseInt(req.body.user_id)};
+    var query = {event_id : parseInt(req.body.event_id), user_id : parseInt(req.params.user_id)};
 
     schedule_db.collection("schedule_clt").find(query).toArray((err, result) => {
         if (doesntExist(result)){
@@ -778,14 +776,14 @@ app.get('/schedule/:user_id', (req,res) => {
 /*
  * Add an event the schedule of the user with with user_id.\
  */
-app.post('/schedule', (req,res) => {
+app.post('/user/:user_id/schedule', (req,res) => {
 
     if (doesntExist(req.body)){
         res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
         return;
     } 
 
-    user_db.collection("info_clt").find({ user_id : parseInt(req.body.user_id)}).toArray((err, user_info) => {
+    user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
 
         if (doesntExist(user_info)){
             res.send("You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻\n")
@@ -794,7 +792,7 @@ app.post('/schedule', (req,res) => {
 
         /* Create schedule object */
         schedule_db.collection("schedule_clt").insertOne(
-            {'user_id' : parseInt(req.body.user_id),
+            {'user_id' : parseInt(req.params.user_id),
              'event_id' : parseInt(req.body.event_id),
              'time' : req.body.time,
              'date' : req.body.date,
@@ -805,7 +803,7 @@ app.post('/schedule', (req,res) => {
         })
         /* Create a match object for that schedule */
         user_db.collection("matches_clt").insertOne(
-            {'user_id' : parseInt(req.body.user_id),
+            {'user_id' : parseInt(req.params.user_id),
              'event_id' : parseInt(req.body.event_id),
              'time' : req.body.time,
              'date' : req.body.date,
@@ -823,15 +821,20 @@ app.post('/schedule', (req,res) => {
 /*
  * Update the schedule of the user with with user_id.
  *
+ *  {'time' : '13:00 - 14:00',
+ *   'date' : 'Oct. 4, 2019'
+ *   'course' : 'CPEN 321',
+ *   'location' : 'Irving K. Barber'}
+ *
  * Tung: Can you add error checking here
  */
 app.put('/schedule/:user_id/:event_id', (req,res) => {
     /* First need to delete the current corresponding maches */
-    matches_delete(req.body.user_id, req.body.event_id);
+    matches_delete(req.params.user_id, req.params.event_id);
     /* Create a new corresponding matches */
-    user_db.collection("matches_clt").insertOne(
-        {'user_id' : parseInt(req.body.user_id),
-         'event_id' : parseInt(req.body.event_id),
+    user_db.collection("matches_clt").insertOne( // should this be insert or update?
+        {'user_id' : parseInt(req.params.user_id),
+         'event_id' : parseInt(req.params.event_id),
          'time' : req.body.time,
          'date' : req.body.date,
          'wait' : [],
@@ -844,7 +847,7 @@ app.put('/schedule/:user_id/:event_id', (req,res) => {
     })
 
     /* Actually update the schedule */
-    var query = {"user_id" : parseInt(req.body.user_id), "event_id" : parseInt(req.body.event_id)};
+    var query = {"user_id" : parseInt(req.params.user_id), "event_id" : parseInt(req.params.event_id)};
     var newValues = {$set: req.body};
     schedule_db.collection("schedule_clt").updateOne(query, newValues,(err, result) => {
     if (req.body == null) {
@@ -889,7 +892,7 @@ app.delete('/user/:user_id/schedule/:event_id', (req,res) => {
     matches_delete(parseInt(req.params.user_id), parseInt(req.params.event_id));
 
      /* Now actually delete the schedule */
-    var query = {"user_id" : req.body.user_id, "event_id" : parseInt(req.params.event_id)};
+    var query = {"user_id" : req.params.user_id, "event_id" : parseInt(req.params.event_id)};
     schedule_db.collection("schedule_clt").deleteOne(query, (err, result) => {
         if (err) return console.log(err);
         res.send("deleted the specific time\n");
