@@ -107,7 +107,6 @@ Below is a description of the REST endpoints we will be using to implement Se7en
        'hard_working' : 1.0,
        'authentication_token' : ‘abcdef123456789’,
        'password' : ‘johndoe@123’,
-       'user_id' : 0,
        'email' : ‘john.doe@gmail.com’,
        'name' : 'John Doe'}
 
