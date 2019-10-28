@@ -193,7 +193,7 @@ app.put('/user/:user_id/preferences', (req,res) => {
  */
 app.get('/user/:user_id/info', (req,res) => {
     user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
-        if (doesntExist(user)){
+        if (doesntExist(user_info)){
             res.status(400).send("You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
