@@ -41,7 +41,7 @@ Below is a description of the REST endpoints we will be using to implement Se7en
        'sex' : 1,
        'year_level' : [3, 4, ...]}
 
-`/user/:user_id/info` : Get the schedule of the user with user_id. 
+`/user/:user_id/info` : Get the info of the user with user_id. 
 
        {'year_level' : 3,
        'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
