@@ -4,10 +4,6 @@ const mongocli = require('mongodb').MongoClient;
 const app = express();
 app.use(express.json());
 
-var errorCheck = require('./errorCheck');
-var preferences = require('./preferences');
-
-
 var user_db;
 var schedule_db;
 
@@ -87,7 +83,7 @@ app.post('/user/:user_id/preferences', (req,res) => {
         }
 
         if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
-            res.status(400).send("THERE ARE ONLY 3 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+            res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
 
@@ -220,7 +216,6 @@ app.get('/user/:user_id/info', (req,res) => {
  *  'hard_working' : 1.0,
  *  'authentication_token' : ‘abcdef123456789’,
  *  'password' : ‘johndoe@123’,
- *  'user_id' : 0,
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
@@ -241,8 +236,8 @@ app.post('/user/:user_id', (req,res) => {
             return;
         }
 
-        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
-            res.status(400).send("THERE ARE ONLY 3 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 1) {
+            res.status(400).send("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
 
@@ -315,8 +310,8 @@ app.put('/user/:user_id/info', (req,res) => {
             return;
         }
 
-        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
-            res.status(400).send("THERE ARE ONLY 3 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 1) {
+            res.status(400).send("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
 
