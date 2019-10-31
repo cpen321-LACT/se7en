@@ -322,6 +322,25 @@ app.put('/user/:user_id/info', (req,res) => {
     })
 })
 
+/*
+ *  Delete an user - delete all information of that user
+ *  This take no arguments
+ * 
+ *  NOTE: Either
+ *  - the front end will call for other delete request for schedule,
+ *  preference before calling this
+ *  - or this request will have to handle all deletes
+ *  ----> Use the former one for now 
+ */
+app.delete('/user/:user_id/info', (req,res) => {
+    var query = {"user_id" : parseInt(req.params.user_id)};
+    console.log(parseInt(req.params.user_id));
+    schedule_db.collection("info_clt").deleteOne(query, (err, result) => {
+        if (err) return console.log(err);
+        res.send("deleted the user: ", parseInt(req.params.user_id));
+    })
+})
+
 /*---------------------------- Matches Collection ---------------------------- */
 
 /*
