@@ -241,7 +241,8 @@ app.post('/user/:user_id', (req,res) => {
             return;
         }
 
-
+        console.log(req.params.user_id);
+        var id = parseInt(req.params.user_id);
         user_db.collection("info_clt").insertOne(
             {"year_level"           : req.body.year_level,
              "sex"                  : parseInt(req.body.sex),
@@ -252,14 +253,13 @@ app.post('/user/:user_id', (req,res) => {
              "hard_working"         : parseFloat(req.body.hard_working),
              "authentication_token" : req.body.authentication_token,
              "password"             : req.body.password,
-             "user_id"              : parseInt(req.params.user_id),
+             "user_id"              : id,
              "email"                : req.body.email,
              "name"                 : req.body.name},(err, result) => {
 
 
          if (err) return console.log(err);
-            //res.send("The user has been added to the database!");
-            res.send(req.params.user_id);
+            res.send("The user has been added to the database!");
         }) 
     })
 })
