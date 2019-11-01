@@ -29,8 +29,10 @@ import PropType from 'prop-types';
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
 
-export const baseURL = Platform.OS === 'android' ?
-    'http://10.0.2.2:3000/':'http://localhost:3000/';
+export const baseURL =
+  Platform.OS === 'android'
+    ? 'http://10.0.2.2:3000/'
+    : 'http://localhost:3000/';
 
 const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 
@@ -41,14 +43,19 @@ export default class Profile extends React.Component {
       userEdit: false,
       secureTextEntry: true,
       refreshing: false,
-      tmpName: '',
-      tmpUser_id: '0',
-      tmpPassword: '',
-      tmpSex: '0',
-      tmpEmail: '',
-      tmpCourses: '',
-      tmpYearLevel: '',
+
+      tmpYearLevel: this.props.year_level,
+      tmpCourses: this.props.courses,
+      tmpSex: this.props.sex,
+      tmpKindness: this.props.kindness_rating,
+      tmpPatience: this.props.patience_rating,
+      tmpHardWorking: this.props.hard_working_rating,
+      tmpPassword: this.props.password,
+      tmpEmail: this.props.email,
+      tmpName: this.props.name,
+
       data: [],
+      error: false,
     };
   }
 
@@ -57,13 +64,21 @@ export default class Profile extends React.Component {
       type: 'CUSTOM_VIEW',
       render: () => (
         <View style={styles.heroContainer}>
-          <Image source={{uri:'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639',}} style={styles.heroImage}/>
+          <Image
+            source={{
+              uri:
+                'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639',
+            }}
+            style={styles.heroImage}
+          />
           <View style={{ flex: 1 }}>
             <Text style={styles.heroTitle}>{this.props.name}</Text>
-            <Text style={styles.heroSubtitle}>User ID: {this.props.user_id}</Text>
+            <Text style={styles.heroSubtitle}>
+              User ID: {this.props.user_id}
+            </Text>
           </View>
         </View>
-      )
+      ),
     },
     {
       type: 'SECTION',
@@ -107,11 +122,39 @@ export default class Profile extends React.Component {
           title: 'Courses',
           renderAccessory: () => (
             <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.courses}
             </Text>
           ),
+        },
+        {
+          title: 'Number of Ratings',
           renderAccessory: () => (
             <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.courses}
+              {this.props.number_of_ratings}
+            </Text>
+          ),
+        },
+        {
+          title: 'Kindness',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.kindness_rating}
+            </Text>
+          ),
+        },
+        {
+          title: 'Patience',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.patience_rating}
+            </Text>
+          ),
+        },
+        {
+          title: 'Hardworking',
+          renderAccessory: () => (
+            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+              {this.props.hard_working_rating}
             </Text>
           ),
         },
@@ -135,86 +178,94 @@ export default class Profile extends React.Component {
     },
   ];
 
- getUserInfo() {
-   let fetchURL = baseURL + 'user/' + this.props.user_id + '/info';
-   fetch(fetchURL, {
-   	 method: 'GET',
-     headers: {
-       Accept: 'application/json',
-       'Content-Type': 'application/json',
-     },
-	 })
-   .then((response) => response.json())
-   .then((responseJson) => {
-     //console.log(responseJson)
-     if(typeof(responseJson) !== 'undefined') {
-       this.setState({data:responseJson})
-       if(typeof(this.state.data) !== 'undefined') {
-         this.props.yearLevelChange(this.state.data[0].year_level);
-         this.props.coursesChange(this.state.data[0].courses);
-         this.props.sexChange(this.state.data[0].sex);
-         this.props.passwordChange(this.state.data[0].password);
-         this.props.usernameChange(this.state.data[0].user_id);
-         this.props.emailChange(this.state.data[0].email);
-         this.props.nameChange(this.state.data[0].name);
-       }
-       else {
-         // Do nothing
-       }
-     }
-   })
-   .catch((error) => {
-		 console.error(error);
-	 });
- }
+  getUserInfo() {
+    let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
+    fetch(fetchURL, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        //console.log(responseJson)
+        if (typeof responseJson !== 'undefined') {
+          this.setState({ data: responseJson });
+          if (typeof this.state.data !== 'undefined') {
+            this.props.yearLevelChange(this.state.data[0].year_level);
+            this.props.coursesChange(this.state.data[0].courses);
+            this.props.sexChange(this.state.data[0].sex);
+            this.props.numberOfRatingsChange(
+              this.state.data[0].number_of_ratings
+            );
+            this.props.kindnessRatingChange(this.state.data[0].kindness);
+            this.props.patienceRatingChange(this.state.data[0].patience);
+            this.props.hardWorkingRatingChange(this.state.data[0].hard_working);
+            this.props.authenticationTokenChange(
+              this.state.data[0].authentication_token
+            );
+            this.props.passwordChange(this.state.data[0].password);
+            //this.props.usernameChange(this.state.data[0].user_id);
+            this.props.emailChange(this.state.data[0].email);
+            this.props.nameChange(this.state.data[0].name);
+          } else {
+            // Do nothing
+          }
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
 
- pushUserInfo() {
-   let fetchURL = baseURL + 'user/info';
-   fetch(fetchURL, {
-   	 method: 'PUT',
-     headers: {
-       Accept: 'application/json',
-       'Content-Type': 'application/json',
-     },
-   	 body: JSON.stringify({
-   	   year_level: this.state.tmpYearLevel,
-	     courses: this.state.tmpCourses,
-	     sex: this.state.tmpSex,
-       number_of_ratings : this.props.number_of_ratings,
-       kindness_rating : this.props.kindness_rating,
-       patience_rating : this.props.patience_rating,
-       hard_working_rating : this.props.hard_working_rating,
-       authentication_token : this.props.authentication_token,
-	     password: this.state.tmpPassword,
-	     user_id: this.state.tmpUser_id,
-	     email: this.state.tmpEmail,
-	     name: this.state.tmpName,
-   	 }),
-   })
-  .then((response) => response.text())
-  .then((responseJson) => {
-	  console.log(responseJson);
-    this.props.yearLevelChange(this.state.tmpYearLevel);
-    this.props.coursesChange(this.state.tmpCourses);
-    this.props.sexChange(this.state.tmpSex);
-    this.props.passwordChange(this.state.tmpPassword);
-    this.props.usernameChange(this.state.tmpUser_id);
-    this.props.emailChange(this.state.tmpEmail);
-    this.props.nameChange(this.state.tmpName);
-    Alert.alert("Updated successfully!")
-		this.setState({userEdit: false})
-    // console.log(this.props.year_level);
-    // console.log(this.props.courses);
-    // console.log(this.props.sex);
-    // console.log(this.props.password);
-    // console.log(this.props.user_id);
-    // console.log(this.props.email);
-    // console.log(this.props.name);
-	})
-	.catch((error) => {
-		console.error(error);
-	});
- }
+  pushUserInfo() {
+    this.checkError();
+    if (this.state.error === false) {
+      let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
+      fetch(fetchURL, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          year_level: this.state.tmpYearLevel,
+          courses: this.state.tmpCourses,
+          sex: this.state.tmpSex,
+          number_of_ratings: this.props.number_of_ratings,
+          kindness: this.props.kindness_rating,
+          patience: this.props.patience_rating,
+          hard_working: this.props.hard_working_rating,
+          authentication_token: this.props.authentication_token,
+          password: this.state.tmpPassword,
+          email: this.state.tmpEmail,
+          name: this.state.tmpName,
+        }),
+      })
+        .then(response => response.text())
+        .then(responseJson => {
+          console.log(responseJson);
+          this.props.yearLevelChange(this.state.tmpYearLevel);
+          this.props.coursesChange(this.state.tmpCourses);
+          this.props.sexChange(this.state.tmpSex);
+          // Number of ratings unchanged
+          this.props.kindnessRatingChange(this.state.tmpKindness);
+          this.props.patienceRatingChange(this.state.tmpPatience);
+          this.props.hardWorkingRatingChange(this.state.tmpHardWorking);
+          // Authentication token unchanged
+          this.props.passwordChange(this.state.tmpPassword);
+          // User ID unchanged
+          this.props.emailChange(this.state.tmpEmail);
+          this.props.nameChange(this.state.tmpName);
+          Alert.alert('Updated successfully!');
+          this.setState({ userEdit: false });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  }
 
   renderUserform() {
     this.setState({ userEdit: true });
@@ -227,37 +278,115 @@ export default class Profile extends React.Component {
   }
 
   onAccessoryPress() {
-      this.setState({ secureTextEntry: !this.state.secureTextEntry });
+    this.setState({ secureTextEntry: !this.state.secureTextEntry });
   }
 
   renderPasswordAccessory() {
-      let name = this.state.secureTextEntry?
-        'visibility':
-        'visibility-off';
+    let name = this.state.secureTextEntry ? 'visibility' : 'visibility-off';
 
-      return (
-        <MaterialIcon
-          size={24}
-          name={name}
-          color={TextField.defaultProps.baseColor}
-          onPress={() => this.onAccessoryPress()}
-          suppressHighlighting={true}
-        />
-      );
+    return (
+      <MaterialIcon
+        size={24}
+        name={name}
+        color={TextField.defaultProps.baseColor}
+        onPress={() => this.onAccessoryPress()}
+        suppressHighlighting={true}
+      />
+    );
   }
 
   wait(timeout) {
     return new Promise(resolve => {
-       setTimeout(resolve, timeout);
+      setTimeout(resolve, timeout);
     });
   }
 
   _onRefresh = () => {
-    this.setState({refreshing: true});
+    this.setState({ refreshing: true });
     this.getUserInfo();
-    this.setState({refreshing: false});
+    this.setState({ refreshing: false });
     //Alert.alert("Refreshing");
     //this.wait(2000).then(() => this.setState({refreshing: false}));
+  };
+
+  checkError() {
+    if (
+      typeof this.state.tmpYearLevel === 'undefined' ||
+      this.state.tmpYearLevel === '' ||
+      typeof this.state.tmpCourses === 'undefined' ||
+      this.state.tmpCourses === [] ||
+      typeof this.state.tmpSex === 'undefined' ||
+      this.state.tmpSex === '' ||
+      typeof this.state.tmpKindness === 'undefined' ||
+      this.state.tmpKindness === '' ||
+      typeof this.state.tmpPatience === 'undefined' ||
+      this.state.tmpPatience === '' ||
+      typeof this.state.tmpHardWorking === 'undefined' ||
+      this.state.tmpHardWorking === '' ||
+      typeof this.state.tmpPassword === 'undefined' ||
+      this.state.tmpPassword === '' ||
+      typeof this.state.tmpEmail === 'undefined' ||
+      this.state.tmpEmail === '' ||
+      typeof this.state.tmpName === 'undefined' ||
+      this.state.tmpName === ''
+    ) {
+      this.setState({ error: true });
+      console.log(
+        'Profile update - State:' +
+          this.state.tmpYearLevel +
+          ', ' +
+          this.state.tmpCourses +
+          ', ' +
+          this.state.tmpSex +
+          ', ' +
+          this.state.tmpKindness +
+          ', ' +
+          this.state.tmpPatience +
+          ', ' +
+          this.state.tmpHardWorking +
+          ', ' +
+          this.state.tmpPassword +
+          ', ' +
+          this.state.tmpEmail +
+          ', ' +
+          this.state.tmpName
+      );
+      console.log(
+        'Profile update - typeof:' +
+          typeof this.state.tmpYearLevel +
+          ', ' +
+          typeof this.state.tmpCourses +
+          ', ' +
+          typeof this.state.tmpSex +
+          ', ' +
+          typeof this.state.tmpKindness +
+          ', ' +
+          typeof this.state.tmpPatience +
+          ', ' +
+          typeof this.state.tmpHardWorking +
+          ', ' +
+          typeof this.state.tmpPassword +
+          ', ' +
+          typeof this.state.tmpEmail +
+          ', ' +
+          typeof this.state.tmpName
+      );
+      Alert.alert('One of the fields is empty!');
+    } else {
+      if (
+        this.state.tmpKindness +
+          this.state.tmpPatience +
+          this.state.tmpHardWorking <
+        12
+      ) {
+        this.setState({ error: true });
+        Alert.alert(
+          'The sum of Kindness, Patience and Hardworking must be at least 12'
+        );
+      } else {
+        this.setState({ error: false });
+      }
+    }
   }
 
   render() {
@@ -265,29 +394,31 @@ export default class Profile extends React.Component {
       return (
         <View style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
           {
-          <SafeAreaView style={styles.container}>
-            <ScrollView
-              refreshControl={
-                <RefreshControl
-                 refreshing={this.state.refreshing}
-                 onRefresh={this._onRefresh}
-                />
-              }>
-              <View style={styles.container}>
-                <StatusBar barStyle="light-content" backgroundColor="#4286f4" />
-                <View style={styles.navBar}>
-                  <Text style={styles.navBarTitle}>Settings</Text>
+            <SafeAreaView style={styles.container}>
+              <ScrollView
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this._onRefresh}
+                  />
+                }>
+                <View style={styles.container}>
+                  <StatusBar
+                    barStyle="light-content"
+                    backgroundColor="#4286f4"
+                  />
+                  <View style={styles.navBar}>
+                    <Text style={styles.navBarTitle}>Settings</Text>
+                  </View>
+
+                  <SettingsScreen
+                    data={this.settingsData}
+                    globalTextStyle={{ fontFamily }}
+                  />
                 </View>
-
-                <SettingsScreen
-                  data={this.settingsData}
-                  globalTextStyle={{ fontFamily }}
-                />
-              </View>
-             </ScrollView>
-          </SafeAreaView>
+              </ScrollView>
+            </SafeAreaView>
           }
-
           <ActionButton
             buttonColor="rgba(66,134,244,1)"
             onPress={() => this.renderUserform()}
@@ -309,17 +440,8 @@ export default class Profile extends React.Component {
               <TextField
                 label="Name: "
                 value={this.props.name}
-                characterRestriction={20}
                 //clearTextOnFocus={true}
-                onChangeText = {(data)=> this.setState({tmpName:data})}
-              />
-
-              <TextField
-                label="User ID: "
-                value={this.props.user_id}
-                characterRestriction={20}
-                //clearTextOnFocus={true}
-                onChangeText = {(data)=> this.setState({tmpUser_id:data})}
+                onChangeText={data => this.setState({ tmpName: data })}
               />
 
               <TextField
@@ -329,15 +451,15 @@ export default class Profile extends React.Component {
                 //clearTextOnFocus={true}
                 secureTextEntry={this.state.secureTextEntry}
                 renderRightAccessory={this.renderPasswordAccessory()}
-                onChangeText = {(data)=> this.setState({tmpPassword:data})}
+                onChangeText={data => this.setState({ tmpPassword: data })}
               />
 
               <TextField
                 label="Year level: "
                 value={this.props.year_level}
-                characterRestriction={20}
+                characterRestriction={1}
                 //clearTextOnFocus={true}
-                onChangeText = {(data)=> this.setState({tmpYearLevel:data})}
+                onChangeText={data => this.setState({ tmpYearLevel: data })}
               />
 
               <TextField
@@ -346,7 +468,7 @@ export default class Profile extends React.Component {
                 characterRestriction={1}
                 title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
                 //clearTextOnFocus={true}
-                onChangeText = {(data)=> this.setState({tmpSex:data})}
+                onChangeText={data => this.setState({ tmpSex: data })}
               />
 
               <TextField
@@ -354,13 +476,31 @@ export default class Profile extends React.Component {
                 value={this.props.email}
                 keyboardType="email-address"
                 //clearTextOnFocus={true}
-                onChangeText = {(data)=> this.setState({tmpEmail:data})}
+                onChangeText={data => this.setState({ tmpEmail: data })}
               />
 
               <TextField
                 label="Courses: "
                 value={this.props.courses}
-                onChangeText = {(data)=> this.setState({tmpCourses:data})}
+                onChangeText={data => this.setState({ tmpCourses: data })}
+              />
+
+              <TextField
+                label="Kindness: "
+                value={this.props.kindness_rating}
+                onChangeText={data => this.setState({ tmpKindness: data })}
+              />
+
+              <TextField
+                label="Patience: "
+                value={this.props.patience_rating}
+                onChangeText={data => this.setState({ tmpPatience: data })}
+              />
+
+              <TextField
+                label="Hardworking: "
+                value={this.props.hard_working_rating}
+                onChangeText={data => this.setState({ tmpHardWorking: data })}
               />
             </View>
 
