@@ -222,7 +222,7 @@ app.get('/user/:user_id/info', (req,res) => {
 app.post('/user/:user_id', (req,res) => {
 
     user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
-        if (!doesntExist(user_info)){
+        if (doesntExist(user_info)){
             res.status(400).send("The user with this user_id already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
