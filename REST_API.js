@@ -225,7 +225,7 @@ app.post('/user/:user_id', (req,res) => {
        // if (user_info != null){
         //    res.status(400).send("The user with this user_id already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
          //   return;
-       // }
+        //}
         if (doesntExist(req.body)){
             res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
@@ -259,6 +259,7 @@ app.post('/user/:user_id', (req,res) => {
 
          if (err) return console.log(err);
             res.send("The user has been added to the database!");
+            res.send(parseInt(req.params.user_id));
         }) 
     })
 })
