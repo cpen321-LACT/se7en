@@ -258,8 +258,8 @@ app.post('/user/:user_id', (req,res) => {
 
 
          if (err) return console.log(err);
-            res.send("The user has been added to the database!");
-            res.send(parseInt(req.params.user_id));
+            //res.send("The user has been added to the database!");
+            res.send(req.params.user_id);
         }) 
     })
 })
