@@ -1,26 +1,19 @@
+/* Main 'view' of the app */
+
 import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
-  AppRegistry,
   StyleSheet,
-  Text,
-  Alert,
-  View,
   Dimensions,
-  TouchableHighlight,
 } from 'react-native';
 import TabNavigator from 'react-native-tab-navigator';
 import Calendar from './Calendar.js';
 import Profile from './Profile.js';
 import Login from './Login.js';
 
+/* Suppress warnings for now */
 console.disableYellowBox = true;
 
-const deviceW = Dimensions.get('window').width;
-const basePx = 375;
-function px2dp(px) {
-  return (px * deviceW) / basePx;
-}
 export const baseURL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:3000/'
@@ -30,29 +23,29 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTab: 'calendar',
+      /* User's info states */
       year_level: '',
       courses: [],
       sex: '0',
       number_of_ratings: '0.0',
-      kindness_rating: '0.0',
-      patience_rating: '0.0',
-      hard_working_rating: '0.0',
+      kindness_pref: '0.0',
+      patience_pref: '0.0',
+      hard_working_pref: '0.0',
       authentication_token: '',
       password: '',
       user_id: '',
       email: '',
       name: '',
       scheduleArray: [],
+
+      /* Transition states */
       loggedIn: false,
+      selectedTab: 'calendar',
     };
   }
 
-  changeLogVisible() {
-    this.setState({ loggedIn: !this.state.loggedIn });
-  }
-
-  changeUsername(data) {
+  /* Helper functions that modify user info states (called by other classes) */
+  changeUserID(data) {
     this.setState({ user_id: data });
   }
 
@@ -76,16 +69,16 @@ export default class App extends Component {
     this.setState({ number_of_ratings: data });
   }
 
-  changeKindnessRating(data) {
-    this.setState({ kindness_rating: data });
+  changeKindnessPref(data) {
+    this.setState({ kindness_pref: data });
   }
 
-  changePatienceRating(data) {
-    this.setState({ patience_rating: data });
+  changePatiencePref(data) {
+    this.setState({ patience_pref: data });
   }
 
-  changeHardWorkingRating(data) {
-    this.setState({ hard_working_rating: data });
+  changeHardWorkingPref(data) {
+    this.setState({ hard_working_pref: data });
   }
 
   changeAuthenticationToken(data) {
@@ -112,6 +105,13 @@ export default class App extends Component {
     this.setState({ scheduleArray: [] });
   }
 
+  /* Helper functions that change the corresponding views of the app */
+  changeLogVisible() {
+    this.setState({ loggedIn: !this.state.loggedIn });
+  }
+
+  /* -------------------------------------------------------------------------- */
+
   render() {
     if (this.state.loggedIn) {
       return (
@@ -129,17 +129,7 @@ export default class App extends Component {
             onPress={() => this.setState({ selectedTab: 'calendar' })}>
             <Calendar
               /* States */
-              year_level={this.state.year_level}
-              courses={this.state.courses}
-              sex={this.state.sex}
-              number_of_ratings={this.state.number_of_ratings}
-              kindness_rating={this.state.kindness_rating}
-              patience_rating={this.state.patience_rating}
-              hard_working_rating={this.state.hard_working_rating}
-              password={this.state.password}
               user_id={this.state.user_id}
-              email={this.state.email}
-              name={this.state.name}
               scheduleArray={this.state.scheduleArray}
               /* Functions */
               scheduleArrayAdd={this.addScheduleArray.bind(this)}
@@ -165,9 +155,9 @@ export default class App extends Component {
               courses={this.state.courses}
               sex={this.state.sex}
               number_of_ratings={this.state.number_of_ratings}
-              kindness_rating={this.state.kindness_rating}
-              patience_rating={this.state.patience_rating}
-              hard_working_rating={this.state.hard_working_rating}
+              kindness_pref={this.state.kindness_pref}
+              patience_pref={this.state.patience_pref}
+              hard_working_pref={this.state.hard_working_pref}
               authentication_token={this.state.authentication_token}
               password={this.state.password}
               user_id={this.state.user_id}
@@ -178,16 +168,17 @@ export default class App extends Component {
               coursesChange={this.changeCourses.bind(this)}
               sexChange={this.changeSex.bind(this)}
               numberOfRatingsChange={this.changeNumberOfRatings.bind(this)}
-              kindnessRatingChange={this.changeKindnessRating.bind(this)}
-              patienceRatingChange={this.changePatienceRating.bind(this)}
-              hardWorkingRatingChange={this.changeHardWorkingRating.bind(this)}
+              kindnessPrefChange={this.changeKindnessPref.bind(this)}
+              patiencePrefChange={this.changePatiencePref.bind(this)}
+              hardWorkingPrefChange={this.changeHardWorkingPref.bind(this)}
               authenticationTokenChange={this.changeAuthenticationToken.bind(
                 this
               )}
               emailChange={this.changeEmail.bind(this)}
               nameChange={this.changeName.bind(this)}
-              usernameChange={this.changeUsername.bind(this)}
+              userIDChange={this.changeUserID.bind(this)}
               passwordChange={this.changePassword.bind(this)}
+              logVisibleChange={this.changeLogVisible.bind(this)}
             />
           </TabNavigator.Item>
         </TabNavigator>
@@ -195,33 +186,40 @@ export default class App extends Component {
     } else {
       return (
         <Login
+          /* States */
+          password={this.state.password}
+          user_id={this.state.user_id}
+          scheduleArray={this.state.scheduleArray}
           /* Functions */
           yearLevelChange={this.changeYearLevel.bind(this)}
           coursesChange={this.changeCourses.bind(this)}
           sexChange={this.changeSex.bind(this)}
           numberOfRatingsChange={this.changeNumberOfRatings.bind(this)}
-          kindnessRatingChange={this.changeKindnessRating.bind(this)}
-          patienceRatingChange={this.changePatienceRating.bind(this)}
-          hardWorkingRatingChange={this.changeHardWorkingRating.bind(this)}
+          kindnessPrefChange={this.changeKindnessPref.bind(this)}
+          patiencePrefChange={this.changePatiencePref.bind(this)}
+          hardWorkingPrefChange={this.changeHardWorkingPref.bind(this)}
           authenticationTokenChange={this.changeAuthenticationToken.bind(this)}
           emailChange={this.changeEmail.bind(this)}
           nameChange={this.changeName.bind(this)}
-          usernameChange={this.changeUsername.bind(this)}
+          userIDChange={this.changeUserID.bind(this)}
           passwordChange={this.changePassword.bind(this)}
-          logVisibleChange={this.changeLogVisible.bind(this)}
           scheduleArrayAdd={this.addScheduleArray.bind(this)}
           scheduleArrayClear={this.clearScheduleArray.bind(this)}
           scheduleArrayChange={this.changeScheduleArray.bind(this)}
-          /* States */
-          password={this.state.password}
-          user_id={this.state.user_id}
-          scheduleArray={this.state.scheduleArray}
+          logVisibleChange={this.changeLogVisible.bind(this)}
         />
       );
     }
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const deviceW = Dimensions.get('window').width;
+const basePx = 375;
+function px2dp(px) {
+  return (px * deviceW) / basePx;
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

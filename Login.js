@@ -1,25 +1,19 @@
 'use strict';
 
+/* Login view of the app */
+
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
-  TextInput,
   Alert,
   View,
-  StatusBar,
-  Image,
   Platform,
-  RefreshControl,
-  Switch,
   SafeAreaView,
   ScrollView,
-  Picker,
 } from 'react-native';
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 export const baseURL =
@@ -31,26 +25,31 @@ export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [],
-      scheduleData: [],
-      login_secureTextEntry: true,
-      error: false,
-      signUp: false,
+      /* Input states */
       tmpYearLevel: '',
+      tmpCoursesString: '',
       tmpCourses: [],
       tmpSex: '',
-      tmpKindness: '',
-      tmpPatience: '',
-      tmpHardWorking: '',
+      tmpKindness: '4',
+      tmpPatience: '4',
+      tmpHardWorking: '4',
       tmpUser_id: '',
       tmpPassword: '',
       tmpEmail: '',
       tmpName: '',
+
+      /* Transition states */
+      login_secureTextEntry: true,
+      error: false,
+      signUp: false,
     };
   }
 
+  /* Helper function that executes the Sign In sequence */
   signIn() {
+    /* We first check for error (NULL/empty) */
     this.checkErrorSignIn();
+    /* If no errors, we do a fetch */
     if (this.state.error === false) {
       let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
       fetch(fetchURL, {
@@ -60,12 +59,14 @@ export default class Login extends Component {
           'Content-Type': 'application/json',
         },
       })
+        /* First check if this user ID exists or not */
         .then(response => response.text())
         .then(responseJson => {
           if (responseJson.includes('does not exist')) {
             Alert.alert('User ID does not exist');
             return;
           } else {
+            /* If user ID does exist, we do the actual call */
             fetch(fetchURL, {
               method: 'GET',
               headers: {
@@ -75,38 +76,36 @@ export default class Login extends Component {
             })
               .then(response => response.json())
               .then(responseJson => {
-                console.log(responseJson);
-                if (typeof responseJson !== 'undefined') {
-                  this.setState({ data: responseJson });
-                  if (
-                    typeof this.state.data[0] !== 'undefined' &&
-                    this.state.data[0].password === this.props.password
-                  ) {
-                    Alert.alert('Login successfully!');
-                    this.initSequence();
-                    this.props.logVisibleChange();
-                  } else {
-                    Alert.alert('Incorrect user ID or password!');
-                    return;
-                  }
+                /* Then check if the data got from database matches the password typed */
+                if (typeof responseJson !== 'undefined' && typeof responseJson[0] !== 'undefined'
+                  && responseJson[0].password === this.props.password) {
+                  Alert.alert('Signed in successfully!');
+                  /* Do the Initialize sequence after signing in successfully */
+                  this.initSequence();
+                  this.props.logVisibleChange();
                 } else {
                   Alert.alert('Incorrect user ID or password!');
                   return;
                 }
+              })
+              .catch(error => {
+                console.error(error);
               });
           }
         })
-        .catch(error => {
-          console.error(error);
-        });
     }
   }
 
+  /* Helper function that executes the Sign Up sequence */
   signUp() {
+    /* We first check for error (NULL/empty) */
     this.checkErrorSignUp();
+    /* If no errors, we do the request */
     if (this.state.error === false) {
+      /* Split course string -> array first */
+      this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
       let fetchURL = baseURL + 'user/:' + this.props.user_id;
-      fetch(fetchURL, {
+      fetch(fetchURL, {/* Split course string -> array first */
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -129,16 +128,21 @@ export default class Login extends Component {
         .then(response => response.text())
         .then(responseJson => {
           console.log(responseJson);
+          /* Check if user ID already exists or not */
           if (responseJson.includes('already exists')) {
             Alert.alert('User ID already exists!');
           } else {
             Alert.alert('Signed up successfully!');
             this.unrenderSignUpForm();
           }
+        })
+        .catch(error => {
+          console.error(error);
         });
     }
   }
 
+  /* Helper function that checks for NULL/empty entries on Sign In */
   checkErrorSignIn() {
     if (
       typeof this.props.user_id === 'underfined' ||
@@ -153,12 +157,13 @@ export default class Login extends Component {
     }
   }
 
+  /* Helper function that checks for NULL/empty entries on Sign Up */
   checkErrorSignUp() {
     if (
       typeof this.state.tmpYearLevel === 'undefined' ||
       this.state.tmpYearLevel === '' ||
-      typeof this.state.tmpCourses === 'undefined' ||
-      this.state.tmpCourses === [] ||
+      typeof this.state.tmpCoursesString === 'undefined' ||
+      this.state.tmpCoursesString === '' ||
       typeof this.state.tmpSex === 'undefined' ||
       this.state.tmpSex === '' ||
       typeof this.state.tmpKindness === 'undefined' ||
@@ -179,54 +184,55 @@ export default class Login extends Component {
       this.setState({ error: true });
       console.log(
         'Values: ' +
-          this.state.tmpYearLevel +
-          ', ' +
-          this.state.tmpCourses +
-          ', ' +
-          this.state.tmpSex +
-          ', ' +
-          this.state.tmpKindness +
-          ', ' +
-          this.state.tmpPatience +
-          ', ' +
-          this.state.tmpHardWorking +
-          ', ' +
-          this.state.tmpPassword +
-          ', ' +
-          this.state.tmpUser_id +
-          ', ' +
-          this.state.tmpEmail +
-          ', ' +
-          this.state.tmpName
+        this.state.tmpYearLevel +
+        ', ' +
+        this.state.tmpCoursesString +
+        ', ' +
+        this.state.tmpSex +
+        ', ' +
+        this.state.tmpKindness +
+        ', ' +
+        this.state.tmpPatience +
+        ', ' +
+        this.state.tmpHardWorking +
+        ', ' +
+        this.state.tmpPassword +
+        ', ' +
+        this.state.tmpUser_id +
+        ', ' +
+        this.state.tmpEmail +
+        ', ' +
+        this.state.tmpName
       );
       console.log(
         'typeof: ' +
-          typeof this.state.tmpYearLevel +
-          ', ' +
-          typeof this.state.tmpCourses +
-          ', ' +
-          typeof this.state.tmpSex +
-          ', ' +
-          typeof this.state.tmpKindness +
-          ', ' +
-          typeof this.state.tmpPatience +
-          ', ' +
-          typeof this.state.tmpHardWorking +
-          ', ' +
-          typeof this.state.tmpPassword +
-          ', ' +
-          typeof this.state.tmpUser_id +
-          ', ' +
-          typeof this.state.tmpEmail +
-          ', ' +
-          typeof this.state.tmpName
+        typeof this.state.tmpYearLevel +
+        ', ' +
+        typeof this.state.tmpCoursesString +
+        ', ' +
+        typeof this.state.tmpSex +
+        ', ' +
+        typeof this.state.tmpKindness +
+        ', ' +
+        typeof this.state.tmpPatience +
+        ', ' +
+        typeof this.state.tmpHardWorking +
+        ', ' +
+        typeof this.state.tmpPassword +
+        ', ' +
+        typeof this.state.tmpUser_id +
+        ', ' +
+        typeof this.state.tmpEmail +
+        ', ' +
+        typeof this.state.tmpName
       );
       Alert.alert('One of the fields is empty!');
     } else {
+      /* Check for certain requirements from backend as well :/ */
       if (
         this.state.tmpKindness +
-          this.state.tmpPatience +
-          this.state.tmpHardWorking <
+        this.state.tmpPatience +
+        this.state.tmpHardWorking <
         12
       ) {
         this.setState({ error: true });
@@ -239,6 +245,9 @@ export default class Login extends Component {
     }
   }
 
+  /* Helper function that populates data of user's info on Init Sequence
+   * Assumes that user must be created before calling this function 
+   */
   initUserInfo() {
     let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
     fetch(fetchURL, {
@@ -250,29 +259,26 @@ export default class Login extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        //console.log(responseJson)
-        if (typeof responseJson !== 'undefined') {
-          this.setState({ data: responseJson });
-          if (typeof this.state.data !== 'undefined') {
-            this.props.yearLevelChange(this.state.data[0].year_level);
-            this.props.coursesChange(this.state.data[0].courses);
-            this.props.sexChange(this.state.data[0].sex);
-            this.props.numberOfRatingsChange(
-              this.state.data[0].number_of_ratings
-            );
-            this.props.kindnessRatingChange(this.state.data[0].kindness);
-            this.props.patienceRatingChange(this.state.data[0].patience);
-            this.props.hardWorkingRatingChange(this.state.data[0].hard_working);
-            this.props.authenticationTokenChange(
-              this.state.data[0].authentication_token
-            );
-            this.props.passwordChange(this.state.data[0].password);
-            //this.props.usernameChange(this.state.data[0].user_id);
-            this.props.emailChange(this.state.data[0].email);
-            this.props.nameChange(this.state.data[0].name);
-          } else {
-            // Do nothing
-          }
+        //console.log("initUserInfo: " + responseJson)
+        if (typeof responseJson !== 'undefined' && typeof responseJson[0] !== 'undefined') {
+          this.props.yearLevelChange(responseJson[0].year_level);
+          this.props.coursesChange(responseJson[0].courses);
+          this.props.sexChange(responseJson[0].sex);
+          this.props.numberOfRatingsChange(
+            responseJson[0].number_of_ratings
+          );
+          this.props.kindnessPrefChange(responseJson[0].kindness);
+          this.props.patiencePrefChange(responseJson[0].patience);
+          this.props.hardWorkingPrefChange(responseJson[0].hard_working);
+          this.props.authenticationTokenChange(
+            responseJson[0].authentication_token
+          );
+          this.props.passwordChange(responseJson[0].password);
+          //this.props.userIDChange(responseJson[0].user_id);
+          this.props.emailChange(responseJson[0].email);
+          this.props.nameChange(responseJson[0].name);
+        } else {
+          // Do nothing
         }
       })
       .catch(error => {
@@ -280,6 +286,7 @@ export default class Login extends Component {
       });
   }
 
+  /* Helper function that populates data of user's schedule on Init Sequence */
   initUserSchedule() {
     let fetchURL = baseURL + 'schedule/:' + this.props.user_id;
     fetch(fetchURL, {
@@ -289,50 +296,79 @@ export default class Login extends Component {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
+      /* First check if user, especially newly created ones have any schedules to initialize */
+      .then(response => response.text())
       .then(responseJson => {
-        if (typeof responseJson !== 'undefined') {
-          var tmp = [];
-          tmp = responseJson;
-          if (typeof tmp !== 'undefined') {
-            this.props.scheduleArrayClear();
-            tmp.forEach(item => {
-              var startTimeToAdd = new Date(item.date);
-              startTimeToAdd.setHours(item.time.substring(0, 2));
-              startTimeToAdd.setMinutes(item.time.substring(3, 5));
+        if (responseJson.includes("doesn't have any")) {
+          return;
+        }
+        else {
+          /* Otw, we do the actual fetch */
+          fetch(fetchURL, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          })
+            .then(response => response.json())
+            .then(responseJson => {
+              if (typeof responseJson !== 'undefined' && typeof responseJson[0] !== 'undefined') {
+                /* Debug print */
+                //console.log("initUserSchedule: " + responseJson);
 
-              var endTimeToAdd = new Date(item.date);
-              endTimeToAdd.setHours(item.time.substring(7, 9));
-              endTimeToAdd.setMinutes(item.time.substring(10, 12));
-
-              var tmpSchedule = {
-                id: item.event_id,
-                startDate: startTimeToAdd,
-                endDate: endTimeToAdd,
-                color: 'rgba(66,134,244,1)',
-                description: item.course,
-                subject: item.course,
-                location: item.location,
-              };
-
-              this.props.scheduleArrayAdd(tmpSchedule);
+                this.props.scheduleArrayClear();
+                /* Traverse through each item to populate needed fields of scheduleArray for rendering */
+                responseJson.forEach(item => {
+                  /* Start time of a schedule */
+                  var startTimeToAdd = new Date(item.date);
+                  startTimeToAdd.setHours(item.time.substring(0, 2));
+                  startTimeToAdd.setMinutes(item.time.substring(3, 5));
+                  /* End time of a schedule */
+                  var endTimeToAdd = new Date(item.date);
+                  endTimeToAdd.setHours(item.time.substring(7, 9));
+                  endTimeToAdd.setMinutes(item.time.substring(9, 12));
+                  /* Schedule obj to add to scheduleArray */
+                  var tmpSchedule = {
+                    id: item.event_id,
+                    startDate: startTimeToAdd,
+                    endDate: endTimeToAdd,
+                    color: 'rgba(66,134,244,1)',
+                    description: item.course,
+                    subject: item.course,
+                    location: item.location,
+                  };
+                  /* Now we add this schedule obj to scheduleArray */
+                  this.props.scheduleArrayAdd(tmpSchedule);
+                });
+                //console.log(this.props.scheduleArray);
+              } else {
+                // Do nothing
+              }
+            })
+            .catch(error => {
+              console.error(error);
             });
-            //console.log(this.props.scheduleArray);
-          } else {
-            // Do nothing
-          }
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
   }
 
+  /* Init Sequence after successully signing in */
   async initSequence() {
-    await this.initUserSchedule();
-    await this.initUserInfo();
+    this.initUserSchedule();
+    this.initUserInfo();
   }
 
+  /* Helper functions for un/rendering the Sign Up form */
+  renderSignUpForm() {
+    this.setState({ signUp: true });
+  }
+
+  unrenderSignUpForm() {
+    this.setState({ signUp: false });
+  }
+
+  /* Helper functions for printing password */
   onAccessoryPress() {
     this.setState({ login_secureTextEntry: !this.state.login_secureTextEntry });
   }
@@ -353,13 +389,7 @@ export default class Login extends Component {
     );
   }
 
-  renderSignUpForm() {
-    this.setState({ signUp: true });
-  }
-
-  unrenderSignUpForm() {
-    this.setState({ signUp: false });
-  }
+  /* -------------------------------------------------------------------------- */
 
   render() {
     if (this.state.signUp === false) {
@@ -375,9 +405,10 @@ export default class Login extends Component {
             <View style={styles.input_container}>
               <TextField
                 label="User ID: "
-                title="TEMPORARY: Please enter User ID as an integer!"
+                title="Please enter User ID as an integer!"
+                characterRestriction={10}
                 clearTextOnFocus={true}
-                onChangeText={data => this.props.usernameChange(data)}
+                onChangeText={data => this.props.userIDChange(data)}
               />
 
               <TextField
@@ -422,12 +453,14 @@ export default class Login extends Component {
               <TextField
                 label="Year level: "
                 clearTextOnFocus={true}
+                characterRestriction={1}
                 onChangeText={data => this.setState({ tmpYearLevel: data })}
               />
               <TextField
                 label="Courses: "
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpCourses: data })}
+                title="Please input in form: 'Course A,Course B,Course C'"
+                onChangeText={data => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
@@ -438,7 +471,7 @@ export default class Login extends Component {
                 onChangeText={data => this.setState({ tmpSex: data })}
               />
 
-              <TextField
+              {/* <TextField
                 label="Kindness preference: "
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpKindness: data })}
@@ -454,7 +487,7 @@ export default class Login extends Component {
                 label="Hardworking preference: "
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpHardWorking: data })}
-              />
+              /> */}
 
               <TextField
                 label="User ID: "
@@ -466,6 +499,7 @@ export default class Login extends Component {
               <TextField
                 label="Password: "
                 clearTextOnFocus={true}
+                characterRestriction={20}
                 secureTextEntry={this.state.login_secureTextEntry}
                 renderRightAccessory={this.login_renderPasswordAccessory()}
                 onChangeText={data => this.setState({ tmpPassword: data })}
@@ -474,12 +508,14 @@ export default class Login extends Component {
               <TextField
                 label="Email: "
                 clearTextOnFocus={true}
+                characterRestriction={50}
                 onChangeText={data => this.setState({ tmpEmail: data })}
               />
 
               <TextField
                 label="Name: "
                 clearTextOnFocus={true}
+                characterRestriction={30}
                 onChangeText={data => this.setState({ tmpName: data })}
               />
             </View>
@@ -507,6 +543,8 @@ export default class Login extends Component {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* Styles */
 const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
 const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 

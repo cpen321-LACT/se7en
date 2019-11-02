@@ -1,18 +1,15 @@
 'use strict';
 
-import React, { Component } from 'react';
+import React from 'react';
 import WeekView, { addLocale } from 'react-native-week-view';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   Alert,
   View,
   StatusBar,
-  Image,
   Platform,
   RefreshControl,
-  Switch,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
@@ -21,6 +18,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
 
+/* Fields for rendering week view */
 addLocale('en', {
   months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split(
     '_'
@@ -32,7 +30,6 @@ addLocale('en', {
   weekdaysShort: 'Sun_Mon_Tue_Wed_Thur_Fri_Sat'.split('_'),
 });
 
-const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 export const baseURL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:3000/'
@@ -42,8 +39,7 @@ export default class Calendar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userEdit: false,
-      calendar_refreshing: false,
+      /* Input states */
       tmpId: 0,
       tmpColor: 'rgba(66,134,244,1)',
       tmpDate: '0',
@@ -53,92 +49,116 @@ export default class Calendar extends React.Component {
       tmpEndTime: new Date(),
       tmpSubject: '',
       tmpLocation: '',
-      data: [],
+      /* Transition states */
+      error: false,
+      userEdit: false,
+      calendar_refreshing: false,
     };
   }
 
-  renderUserform() {
-    this.setState({ userEdit: true });
-    //console.log('userform requested!');
-  }
-
-  unrenderUserform() {
-    this.setState({ userEdit: false });
-    //console.log('go back!');
-  }
-
+  /* Add a schedule object to the backend */
   addSchedule() {
-    //post a new event to the backend
-    let fetchURL = baseURL + 'user/:' + this.props.user_id + '/schedule';
+    /* First check for error (NULL/empty) */
+    this.checkScheduleError();
+    if (this.state.error === false) {
+      let fetchURL = baseURL + 'user/:' + this.props.user_id + '/schedule';
 
-    var eventStart = new Date();
-    //console.log(eventStart.getUTCDate());
-    //console.log(parseInt(this.state.tmpDate));
-    eventStart.setUTCDate(
-      eventStart.getUTCDate() + parseInt(this.state.tmpDate) - 1
-    );
-    //console.log(eventStart.getUTCDate());
-    var tempTime = this.state.tmpStartTimeString.split(' ');
-    eventStart.setHours(parseInt(tempTime[0]), parseInt(tempTime[1]));
+      /* Start time */
+      var eventStart = new Date();
+      eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate) - 1);
+      var tempTime = this.state.tmpStartTimeString.split(' ');
+      eventStart.setHours(parseInt(tempTime[0]), parseInt(tempTime[1]));
 
-    var eventEnd = new Date();
-    eventEnd.setUTCDate(
-      eventEnd.getUTCDate() + parseInt(this.state.tmpDate) - 1
-    );
-    var tempTime2 = this.state.tmpEndTimeString.split(' ');
-    eventEnd.setHours(parseInt(tempTime2[0]), parseInt(tempTime2[1]));
+      /* End time */
+      var eventEnd = new Date();
+      eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate) - 1);
+      var tempTime2 = this.state.tmpEndTimeString.split(' ');
+      eventEnd.setHours(parseInt(tempTime2[0]), parseInt(tempTime2[1]));
 
-    this.setState({ tmpStartTime: eventStart });
-    this.setState({ tmpEndTime: eventEnd });
+      /* Setting the temporary states */
+      this.setState({ tmpStartTime: eventStart });
+      this.setState({ tmpEndTime: eventEnd });
 
-    var tmp = {
-      id: this.state.tmpId,
-      startDate: this.state.tmpStartTime,
-      endDate: this.state.tmpEndTime,
-      color: this.state.tmpColor,
-      description: this.state.tmpSubject,
-      subject: this.state.tmpSubject,
-      location: this.state.tmpLocation,
-    };
-
-    this.props.scheduleArrayAdd(tmp);
-    this.setState({ tmpId: this.state.tmpId + 1 });
-    this.setState({ userEdit: false });
-
-    //	console.log(fetchURL);
-    fetch(fetchURL, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: this.props.user_id,
-        event_id: this.state.tmpId,
-        time: this.state.tmpStartTimeString + '-' + this.state.tmpEndTimeString,
-        date:
-          this.state.tmpStartTime.getUTCMonth() +
-          1 +
-          '/' +
-          this.state.tmpStartTime.getUTCDate() +
-          '/' +
-          this.state.tmpStartTime.getUTCFullYear(),
-        course: this.state.tmpSubject,
+      /* Create a temporary schedule obj */
+      var tmp = {
+        id: this.state.tmpId,
+        startDate: this.state.tmpStartTime,
+        endDate: this.state.tmpEndTime,
+        color: this.state.tmpColor,
+        description: this.state.tmpSubject,
+        subject: this.state.tmpSubject,
         location: this.state.tmpLocation,
-      }),
-    })
-      .then(response => response.text())
-      .then(responseJson => {
-        console.log(responseJson);
-        Alert.alert('Added schedule successfully!');
-      });
+      };
+
+      /* Add it to the local scheduleArray for rendering */
+      this.props.scheduleArrayAdd(tmp);
+
+      /* Increase the event ID */
+      this.setState({ tmpId: this.state.tmpId + 1 });
+
+      /* Post the schedle obj to the database */
+      fetch(fetchURL, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.props.user_id,
+          event_id: this.state.tmpId,
+          time: this.state.tmpStartTimeString + '-' + this.state.tmpEndTimeString,
+          date:
+            this.state.tmpStartTime.getUTCMonth() +
+            1 +
+            '/' +
+            this.state.tmpStartTime.getUTCDate() +
+            '/' +
+            this.state.tmpStartTime.getUTCFullYear(),
+          course: this.state.tmpSubject,
+          location: this.state.tmpLocation,
+        }),
+      })
+        .then(response => response.text())
+        .then(responseJson => {
+          console.log(responseJson);
+          Alert.alert('Added schedule successfully!');
+          this.setState({ userEdit: false });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
   }
 
-  refreshMatches() {
-    //ask for matches
+  /* Helper function that checks whether or not any fields are NULL/empty */
+  checkScheduleError() {
+    if (
+      typeof this.state.tmpColor === 'undefined' ||
+      this.state.tmpColor === '' ||
+      typeof this.state.tmpDate === 'undefined' ||
+      this.state.tmpDate === '' ||
+      typeof this.state.tmpStartTimeString === 'undefined' ||
+      this.state.tmpStartTimeString === '' ||
+      typeof this.state.tmpEndTimeString === 'undefined' ||
+      this.state.tmpEndTimeString === '' ||
+      typeof this.state.tmpSubject === 'undefined' ||
+      this.state.tmpSubject === '' ||
+      typeof this.state.tmpLocation === 'undefined' ||
+      this.state.tmpLocation === ''
+    ) {
+      this.setState({ error: true });
+      Alert.alert("One of the fields cannot be empty!");
+    }
+    else {
+      this.setState({ error: false });
+    }
+  }
+
+  /* Function that shows all the possible matches of an user */
+  getMatches() {
     let url =
       baseURL + 'user/:' + this.props.user_id + '/matches/potential_matches';
-    console.log(url);
+    //console.log(url);
     fetch(url, {
       method: 'GET',
     })
@@ -149,15 +169,21 @@ export default class Calendar extends React.Component {
         Alert.alert(
           'Potential matches:\n' + this.state.data[0].potential_matches
         );
+      })
+      .catch(error => {
+        console.error(error);
       });
   }
 
+
+  /* Function handling refreshes */
   _onRefresh = () => {
     this.setState({ calendar_refreshing: true });
     this.refreshSchedule();
     this.setState({ calendar_refreshing: false });
   };
 
+  /* Function that refreshes schedule array */
   refreshSchedule() {
     let fetchURL = baseURL + 'schedule/:' + this.props.user_id;
     fetch(fetchURL, {
@@ -167,44 +193,68 @@ export default class Calendar extends React.Component {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
+      .then(response => response.text())
       .then(responseJson => {
-        //console.log(responseJson)
-        if (typeof responseJson !== 'undefined') {
-          this.setState({ data: responseJson });
-          if (typeof this.state.data !== 'undefined') {
-            this.props.scheduleArrayClear();
-            this.state.data.forEach(item => {
-              var startTimeToAdd = new Date(item.date);
-              startTimeToAdd.setHours(item.time.substring(0, 2));
-              startTimeToAdd.setMinutes(item.time.substring(3, 5));
-
-              var endTimeToAdd = new Date(item.date);
-              endTimeToAdd.setHours(item.time.substring(7, 9));
-              endTimeToAdd.setMinutes(item.time.substring(10, 12));
-
-              var tmpSchedule = {
-                id: item.event_id,
-                startDate: startTimeToAdd,
-                endDate: endTimeToAdd,
-                color: this.state.tmpColor,
-                description: item.course,
-                subject: item.course,
-                location: item.location,
-              };
-
-              this.props.scheduleArrayAdd(tmpSchedule);
+        /* First check if user has any schedule to fetch or not */
+        if (responseJson.includes("doesn't have any")) {
+          return;
+        }
+        else {
+          /* If not, we do the actual fetch */
+          fetch(fetchURL, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          })
+            .then(response => response.json())
+            .then(responseJson => {
+              if (typeof responseJson !== 'undefined') {
+                this.props.scheduleArrayClear();
+                responseJson.forEach(item => {
+                  var startTimeToAdd = new Date(item.date);
+                  startTimeToAdd.setHours(item.time.substring(0, 2));
+                  startTimeToAdd.setMinutes(item.time.substring(3, 5));
+                  var endTimeToAdd = new Date(item.date);
+                  endTimeToAdd.setHours(item.time.substring(7, 9));
+                  endTimeToAdd.setMinutes(item.time.substring(9, 13));
+                  var tmpSchedule = {
+                    id: item.event_id,
+                    startDate: startTimeToAdd,
+                    endDate: endTimeToAdd,
+                    color: 'rgba(66,134,244,1)',
+                    description: item.course,
+                    subject: item.course,
+                    location: item.location,
+                  };
+                  this.props.scheduleArrayAdd(tmpSchedule);
+                });
+                //console.log(this.props.scheduleArray);
+              } else {
+                // Do nothing
+              }
+            })
+            .catch(error => {
+              console.error(error);
             });
-            console.log(this.props.scheduleArray);
-          } else {
-            // Do nothing
-          }
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
   }
+
+
+  /* Helper functions for (un)rendering user input forms */
+  renderUserform() {
+    this.setState({ userEdit: true });
+    //console.log('userform requested!');
+  }
+
+  unrenderUserform() {
+    this.setState({ userEdit: false });
+    //console.log('go back!');
+  }
+
+  /* -------------------------------------------------------------------------- */
 
   render() {
     if (!this.state.userEdit) {
@@ -236,23 +286,23 @@ export default class Calendar extends React.Component {
                       Alert.alert(
                         'Event: ' + event.id,
                         'Time: ' +
-                          event.startDate.getHours() +
-                          ':' +
-                          event.startDate.getMinutes() +
-                          ' - ' +
-                          event.endDate.getHours() +
-                          ':' +
-                          event.endDate.getMinutes() +
-                          '\nDate: ' +
-                          (event.startDate.getUTCMonth() + 1) +
-                          '/' +
-                          event.startDate.getUTCDate() +
-                          '/' +
-                          event.startDate.getUTCFullYear() +
-                          '\nSubject: ' +
-                          event.subject +
-                          '\nLocation: ' +
-                          event.location
+                        event.startDate.getHours() +
+                        ':' +
+                        event.startDate.getMinutes() +
+                        ' - ' +
+                        event.endDate.getHours() +
+                        ':' +
+                        event.endDate.getMinutes() +
+                        '\nDate: ' +
+                        (event.startDate.getUTCMonth() + 1) +
+                        '/' +
+                        event.startDate.getUTCDate() +
+                        '/' +
+                        event.startDate.getUTCFullYear() +
+                        '\nSubject: ' +
+                        event.subject +
+                        '\nLocation: ' +
+                        event.location
                       )
                     }
                     headerStyle={styles.header_calendar}
@@ -264,7 +314,6 @@ export default class Calendar extends React.Component {
             </SafeAreaView>
           }
           <ActionButton buttonColor="rgba(66,134,244,1)">
-            //onPress={() => this.renderUserform()}
             <ActionButton.Item
               buttonColor="rgba(66,134,244,1)"
               title="New Schedule"
@@ -274,9 +323,9 @@ export default class Calendar extends React.Component {
             <ActionButton.Item
               buttonColor="rgba(66,134,244,1)"
               title="Get Matches"
-              onPress={() => this.refreshMatches()}>
+              onPress={() => this.getMatches()}>
               <Icon
-                name="md-notifications-off"
+                name="md-person-add"
                 style={styles.actionButtonIcon}
               />
             </ActionButton.Item>
@@ -298,6 +347,7 @@ export default class Calendar extends React.Component {
                 label="Date: "
                 value={''}
                 title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
+                characterRestriction={1}
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpDate: data })}
               />
@@ -305,6 +355,7 @@ export default class Calendar extends React.Component {
                 label="Start time: "
                 value={''}
                 title="Enter in form 'hh mm'"
+                characterRestriction={5}
                 clearTextOnFocus={true}
                 onChangeText={data =>
                   this.setState({ tmpStartTimeString: data })
@@ -315,6 +366,7 @@ export default class Calendar extends React.Component {
                 label="End time: "
                 value={''}
                 title="Enter in form 'hh mm'"
+                characterRestriction={5}
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpEndTimeString: data })}
               />
@@ -323,6 +375,7 @@ export default class Calendar extends React.Component {
                 value={''}
                 title="This is a required field or it would show CPEN 321 by default"
                 clearTextOnFocus={true}
+                characterRestriction={10}
                 onChangeText={data => this.setState({ tmpSubject: data })}
               />
 
@@ -330,6 +383,7 @@ export default class Calendar extends React.Component {
                 label="Location: "
                 value={''}
                 clearTextOnFocus={true}
+                characterRestriction={20}
                 onChangeText={data => this.setState({ tmpLocation: data })}
               />
             </View>
@@ -350,13 +404,13 @@ export default class Calendar extends React.Component {
                 onPress={() => this.addSchedule()}
               />
 
-              <TextButton
+              {/* <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="log"
                 onPress={() => console.log(this.state.tmpSubject)}
-              />
+              /> */}
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -365,6 +419,9 @@ export default class Calendar extends React.Component {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
 
 const styles = StyleSheet.create({

@@ -1,31 +1,24 @@
 'use strict';
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
-  TextInput,
   Alert,
   View,
   StatusBar,
   Image,
   Platform,
   RefreshControl,
-  Switch,
   SafeAreaView,
   ScrollView,
-  Picker,
 } from 'react-native';
 import ActionButton from 'react-native-action-button';
-import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
   SettingsScreen,
-  SettingsData,
-  Chevron,
 } from 'react-native-settings-screen';
-import PropType from 'prop-types';
 import { TextField } from 'react-native-material-textfield';
 import { TextButton } from 'react-native-material-buttons';
 
@@ -34,32 +27,31 @@ export const baseURL =
     ? 'http://10.0.2.2:3000/'
     : 'http://localhost:3000/';
 
-const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
-
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userEdit: false,
-      secureTextEntry: true,
-      refreshing: false,
-
+      /* User info states */
       tmpYearLevel: this.props.year_level,
       tmpCourses: this.props.courses,
+      tmpCoursesString: '',
       tmpSex: this.props.sex,
-      tmpKindness: this.props.kindness_rating,
-      tmpPatience: this.props.patience_rating,
-      tmpHardWorking: this.props.hard_working_rating,
+      tmpKindness: this.props.kindness_pref,
+      tmpPatience: this.props.patience_pref,
+      tmpHardWorking: this.props.hard_working_pref,
       tmpPassword: this.props.password,
       tmpEmail: this.props.email,
       tmpName: this.props.name,
-
-      data: [],
+      /* Transition states */
+      userEdit: false,
+      secureTextEntry: true,
+      refreshing: false,
       error: false,
     };
   }
 
-  settingsData: SettingsData = [
+  /* Layout of information for rendering */
+  settingsData = [
     {
       type: 'CUSTOM_VIEW',
       render: () => (
@@ -138,7 +130,7 @@ export default class Profile extends React.Component {
           title: 'Kindness',
           renderAccessory: () => (
             <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.kindness_rating}
+              {this.props.kindness_pref}
             </Text>
           ),
         },
@@ -146,7 +138,7 @@ export default class Profile extends React.Component {
           title: 'Patience',
           renderAccessory: () => (
             <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.patience_rating}
+              {this.props.patience_pref}
             </Text>
           ),
         },
@@ -154,7 +146,7 @@ export default class Profile extends React.Component {
           title: 'Hardworking',
           renderAccessory: () => (
             <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.hard_working_rating}
+              {this.props.hard_working_pref}
             </Text>
           ),
         },
@@ -178,6 +170,14 @@ export default class Profile extends React.Component {
     },
   ];
 
+  /* Function that handles refresh calls */
+  _onRefresh = () => {
+    this.setState({ refreshing: true });
+    this.getUserInfo();
+    this.setState({ refreshing: false });
+  };
+
+  /* Function that gets user's info (for refreshing) */
   getUserInfo() {
     let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
     fetch(fetchURL, {
@@ -191,27 +191,24 @@ export default class Profile extends React.Component {
       .then(responseJson => {
         //console.log(responseJson)
         if (typeof responseJson !== 'undefined') {
-          this.setState({ data: responseJson });
-          if (typeof this.state.data !== 'undefined') {
-            this.props.yearLevelChange(this.state.data[0].year_level);
-            this.props.coursesChange(this.state.data[0].courses);
-            this.props.sexChange(this.state.data[0].sex);
-            this.props.numberOfRatingsChange(
-              this.state.data[0].number_of_ratings
-            );
-            this.props.kindnessRatingChange(this.state.data[0].kindness);
-            this.props.patienceRatingChange(this.state.data[0].patience);
-            this.props.hardWorkingRatingChange(this.state.data[0].hard_working);
-            this.props.authenticationTokenChange(
-              this.state.data[0].authentication_token
-            );
-            this.props.passwordChange(this.state.data[0].password);
-            //this.props.usernameChange(this.state.data[0].user_id);
-            this.props.emailChange(this.state.data[0].email);
-            this.props.nameChange(this.state.data[0].name);
-          } else {
-            // Do nothing
-          }
+          this.props.yearLevelChange(responseJson[0].year_level);
+          this.props.coursesChange(responseJson[0].courses);
+          this.props.sexChange(responseJson[0].sex);
+          this.props.numberOfRatingsChange(
+            responseJson.number_of_ratings
+          );
+          this.props.kindnessPrefChange(responseJson[0].kindness);
+          this.props.patiencePrefChange(responseJson[0].patience);
+          this.props.hardWorkingPrefChange(responseJson[0].hard_working);
+          this.props.authenticationTokenChange(
+            responseJson[0].authentication_token
+          );
+          this.props.passwordChange(responseJson[0].password);
+          //this.props.userIDChange(responseJson[0].user_id);
+          this.props.emailChange(responseJson[0].email);
+          this.props.nameChange(responseJson[0].name);
+        } else {
+          // Do nothing
         }
       })
       .catch(error => {
@@ -219,9 +216,14 @@ export default class Profile extends React.Component {
       });
   }
 
+  /* Function that pushes all the changes of user's info to the database */
   pushUserInfo() {
+    /* First check for error */
     this.checkError();
     if (this.state.error === false) {
+      /* If there's no error, we do the call */
+      /* Split course string -> array first */
+      this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") })
       let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
       fetch(fetchURL, {
         method: 'PUT',
@@ -234,9 +236,9 @@ export default class Profile extends React.Component {
           courses: this.state.tmpCourses,
           sex: this.state.tmpSex,
           number_of_ratings: this.props.number_of_ratings,
-          kindness: this.props.kindness_rating,
-          patience: this.props.patience_rating,
-          hard_working: this.props.hard_working_rating,
+          kindness: this.props.kindness_pref,
+          patience: this.props.patience_pref,
+          hard_working: this.props.hard_working_pref,
           authentication_token: this.props.authentication_token,
           password: this.state.tmpPassword,
           email: this.state.tmpEmail,
@@ -244,21 +246,27 @@ export default class Profile extends React.Component {
         }),
       })
         .then(response => response.text())
+        /* Then we apply to the local variables for rendering */
         .then(responseJson => {
+          if (responseJson.includes("already exists")) {
+            Alert.alert("Failed to update information, please try again!");
+            return;
+          }
           console.log(responseJson);
           this.props.yearLevelChange(this.state.tmpYearLevel);
           this.props.coursesChange(this.state.tmpCourses);
           this.props.sexChange(this.state.tmpSex);
           // Number of ratings unchanged
-          this.props.kindnessRatingChange(this.state.tmpKindness);
-          this.props.patienceRatingChange(this.state.tmpPatience);
-          this.props.hardWorkingRatingChange(this.state.tmpHardWorking);
+          this.props.kindnessPrefChange(this.state.tmpKindness);
+          this.props.patiencePrefChange(this.state.tmpPatience);
+          this.props.hardWorkingPrefChange(this.state.tmpHardWorking);
           // Authentication token unchanged
           this.props.passwordChange(this.state.tmpPassword);
           // User ID unchanged
           this.props.emailChange(this.state.tmpEmail);
           this.props.nameChange(this.state.tmpName);
           Alert.alert('Updated successfully!');
+          /* Render the Profile view again */
           this.setState({ userEdit: false });
         })
         .catch(error => {
@@ -267,16 +275,18 @@ export default class Profile extends React.Component {
     }
   }
 
+  /* Helper functions that (un)render the user input forms */
   renderUserform() {
     this.setState({ userEdit: true });
-    console.log('userform requested!');
+    //console.log('userform requested!');
   }
 
   unrenderUserform() {
     this.setState({ userEdit: false });
-    console.log('go back!');
+    //console.log('go back!');
   }
 
+  /* Helper functions that render characters for password */
   onAccessoryPress() {
     this.setState({ secureTextEntry: !this.state.secureTextEntry });
   }
@@ -295,26 +305,13 @@ export default class Profile extends React.Component {
     );
   }
 
-  wait(timeout) {
-    return new Promise(resolve => {
-      setTimeout(resolve, timeout);
-    });
-  }
-
-  _onRefresh = () => {
-    this.setState({ refreshing: true });
-    this.getUserInfo();
-    this.setState({ refreshing: false });
-    //Alert.alert("Refreshing");
-    //this.wait(2000).then(() => this.setState({refreshing: false}));
-  };
-
+  /* Helper function that checks for error on user inputs (NULL/empty) */
   checkError() {
     if (
       typeof this.state.tmpYearLevel === 'undefined' ||
       this.state.tmpYearLevel === '' ||
-      typeof this.state.tmpCourses === 'undefined' ||
-      this.state.tmpCourses === [] ||
+      typeof this.state.tmpCoursesString === 'undefined' ||
+      this.state.tmpCoursesString === '' ||
       typeof this.state.tmpSex === 'undefined' ||
       this.state.tmpSex === '' ||
       typeof this.state.tmpKindness === 'undefined' ||
@@ -333,50 +330,50 @@ export default class Profile extends React.Component {
       this.setState({ error: true });
       console.log(
         'Profile update - State:' +
-          this.state.tmpYearLevel +
-          ', ' +
-          this.state.tmpCourses +
-          ', ' +
-          this.state.tmpSex +
-          ', ' +
-          this.state.tmpKindness +
-          ', ' +
-          this.state.tmpPatience +
-          ', ' +
-          this.state.tmpHardWorking +
-          ', ' +
-          this.state.tmpPassword +
-          ', ' +
-          this.state.tmpEmail +
-          ', ' +
-          this.state.tmpName
+        this.state.tmpYearLevel +
+        ', ' +
+        this.state.tmpCoursesString +
+        ', ' +
+        this.state.tmpSex +
+        ', ' +
+        this.state.tmpKindness +
+        ', ' +
+        this.state.tmpPatience +
+        ', ' +
+        this.state.tmpHardWorking +
+        ', ' +
+        this.state.tmpPassword +
+        ', ' +
+        this.state.tmpEmail +
+        ', ' +
+        this.state.tmpName
       );
       console.log(
         'Profile update - typeof:' +
-          typeof this.state.tmpYearLevel +
-          ', ' +
-          typeof this.state.tmpCourses +
-          ', ' +
-          typeof this.state.tmpSex +
-          ', ' +
-          typeof this.state.tmpKindness +
-          ', ' +
-          typeof this.state.tmpPatience +
-          ', ' +
-          typeof this.state.tmpHardWorking +
-          ', ' +
-          typeof this.state.tmpPassword +
-          ', ' +
-          typeof this.state.tmpEmail +
-          ', ' +
-          typeof this.state.tmpName
+        typeof this.state.tmpYearLevel +
+        ', ' +
+        typeof this.state.tmpCoursesString +
+        ', ' +
+        typeof this.state.tmpSex +
+        ', ' +
+        typeof this.state.tmpKindness +
+        ', ' +
+        typeof this.state.tmpPatience +
+        ', ' +
+        typeof this.state.tmpHardWorking +
+        ', ' +
+        typeof this.state.tmpPassword +
+        ', ' +
+        typeof this.state.tmpEmail +
+        ', ' +
+        typeof this.state.tmpName
       );
       Alert.alert('One of the fields is empty!');
     } else {
       if (
         this.state.tmpKindness +
-          this.state.tmpPatience +
-          this.state.tmpHardWorking <
+        this.state.tmpPatience +
+        this.state.tmpHardWorking <
         12
       ) {
         this.setState({ error: true });
@@ -388,6 +385,8 @@ export default class Profile extends React.Component {
       }
     }
   }
+
+  /* -------------------------------------------------------------------------- */
 
   render() {
     if (!this.state.userEdit) {
@@ -419,10 +418,23 @@ export default class Profile extends React.Component {
               </ScrollView>
             </SafeAreaView>
           }
-          <ActionButton
-            buttonColor="rgba(66,134,244,1)"
-            onPress={() => this.renderUserform()}
-          />
+          <ActionButton buttonColor="rgba(66,134,244,1)">
+            <ActionButton.Item
+              buttonColor="rgba(66,134,244,1)"
+              title="Modify Profile"
+              onPress={() => this.renderUserform()}>
+              <Icon name="md-create" style={styles.actionButtonIcon} />
+            </ActionButton.Item>
+            <ActionButton.Item
+              buttonColor="red"
+              title="Sign Out"
+              onPress={() => {
+                Alert.alert("Signing out");
+                this.props.logVisibleChange();
+              }}>
+              <Icon name="md-exit" style={styles.actionButtonIcon} />
+            </ActionButton.Item>
+          </ActionButton>
         </View>
       );
     } else {
@@ -440,6 +452,7 @@ export default class Profile extends React.Component {
               <TextField
                 label="Name: "
                 value={this.props.name}
+                characterRestriction={30}
                 //clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpName: data })}
               />
@@ -475,6 +488,7 @@ export default class Profile extends React.Component {
                 label="Email: "
                 value={this.props.email}
                 keyboardType="email-address"
+                characterRestriction={50}
                 //clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpEmail: data })}
               />
@@ -482,24 +496,27 @@ export default class Profile extends React.Component {
               <TextField
                 label="Courses: "
                 value={this.props.courses}
-                onChangeText={data => this.setState({ tmpCourses: data })}
+                onChangeText={data => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
-                label="Kindness: "
-                value={this.props.kindness_rating}
+                label="Kindness preference: "
+                value={this.props.kindness_pref}
+                characterRestriction={2}
                 onChangeText={data => this.setState({ tmpKindness: data })}
               />
 
               <TextField
-                label="Patience: "
-                value={this.props.patience_rating}
+                label="Patience preference: "
+                value={this.props.patience_pref}
+                characterRestriction={2}
                 onChangeText={data => this.setState({ tmpPatience: data })}
               />
 
               <TextField
-                label="Hardworking: "
-                value={this.props.hard_working_rating}
+                label="Hardworking preference: "
+                value={this.props.hard_working_pref}
+                characterRestriction={2}
                 onChangeText={data => this.setState({ tmpHardWorking: data })}
               />
             </View>
@@ -519,13 +536,13 @@ export default class Profile extends React.Component {
                 title="change"
                 onPress={() => this.pushUserInfo()}
               />
-              <TextButton
+              {/* <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="log"
                 onPress={() => console.log(this.state.tmpSex)}
-              />
+              /> */}
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -534,6 +551,9 @@ export default class Profile extends React.Component {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
 const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
 
 const styles = StyleSheet.create({
