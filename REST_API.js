@@ -49,6 +49,150 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   })
 })
 
+/*______________________________________________________________________________________
+ * Helper funtions used for the match algorithm
+ *______________________________________________________________________________________*/
+
+/* A helper function used for sorting algorithm */
+function generateMatch(kindness, hardWorking, patience, array){
+
+    // Create one dimensional array
+    var score = new Array(array.length);
+
+    // Loop to create 2D array using 1D array
+    for (var i = 0; i < score.length; i++) {
+        score[i] = new Array(2);
+    }
+
+    for(var i = 0; i < array.length; i++){
+        score[i][0] =   Math.abs(kindness - array[i].kindness) +
+                        Math.abs(hardWorking - array[i].hardWorking) +
+                        Math.abs(patience - array[i].patience);
+        score[i][1] =   array[i].userId;
+    }
+    /* Do insertion sort */
+    for(var i = 0; i < array.length; i++){
+        var sc = score[i][0]; //score
+        var id = score[i][1]; //userId
+        var j = i;
+        while(j>0 && score[j-1][0] > sc){
+            score[j][0] = score[j-1][0];
+            score[j][1] = score[j-1][1];
+            j--;
+        }
+        score[j][0] = sc;
+        score[j][1] = id;
+    }
+    var ret = [];
+    for(var i = 0; i < array.length; i++){
+       ret[i] = score[i][1];
+    }
+
+    return ret;
+}
+/* A helper function that filters the array by the time, date */
+function time_filter_match(inforArray, scheduleArray, userId){
+    var filteredMatches = [];
+    for(var i = 0; i < inforArray.length; i++){
+        var infor = parseInt(inforArray[i].userId, 10);
+        for(var j = 0; j < scheduleArray.length; j++){
+            if(infor == parseInt(scheduleArray[j].userId, 10) && infor != userId){
+                filteredMatches.push(inforArray[i]);
+            }
+        }
+    }
+    return filteredMatches;
+}
+/*
+ *  Delete the the matching with given time and userId.
+ *  Modify other userId matches as needed.
+ *  This will call for all_request_delete, all_wait_delete, and person_match_delete
+ */
+function matches_delete(userId, eventId){
+    /* Read the match object into an object */
+    query = {"userId" : userId,
+             "eventId" : eventId}
+    userDb.collection("match_clt").find(query).toArray((err,result) => {
+        if (err) return console.log(err);
+        var matches = JSON_stringify(result);
+        var wait = matches.wait;            /* Will later update the request list of people that this person requested */
+        var request = matches.request;      /* Delete this list won't affect other people's matches */
+        var matchPerson = matches.match;   /* Will later update the matched person's "match" to NULL  */
+        var time = matches.time;
+        var date = matches.date;
+          /* Delete requests and waits to others */
+        all_request_delete(userId, wait, time, date);
+        all_wait_delete(userId, request, time, date);
+          /* Delete the matching person */
+        if(matchPerson != null) person_match_delete(matchPerson, time, date);
+
+        /* Delete the match object */
+        var query = {"userId" : userId, "time" : time, "date" : date};
+        userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
+            if (err) return console.log(err);
+        })
+    })
+
+}
+/* Delete the all the requests that the given userId sent */
+function all_request_delete(userId, wait, time, date){
+    for(var i = 0; i < wait.length; i++){
+        var requestedId = wait[i];
+        var query = {"userId" : parseInt(requestedId, 10),
+                     "time" : time,
+                     "date" : date};
+        userDb.collection("match_clt").find(query).toArray((err,result) => {
+            if (err) return console.log(err);
+            result = JSON.stringify(result);
+            var request = result.request;
+            /* Find the id and delete it */
+            for(var j = 0; j < request.length; j++){
+                if(parseInt(request[j], 10) == pareInt(userId, 10)){
+                    request.splice(j,1);
+                    break;
+                }
+            }
+            userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
+                if (err) return console.log(err); })
+        })
+    }
+}
+function all_wait_delete(userId, request, time, date){
+    for(var i = 0; i < request.length; i++){
+        var waitedId = request[i];
+        var query = {"userId" : parseInt(waitedId, 10),
+                     "time" : time,
+                     "date" : date};
+        userDb.collection("match_clt").find(query).toArray((err,result) => {
+            if (err) return console.log(err);
+            result = JSON.stringify(result);
+            var wait = result.wait;
+            /* Find the id and delete it */
+            for(var j = 0; j < wait.length; j++){
+                if(parseInt(wait[j], 10) == parseInt(userId, 10)){
+                    wait.splice(j,1);
+                    break;
+                }
+            }
+            userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
+                if (err) return console.log(err); })
+        })
+    }
+}
+/* Delete the matching of 2 people */
+function person_match_delete(userId, time, date){
+    var query = {"userId" : parseInt(userId, 10),
+                 "time" : time,
+                 "date" : date};
+    var newValues = {$set:{"match" : null}};
+    userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
+        if (err) return 1;
+        return 0; })
+}
+/*______________________________________________________________________________________
+ *  End of helper funtions used for the match algorithm
+ *______________________________________________________________________________________*/
+
 /*---------------------------- Preferences Collection ---------------------------- */
 
 /*
@@ -544,150 +688,6 @@ app.delete("/user/:userId/matches/:matchId", (req,res) => {
 })
 
 
-
-/*______________________________________________________________________________________
- * Helper funtions used for the match algorithm
- *______________________________________________________________________________________*/
-
-/* A helper function used for sorting algorithm */
-function generateMatch(kindness, hardWorking, patience, array){
-
-    // Create one dimensional array
-    var score = new Array(array.length);
-
-    // Loop to create 2D array using 1D array
-    for (var i = 0; i < score.length; i++) {
-        score[i] = new Array(2);
-    }
-
-    for(var i = 0; i < array.length; i++){
-        score[i][0] =   Math.abs(kindness - array[i].kindness) +
-                        Math.abs(hardWorking - array[i].hardWorking) +
-                        Math.abs(patience - array[i].patience);
-        score[i][1] =   array[i].userId;
-    }
-    /* Do insertion sort */
-    for(var i = 0; i < array.length; i++){
-        var sc = score[i][0]; //score
-        var id = score[i][1]; //userId
-        var j = i;
-        while(j>0 && score[j-1][0] > sc){
-            score[j][0] = score[j-1][0];
-            score[j][1] = score[j-1][1];
-            j--;
-        }
-        score[j][0] = sc;
-        score[j][1] = id;
-    }
-    var ret = [];
-    for(var i = 0; i < array.length; i++){
-       ret[i] = score[i][1];
-    }
-
-    return ret;
-}
-/* A helper function that filters the array by the time, date */
-function time_filter_match(inforArray, scheduleArray, userId){
-    var filteredMatches = [];
-    for(var i = 0; i < inforArray.length; i++){
-        var infor = parseInt(inforArray[i].userId, 10);
-        for(var j = 0; j < scheduleArray.length; j++){
-            if(infor == parseInt(scheduleArray[j].userId, 10) && infor != userId){
-                filteredMatches.push(inforArray[i]);
-            }
-        }
-    }
-    return filteredMatches;
-}
-/*
- *  Delete the the matching with given time and userId.
- *  Modify other userId matches as needed.
- *  This will call for all_request_delete, all_wait_delete, and person_match_delete
- */
-function matches_delete(userId, eventId){
-    /* Read the match object into an object */
-    query = {"userId" : userId,
-             "eventId" : eventId}
-    userDb.collection("match_clt").find(query).toArray((err,result) => {
-        if (err) return console.log(err);
-        var matches = JSON_stringify(result);
-        var wait = matches.wait;            /* Will later update the request list of people that this person requested */
-        var request = matches.request;      /* Delete this list won't affect other people's matches */
-        var matchPerson = matches.match;   /* Will later update the matched person's "match" to NULL  */
-        var time = matches.time;
-        var date = matches.date;
-          /* Delete requests and waits to others */
-        all_request_delete(userId, wait, time, date);
-        all_wait_delete(userId, request, time, date);
-          /* Delete the matching person */
-        if(matchPerson != null) person_match_delete(matchPerson, time, date);
-
-        /* Delete the match object */
-        var query = {"userId" : userId, "time" : time, "date" : date};
-        userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-            if (err) return console.log(err);
-        })
-    })
-
-}
-/* Delete the all the requests that the given userId sent */
-function all_request_delete(userId, wait, time, date){
-    for(var i = 0; i < wait.length; i++){
-        var requestedId = wait[i];
-        var query = {"userId" : parseInt(requestedId, 10),
-                     "time" : time,
-                     "date" : date};
-        userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) return console.log(err);
-            result = JSON.stringify(result);
-            var request = result.request;
-            /* Find the id and delete it */
-            for(var j = 0; j < request.length; j++){
-                if(parseInt(request[j], 10) == pareInt(userId, 10)){
-                    request.splice(j,1);
-                    break;
-                }
-            }
-            userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
-                if (err) return console.log(err); })
-        })
-    }
-}
-function all_wait_delete(userId, request, time, date){
-    for(var i = 0; i < request.length; i++){
-        var waitedId = request[i];
-        var query = {"userId" : parseInt(waitedId),
-                     "time" : time,
-                     "date" : date};
-        userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) return console.log(err);
-            result = JSON.stringify(result);
-            var wait = result.wait;
-            /* Find the id and delete it */
-            for(var j = 0; j < wait.length; j++){
-                if(parseInt(wait[j], 10) == parseInt(userId, 10)){
-                    wait.splice(j,1);
-                    break;
-                }
-            }
-            userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
-                if (err) return console.log(err); })
-        })
-    }
-}
-/* Delete the matching of 2 people */
-function person_match_delete(userId, time, date){
-    var query = {"userId" : parseInt(userId, 10),
-                 "time" : time,
-                 "date" : date};
-    var newValues = {$set:{"match" : null}};
-    userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
-        if (err) return 1;
-        return 0; })
-}
-/*______________________________________________________________________________________
- *  End of helper funtions used for the match algorithm
- *______________________________________________________________________________________*/
 
  app.get("/get_all_users",  (req,res) => {
      userDb.collection("infoClt").find().toArray((err, a) => {
