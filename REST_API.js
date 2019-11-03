@@ -35,7 +35,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
     console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
-    if (err) throw err;
+    if (err) {throw err};
   });
 
   /* Schedule Database */
@@ -324,7 +324,7 @@ app.put("/user/:userId/preferences", (req,res) => {
  * {'yearLevel' : 3,
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
  *  'sex' : 0,
- *  'number_of_ratings' : 15,
+ *  'numberOfRatings' : 15,
  *  'kindness' : 3.4,
  *  'patience' : 7.6,
  *  'hardWorking' : 1.0,
@@ -353,7 +353,7 @@ app.get('/user/:userId/info', (req,res) => {
  * {'yearLevel' : 3,
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
  *  'sex' : 0,
- *  'number_of_ratings' : 15,
+ *  'numberOfRatings' : 15,
  *  'kindness' : 3.4,
  *  'patience' : 7.6,
  *  'hardWorking' : 1.0,
@@ -390,7 +390,7 @@ app.post('/user/:userId', (req,res) => {
             {"yearLevel"           : req.body.yearLevel,
              "sex"                  : parseInt(req.body.sex, 10),
              "courses"              : req.body.courses,
-             "number_of_ratings"    : parseInt(req.body.number_of_ratings, 10),
+             "numberOfRatings"    : parseInt(req.body.numberOfRatings, 10),
              "kindness"             : parseFloat(req.body.kindness),
              "patience"             : parseFloat(req.body.patience),
              "hardWorking"         : parseFloat(req.body.hardWorking),
@@ -415,7 +415,7 @@ app.post('/user/:userId', (req,res) => {
  * {'yearLevel' : 3,
  *  'courses' : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221', ...],
  *  'sex' : 0,
- *  'number_of_ratings' : 15,
+ *  'numberOfRatings' : 15,
  *  'kindness' : 3.4,
  *  'patience' : 7.6,
  *  'hardWorking' : 1.0,
@@ -430,7 +430,7 @@ app.put("/user/:userId/info", (req,res) => {
     var newValues = {$set: {yearLevel           : parseInt(req.body.yearLevel, 10),
                             sex                  : parseInt(req.body.sex, 10),
                             courses              : req.body.courses,
-                            number_of_ratings    : parseInt(req.body.number_of_ratings, 10),
+                            numberOfRatings    : parseInt(req.body.numberOfRatings, 10),
                             kindness             : parseFloat(req.body.kindness, 10),
                             patience             : parseFloat(req.body.patience, 10),
                             hardWorking         : parseFloat(req.body.hardWorking, 10),
@@ -621,11 +621,11 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
             }
 
             /* Update user_a's matches */
-            userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, update_result_a) => {
+            userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
                 if (err) return console.log(err);
 
                     /* Update user_b's matches */
-                userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, update_result_b) => {
+                userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
                     if (err) return console.log(err);
 
                     res.send("Successfully added matches.");
@@ -683,7 +683,7 @@ app.get('/user/:userId/matches/userIsWaitingToMatchWith', (req,res) => {
 app.delete("/user/:userId/matches/:matchId", (req,res) => {
     var err1 = person_match_delete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = person_match_delete(req.param.userIdB, req.body.time, req.body.date);
-    if(err1 || err2) return console.log(err);
+    if(err1 || err2) {return console.log(err)};
     res.send("Successfully unmatch.");
 })
 
