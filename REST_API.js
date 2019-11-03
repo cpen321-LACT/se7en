@@ -62,7 +62,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  */
 app.post('/user/:user_id/preferences', (req,res) => {
 
-    var user_query = {user_id : parseInt(req.params.user_id)};
+    var user_query = {user_id : parseInt(req.params.user_id, 10)};
 
     /* Check if the user exists in the database */
     user_db.collection("info_clt").find(user_query).toArray((err, user) => {
@@ -75,14 +75,14 @@ app.post('/user/:user_id/preferences', (req,res) => {
         if (doesntExist(req.body)){
             res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
-        } 
+        }
 
         if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
             res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
 
-        if (parseInt(req.body.sex) < 0 || parseInt(req.body.sex) > 2) {
+        if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex) > 2) {
             res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
@@ -98,7 +98,7 @@ app.post('/user/:user_id/preferences', (req,res) => {
              'year_level'   : req.body.year_level},(err, result) => {
          if (err) return console.log(err);
          res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
-        })  
+        })
     })
 })
 
@@ -229,7 +229,7 @@ app.post('/user/:user_id', (req,res) => {
         if (doesntExist(req.body)){
             res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
-        } 
+        }
 
         if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
             res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
@@ -260,7 +260,7 @@ app.post('/user/:user_id', (req,res) => {
 
          if (err) return console.log(err);
             res.send("The user has been added to the database!");
-        }) 
+        })
     })
 })
 
@@ -285,7 +285,7 @@ app.post('/user/:user_id', (req,res) => {
 app.put('/user/:user_id/info', (req,res) => {
     var query = {user_id : parseInt(req.params.user_id)};
     var newValues = {$set: {year_level           : parseInt(req.body.year_level),
-                            sex                  : parseInt(req.body.sex), 
+                            sex                  : parseInt(req.body.sex),
                             courses              : req.body.courses,
                             number_of_ratings    : parseInt(req.body.number_of_ratings),
                             kindness             : parseFloat(req.body.kindness),
@@ -304,7 +304,7 @@ app.put('/user/:user_id/info', (req,res) => {
         if (doesntExist(req.body)){
             res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
-        } 
+        }
 
         if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hard_working)) ){
             res.status(400).send("kindness, patience and hard_working do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
@@ -326,12 +326,12 @@ app.put('/user/:user_id/info', (req,res) => {
 /*
  *  Delete an user - delete all information of that user
  *  This take no arguments
- * 
+ *
  *  NOTE: Either
  *  - the front end will call for other delete request for schedule,
  *  preference before calling this
  *  - or this request will have to handle all deletes
- *  ----> Use the former one for now 
+ *  ----> Use the former one for now
  */
 app.delete('/user/:user_id/info', (req,res) => {
     var query = {"user_id" : parseInt(req.params.user_id)};
@@ -355,7 +355,7 @@ app.delete('/user/:user_id/info', (req,res) => {
  *  'kindness' : 3,
  *  'hard_working' : 3,
  *  'patience' : 6}
- * 
+ *
  *  Tung: can you change this so it doesnt require a body to work
  */
 app.get('/user/:user_id/matches/potential_matches', (req,res) => {
@@ -427,7 +427,7 @@ app.get('/user/:user_id/matches/potential_matches', (req,res) => {
  * Match user with user_id user_id_a with user with user_id user_id_b.
  *
  * Update currently_matched_with array for user_a and user_b
- * 
+ *
  * Sample JSON input:
  * { "event_id_a : 0, "event_id_b" : 2}
  * Adam: to test
@@ -537,7 +537,7 @@ app.get('/user/:user_id/matches/user_is_waiting_to_match_with', (req,res) => {
 /*
  * Unmatch user with user_id with user with match_id and vice versa.
  * This will call helper function person_match_delete()
- * Tung: Can you test this 
+ * Tung: Can you test this
  */
 app.delete('/user/:user_id/matches/:match_id', (req,res) => {
     var err1 = person_match_delete(req.param.user_id_a, req.body.time, req.body.date);
@@ -796,7 +796,7 @@ app.post('/user/:user_id/schedule', (req,res) => {
     if (doesntExist(req.body)){
         res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
         return;
-    } 
+    }
 
     user_db.collection("info_clt").find({ user_id : parseInt(req.params.user_id)}).toArray((err, user_info) => {
 
