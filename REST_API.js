@@ -28,11 +28,11 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* User Database */
   userDb.createCollection("infoClt", function(err, res) {
     if (err) {throw err};
-    console.log("Info collection created!");
+    // console.log("Info collection created!");
   });
   userDb.createCollection("preferencesClt", function(err, res) {
     if (err) {throw err};
-    console.log("Peferences collection created!");
+    // console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
     if (err) {throw err};
@@ -40,12 +40,12 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
 
   /* Schedule Database */
   scheduleDb.createCollection("scheduleClt", function(err, res) {
-    if (err) {throw err};
-    console.log("Schedule collection created!");
+    if (err) {throw err}
+    // console.log("Schedule collection created!");
   });
 
   app.listen(3000, function() {
-      console.log("server is up!");
+    //   console.log("server is up!");
   })
 })
 
