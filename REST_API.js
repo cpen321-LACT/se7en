@@ -172,7 +172,7 @@ function personMatchDelete(userId, t, d){
  */
 function matchesDelete(uid, eid){
     /* Read the match object into an object */
-    query = {"userId" : uid,
+    var query = {"userId" : uid,
              "eventId" : eid};
     userDb.collection("match_clt").find(query).toArray((err,result) => {
         if (err) {return err;}
@@ -186,7 +186,7 @@ function matchesDelete(uid, eid){
         allRequestDelete(uid, wait, t, d);
         allWaitDelete(uid, request, t, d);
           /* Delete the matching person */
-        if(matchPerson != null) personMatchDelete(matchPerson, t, d);
+        if(matchPerson != null) {personMatchDelete(matchPerson, t, d);}
 
         /* Delete the match object */
         var query = {"userId" : uid, "time" : t, "date" : d};
