@@ -53,7 +53,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  * Helper funtions used for the match algorithm
  *______________________________________________________________________________________*/
 
- 
+
 /* A helper function used for sorting algorithm */
 function generateMatch(kindness, hardWorking, patience, array){
 
@@ -61,18 +61,19 @@ function generateMatch(kindness, hardWorking, patience, array){
     var score = new Array(array.length);
 
     // Loop to create 2D array using 1D array
-    for (var i = 0; i < score.length; i++) {
+    var i;
+    for (i = 0; i < score.length; i++) {
         score[i] = new Array(2);
     }
 
-    for(var i = 0; i < array.length; i++){
+    for(i = 0; i < array.length; i++){
         score[i][0] =   Math.abs(kindness - array[i].kindness) +
                         Math.abs(hardWorking - array[i].hardWorking) +
                         Math.abs(patience - array[i].patience);
         score[i][1] =   array[i].userId;
     }
     /* Do insertion sort */
-    for(var i = 0; i < array.length; i++){
+    for(i = 0; i < array.length; i++){
         var sc = score[i][0]; //score
         var id = score[i][1]; //userId
         var j = i;
