@@ -214,6 +214,19 @@ app.post("/user/:userId/preferences", (req,res) => {
 
     var userQuery = {userId : parseInt(req.params.userId, 10)};
 
+    if (doesntExist(req.body)){
+        res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+    }
+    else if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
+        res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+    }
+    else if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 2) {
+        res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
+        return;
+    }
+
     /* Check if the user exists in the database */
     userDb.collection("infoClt").find(userQuery).toArray((err, user) => {
 
@@ -221,22 +234,6 @@ app.post("/user/:userId/preferences", (req,res) => {
             res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
-
-        else if (doesntExist(req.body)){
-            res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
-
-        else if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
-            res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
-
-        else if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 2) {
-            res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
-
         /* Add the users preferences */
         userDb.collection("preferencesClt").insertOne(
             {"userId"      : parseInt(req.params.userId, 10),
