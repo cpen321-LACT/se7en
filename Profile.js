@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import React from 'react';
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -8,37 +8,119 @@ import {
   View,
   StatusBar,
   Image,
-  Platform,
   RefreshControl,
   SafeAreaView,
   ScrollView,
-} from 'react-native';
-import ActionButton from 'react-native-action-button';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import Icon from 'react-native-vector-icons/Ionicons';
+  Platform,
+} from "react-native";
+import ActionButton from "react-native-action-button";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import Icon from "react-native-vector-icons/Ionicons";
 import {
   SettingsScreen,
-} from 'react-native-settings-screen';
-import { TextField } from 'react-native-material-textfield';
-import { TextButton } from 'react-native-material-buttons';
+} from "react-native-settings-screen";
+import { TextField } from "react-native-material-textfield";
+import { TextButton } from "react-native-material-buttons";
+
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
+const statusBarHeight = Platform.OS === "ios" ? 35 : 0;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  navBar: {
+    backgroundColor: "#4286f4",
+    height: 44 + statusBarHeight,
+    alignSelf: "stretch",
+    paddingTop: statusBarHeight,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  navBarTitle: {
+    color: "#FFF",
+    fontFamily,
+    fontSize: 17,
+  },
+  heroContainer: {
+    marginTop: 0,
+    marginBottom: 20,
+    paddingVertical: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: "#4286f4",
+    flexDirection: "row",
+  },
+  heroImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: "#4286f4",
+    marginHorizontal: 20,
+  },
+  heroTitle: {
+    fontFamily,
+    color: "black",
+    fontSize: 24,
+  },
+  heroSubtitle: {
+    fontFamily,
+    color: "#999",
+    fontSize: 14,
+  },
+
+  scroll: {
+    backgroundColor: "transparent",
+  },
+
+  input_container: {
+    margin: 8,
+    marginTop: Platform.select({ ios: 2, android: 2 }),
+    flex: 1,
+  },
+
+  contentContainer: {
+    padding: 8,
+  },
+
+  buttonContainer: {
+    paddingTop: 8,
+    margin: 8,
+  },
+
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+});
+
+/* -------------------------------------------------------------------------- */
 
 export const baseURL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000/'
-    : 'http://localhost:3000/';
+  Platform.OS === "android"
+    ? "http://10.0.2.2:3000/"
+    : "http://localhost:3000/";
 
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       /* User info states */
-      tmpYearLevel: this.props.year_level,
+      tmpYearLevel: this.props.yearLevel,
       tmpCourses: this.props.courses,
-      tmpCoursesString: '',
+      tmpCoursesString: "",
       tmpSex: this.props.sex,
-      tmpKindness: this.props.kindness_pref,
-      tmpPatience: this.props.patience_pref,
-      tmpHardWorking: this.props.hard_working_pref,
+      tmpKindness: this.props.kindnessPref,
+      tmpPatience: this.props.patiencePref,
+      tmpHardWorking: this.props.hardWorkingPref,
       tmpPassword: this.props.password,
       tmpEmail: this.props.email,
       tmpName: this.props.name,
@@ -53,113 +135,113 @@ export default class Profile extends React.Component {
   /* Layout of information for rendering */
   settingsData = [
     {
-      type: 'CUSTOM_VIEW',
+      type: "CUSTOM_VIEW",
       render: () => (
         <View style={styles.heroContainer}>
           <Image
             source={{
               uri:
-                'https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639',
+                "https://vignette.wikia.nocookie.net/internet-meme/images/0/0b/Monkathink.jpg/revision/latest?cb=20180310164639",
             }}
             style={styles.heroImage}
           />
           <View style={{ flex: 1 }}>
             <Text style={styles.heroTitle}>{this.props.name}</Text>
             <Text style={styles.heroSubtitle}>
-              User ID: {this.props.user_id}
+              User ID: {this.props.userID}
             </Text>
           </View>
         </View>
       ),
     },
     {
-      type: 'SECTION',
-      header: 'My info'.toUpperCase(),
+      type: "SECTION",
+      header: "My info".toUpperCase(),
       footer:
-        'Donec sed odio dui. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.',
+        "Donec sed odio dui. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.",
       rows: [
         {
-          title: 'Name',
+          title: "Name",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
               {this.props.name}
             </Text>
           ),
         },
         {
-          title: 'Email',
+          title: "Email",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
               {this.props.email}
             </Text>
           ),
         },
         {
-          title: 'Sex',
+          title: "Sex",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
               {this.props.sex}
             </Text>
           ),
         },
         {
-          title: 'Year level',
+          title: "Year level",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.year_level}
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.yearLevel}
             </Text>
           ),
         },
         {
-          title: 'Courses',
+          title: "Courses",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
               {this.props.courses}
             </Text>
           ),
         },
         {
-          title: 'Number of Ratings',
+          title: "Number of Ratings",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.number_of_ratings}
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.numberOfRatings}
             </Text>
           ),
         },
         {
-          title: 'Kindness',
+          title: "Kindness",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.kindness_pref}
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.kindnessPref}
             </Text>
           ),
         },
         {
-          title: 'Patience',
+          title: "Patience",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.patience_pref}
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.patiencePref}
             </Text>
           ),
         },
         {
-          title: 'Hardworking',
+          title: "Hardworking",
           renderAccessory: () => (
-            <Text style={{ color: '#999', marginRight: 6, fontSize: 18 }}>
-              {this.props.hard_working_pref}
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.hardWorkingPref}
             </Text>
           ),
         },
       ],
     },
     {
-      type: 'CUSTOM_VIEW',
+      type: "CUSTOM_VIEW",
       render: () => (
         <Text
           style={{
-            alignSelf: 'center',
+            alignSelf: "center",
             fontSize: 18,
-            color: '#999',
+            color: "#999",
             marginBottom: 40,
             marginTop: -30,
             fontFamily,
@@ -177,25 +259,25 @@ export default class Profile extends React.Component {
     this.setState({ refreshing: false });
   };
 
-  /* Function that gets user's info (for refreshing) */
+  /* Function that gets user"s info (for refreshing) */
   getUserInfo() {
-    let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
+    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
     fetch(fetchURL, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     })
-      .then(response => response.json())
-      .then(responseJson => {
+      .then((response) => response.json())
+      .then((responseJson) => {
         //console.log(responseJson)
-        if (typeof responseJson !== 'undefined') {
-          this.props.yearLevelChange(responseJson[0].year_level);
+        if (typeof responseJson !== "undefined") {
+          this.props.yearLevelChange(responseJson[0].yearLevel);
           this.props.coursesChange(responseJson[0].courses);
           this.props.sexChange(responseJson[0].sex);
           this.props.numberOfRatingsChange(
-            responseJson.number_of_ratings
+            responseJson.numberOfRatings
           );
           this.props.kindnessPrefChange(responseJson[0].kindness);
           this.props.patiencePrefChange(responseJson[0].patience);
@@ -216,38 +298,38 @@ export default class Profile extends React.Component {
       });
   }
 
-  /* Function that pushes all the changes of user's info to the database */
+  /* Function that pushes all the changes of user"s info to the database */
   pushUserInfo() {
     /* First check for error */
     this.checkError();
-    if (this.state.error === false) {
-      /* If there's no error, we do the call */
+    if (!this.state.error) {
+      /* If there"s no error, we do the call */
       /* Split course string -> array first */
-      this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") })
-      let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
+      this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
+      let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
       fetch(fetchURL, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           year_level: this.state.tmpYearLevel,
           courses: this.state.tmpCourses,
           sex: this.state.tmpSex,
-          number_of_ratings: this.props.number_of_ratings,
-          kindness: this.props.kindness_pref,
-          patience: this.props.patience_pref,
-          hard_working: this.props.hard_working_pref,
-          authentication_token: this.props.authentication_token,
+          number_of_ratings: this.props.numberOfRatings,
+          kindness: this.props.kindnessPref,
+          patience: this.props.patiencePref,
+          hard_working: this.props.hardWorkingPref,
+          authentication_token: this.props.authenticationToken,
           password: this.state.tmpPassword,
           email: this.state.tmpEmail,
           name: this.state.tmpName,
         }),
       })
-        .then(response => response.text())
+        .then((response) => response.text())
         /* Then we apply to the local variables for rendering */
-        .then(responseJson => {
+        .then((responseJson) => {
           if (responseJson.includes("already exists")) {
             Alert.alert("Failed to update information, please try again!");
             return;
@@ -265,7 +347,7 @@ export default class Profile extends React.Component {
           // User ID unchanged
           this.props.emailChange(this.state.tmpEmail);
           this.props.nameChange(this.state.tmpName);
-          Alert.alert('Updated successfully!');
+          Alert.alert("Updated successfully!");
           /* Render the Profile view again */
           this.setState({ userEdit: false });
         })
@@ -278,12 +360,12 @@ export default class Profile extends React.Component {
   /* Helper functions that (un)render the user input forms */
   renderUserform() {
     this.setState({ userEdit: true });
-    //console.log('userform requested!');
+    //console.log("userform requested!");
   }
 
   unrenderUserform() {
     this.setState({ userEdit: false });
-    //console.log('go back!');
+    //console.log("go back!");
   }
 
   /* Helper functions that render characters for password */
@@ -292,7 +374,7 @@ export default class Profile extends React.Component {
   }
 
   renderPasswordAccessory() {
-    let name = this.state.secureTextEntry ? 'visibility' : 'visibility-off';
+    let name = this.state.secureTextEntry ? "visibility" : "visibility-off";
 
     return (
       <MaterialIcon
@@ -308,67 +390,67 @@ export default class Profile extends React.Component {
   /* Helper function that checks for error on user inputs (NULL/empty) */
   checkError() {
     if (
-      typeof this.state.tmpYearLevel === 'undefined' ||
-      this.state.tmpYearLevel === '' ||
-      typeof this.state.tmpCoursesString === 'undefined' ||
-      this.state.tmpCoursesString === '' ||
-      typeof this.state.tmpSex === 'undefined' ||
-      this.state.tmpSex === '' ||
-      typeof this.state.tmpKindness === 'undefined' ||
-      this.state.tmpKindness === '' ||
-      typeof this.state.tmpPatience === 'undefined' ||
-      this.state.tmpPatience === '' ||
-      typeof this.state.tmpHardWorking === 'undefined' ||
-      this.state.tmpHardWorking === '' ||
-      typeof this.state.tmpPassword === 'undefined' ||
-      this.state.tmpPassword === '' ||
-      typeof this.state.tmpEmail === 'undefined' ||
-      this.state.tmpEmail === '' ||
-      typeof this.state.tmpName === 'undefined' ||
-      this.state.tmpName === ''
+      typeof this.state.tmpYearLevel === "undefined" ||
+      this.state.tmpYearLevel === "" ||
+      typeof this.state.tmpCoursesString === "undefined" ||
+      this.state.tmpCoursesString === "" ||
+      typeof this.state.tmpSex === "undefined" ||
+      this.state.tmpSex === "" ||
+      typeof this.state.tmpKindness === "undefined" ||
+      this.state.tmpKindness === "" ||
+      typeof this.state.tmpPatience === "undefined" ||
+      this.state.tmpPatience === "" ||
+      typeof this.state.tmpHardWorking === "undefined" ||
+      this.state.tmpHardWorking === "" ||
+      typeof this.state.tmpPassword === "undefined" ||
+      this.state.tmpPassword === "" ||
+      typeof this.state.tmpEmail === "undefined" ||
+      this.state.tmpEmail === "" ||
+      typeof this.state.tmpName === "undefined" ||
+      this.state.tmpName === ""
     ) {
       this.setState({ error: true });
       console.log(
-        'Profile update - State:' +
+        "Profile update - State:" +
         this.state.tmpYearLevel +
-        ', ' +
+        ", " +
         this.state.tmpCoursesString +
-        ', ' +
+        ", " +
         this.state.tmpSex +
-        ', ' +
+        ", " +
         this.state.tmpKindness +
-        ', ' +
+        ", " +
         this.state.tmpPatience +
-        ', ' +
+        ", " +
         this.state.tmpHardWorking +
-        ', ' +
+        ", " +
         this.state.tmpPassword +
-        ', ' +
+        ", " +
         this.state.tmpEmail +
-        ', ' +
+        ", " +
         this.state.tmpName
       );
       console.log(
-        'Profile update - typeof:' +
+        "Profile update - typeof:" +
         typeof this.state.tmpYearLevel +
-        ', ' +
+        ", " +
         typeof this.state.tmpCoursesString +
-        ', ' +
+        ", " +
         typeof this.state.tmpSex +
-        ', ' +
+        ", " +
         typeof this.state.tmpKindness +
-        ', ' +
+        ", " +
         typeof this.state.tmpPatience +
-        ', ' +
+        ", " +
         typeof this.state.tmpHardWorking +
-        ', ' +
+        ", " +
         typeof this.state.tmpPassword +
-        ', ' +
+        ", " +
         typeof this.state.tmpEmail +
-        ', ' +
+        ", " +
         typeof this.state.tmpName
       );
-      Alert.alert('One of the fields is empty!');
+      Alert.alert("One of the fields is empty!");
     } else {
       if (
         this.state.tmpKindness +
@@ -378,7 +460,7 @@ export default class Profile extends React.Component {
       ) {
         this.setState({ error: true });
         Alert.alert(
-          'The sum of Kindness, Patience and Hardworking must be at least 12'
+          "The sum of Kindness, Patience and Hardworking must be at least 12"
         );
       } else {
         this.setState({ error: false });
@@ -388,8 +470,8 @@ export default class Profile extends React.Component {
 
   signOut() {
     this.props.logVisibleChange();
-    this.props.userIDChange('');
-    this.props.passwordChange('');
+    this.props.userIDChange("");
+    this.props.passwordChange("");
   }
 
   /* -------------------------------------------------------------------------- */
@@ -397,7 +479,7 @@ export default class Profile extends React.Component {
   render() {
     if (!this.state.userEdit) {
       return (
-        <View style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
+        <View style={{ flex: 1, backgroundColor: "#f3f3f3" }}>
           {
             <SafeAreaView style={styles.container}>
               <ScrollView
@@ -475,7 +557,7 @@ export default class Profile extends React.Component {
 
               <TextField
                 label="Year level: "
-                value={this.props.year_level}
+                value={this.props.yearLevel}
                 characterRestriction={1}
                 //clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpYearLevel: data })}
@@ -502,32 +584,33 @@ export default class Profile extends React.Component {
               <TextField
                 label="Courses: "
                 value={this.props.courses}
+                title="Please input in form: 'Course A,Course B,Course C'"
                 onChangeText={data => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
                 label="Kindness preference: "
-                value={this.props.kindness_pref}
+                value={this.props.kindnessPref}
                 characterRestriction={2}
                 onChangeText={data => this.setState({ tmpKindness: data })}
               />
 
               <TextField
                 label="Patience preference: "
-                value={this.props.patience_pref}
+                value={this.props.patiencePref}
                 characterRestriction={2}
                 onChangeText={data => this.setState({ tmpPatience: data })}
               />
 
               <TextField
                 label="Hardworking preference: "
-                value={this.props.hard_working_pref}
+                value={this.props.hardWorkingPref}
                 characterRestriction={2}
                 onChangeText={data => this.setState({ tmpHardWorking: data })}
               />
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
@@ -556,83 +639,3 @@ export default class Profile extends React.Component {
     }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Styles */
-const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
-const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navBar: {
-    backgroundColor: '#4286f4',
-    height: 44 + statusBarHeight,
-    alignSelf: 'stretch',
-    paddingTop: statusBarHeight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navBarTitle: {
-    color: '#FFF',
-    fontFamily,
-    fontSize: 17,
-  },
-  heroContainer: {
-    marginTop: 0,
-    marginBottom: 20,
-    paddingVertical: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#4286f4',
-    flexDirection: 'row',
-  },
-  heroImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#4286f4',
-    marginHorizontal: 20,
-  },
-  heroTitle: {
-    fontFamily,
-    color: 'black',
-    fontSize: 24,
-  },
-  heroSubtitle: {
-    fontFamily,
-    color: '#999',
-    fontSize: 14,
-  },
-
-  scroll: {
-    backgroundColor: 'transparent',
-  },
-
-  input_container: {
-    margin: 8,
-    marginTop: Platform.select({ ios: 2, android: 2 }),
-    flex: 1,
-  },
-
-  contentContainer: {
-    padding: 8,
-  },
-
-  buttonContainer: {
-    paddingTop: 8,
-    margin: 8,
-  },
-
-  safeContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-});

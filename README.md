@@ -7,25 +7,24 @@ Due to the importance of collaboration in studying and socializing of students, 
 
 ## Features
 ***Calendar*** - Schedule & Peer-matching manager 
-- Add & manage study plans 
-- Share schedule with friends
-- Receive information of others who are also having the same time frame in schedule after updating schedule
-- Filter based on interests (subjects/specific person, etc.)
-- Manually match with other users of interests & book a meeting
+  - Add & manage study plans 
+  - Share schedule with friends
+  - Receive information of others who are also having the same time frame in schedule after updating schedule
+  - Filter based on interests (subjects/specific person, etc.)
+  - Manually match with other users of interests & book a meeting
 
 ***Authentication*** (Email/Facebook/Google)
-- Using Facebook/Google login APIs
+  - Using Facebook/Google login APIs
 
 ***Push notifications***
-- Get notified whenever get matched or friends are also studying at the same planned location/time
+  - Get notified whenever get matched or friends are also studying at the same planned location/time
 
 ## Bonus Features
 ***Messenger***
-- Real-time communicating for matched users
+  - Real-time communicating for matched users
 
 ***Sharing plans on other social media platforms*** 
-- Facebook, Google, Twitter, etc.
-
+  - Facebook, Google, Twitter, etc.
 
 ## REST endpoints
 Below is a description of the REST endpoints we will be using to implement Se7en. Each endpoint in this documentation is accompanied with a sample JSON object.
@@ -92,7 +91,6 @@ Below is a description of the REST endpoints we will be using to implement Se7en
         'date' : 'Oct. 4, 2019'
         'course' : 'CPEN 321',
         'location' : 'Irving K. Barber'}
-
 
 ## POST
 
