@@ -149,14 +149,15 @@ function allWaitDelete(userId, request, t, d){
     }
 }
 /* Delete the matching of 2 people */
-function personMatchDelete(userId, time, date){
+function personMatchDelete(userId, t, d){
     var query = {"userId" : parseInt(userId, 10),
-                 "time" : time,
-                 "date" : date};
+                 "time" : t,
+                 "date" : d};
     var newValues = {$set:{"match" : null}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
         if (err) {return 1;}
-        return 0; })
+        return 0; 
+    })
 }
 /*
  *  Delete the the matching with given time and userId.
