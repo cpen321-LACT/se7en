@@ -911,9 +911,10 @@ app.delete("/user/:userId/schedule/:eventId", (req,res) => {
     matchesDelete(parseInt(req.params.userId, 10), parseInt(req.params.eventId, 10));
 
      /* Now actually delete the schedule */
-    var query = {"userId" : req.params.userId, "eventId" : parseInt(req.params.eventId, 10)};
+    var query = {"userId" : parseInt(req.params.userId, 10), 
+                 "eventId" : parseInt(req.params.eventId, 10)};
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.send("deleted the specific time\n");
-        })
     })
+})
