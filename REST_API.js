@@ -671,7 +671,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
  */
 app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
-        if (err) return err;
+        if (err) {return err;}
         res.send(result["wait"]);
     })
 })
@@ -910,4 +910,4 @@ app.delete("/user/:userId/schedule/:eventId", (req,res) => {
         if (err) {return err;}
         res.send("deleted the specific time\n");
         })
-    })
+    });
