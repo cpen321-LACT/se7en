@@ -65,15 +65,15 @@ export default class Calendar extends React.Component {
 
       /* Start time */
       var eventStart = new Date();
-      eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate) - 1);
+      eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
       var tempTime = this.state.tmpStartTimeString.split(' ');
-      eventStart.setHours(parseInt(tempTime[0]), parseInt(tempTime[1]));
+      eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
 
       /* End time */
       var eventEnd = new Date();
-      eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate) - 1);
+      eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
       var tempTime2 = this.state.tmpEndTimeString.split(' ');
-      eventEnd.setHours(parseInt(tempTime2[0]), parseInt(tempTime2[1]));
+      eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
 
       /* Setting the temporary states */
       this.setState({ tmpStartTime: eventStart });
