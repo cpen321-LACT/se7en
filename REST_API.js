@@ -20,7 +20,7 @@ var isAcceptablePreferences = function(a,b,c) {
 */
 
 mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
-  if (err) {return console.log(err);}
+  if (err) {return err;}
 
   userDb = client.db("userDb");
   scheduleDb = client.db("scheduleDb");
@@ -136,7 +136,7 @@ function allWaitDelete(userId, request, t, d){
                      "time" : t,
                      "date" : d};
         userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) {return res.send(err);}
+            if (err) {return err;}
             result = JSON.stringify(result);
             var wait = result.wait;
             /* Find the id and delete it */
@@ -175,7 +175,7 @@ function matchesDelete(uid, eid){
     query = {"userId" : uid,
              "eventId" : eid};
     userDb.collection("match_clt").find(query).toArray((err,result) => {
-        if (err) {return console.log(err);}
+        if (err) {return err;}
         var matches = JSON.stringify(result);
         var wait = matches.wait;            /* Will later update the request list of people that this person requested */
         var request = matches.request;      /* Delete this list won't affect other people's matches */
@@ -191,7 +191,7 @@ function matchesDelete(uid, eid){
         /* Delete the match object */
         var query = {"userId" : uid, "time" : t, "date" : d};
         userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-            if (err) {return console.log(err);}
+            if (err) {return err;}
         })
     })
 
@@ -246,7 +246,7 @@ app.post("/user/:userId/preferences", (req,res) => {
              "courses"      : req.body.courses,
              "sex"          : parseInt(req.body.sex, 10),
              "yearLevel"   : req.body.yearLevel},(err, result) => {
-         if (err) {return console.log(err);}
+         if (err) {return err;}
          res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
         })
     })
@@ -315,7 +315,7 @@ app.put("/user/:userId/preferences", (req,res) => {
 
         /* No errors, update the user preferences */
         userDb.collection("preferencesClt").updateOne(userQuery, newValues,(err, result) => {
-            if (err) {return console.log(err);}
+            if (err) {return err;}
             res.send("Preferences have been updated. ٩(^ᴗ^)۶\n");
         })
     })
@@ -347,7 +347,7 @@ app.get("/user/:userId/info", (req,res) => {
             res.status(400).send("You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
-        if (err) {return console.log(err);}
+        if (err) {return err;}
         res.send(userInfo);
     })
 })
@@ -403,7 +403,7 @@ app.post("/user/:userId", (req,res) => {
              "name"                 : req.body.name},(err, result) => {
 
 
-         if (err) {return console.log(err);}
+         if (err) {return err;}
             res.send("The user has been added to the database!");
         })
     })
@@ -462,7 +462,7 @@ app.put("/user/:userId/info", (req,res) => {
         }
 
         userDb.collection("infoClt").updateOne(query, newValues,(err, result) => {
-             if (err) {return console.log(err);}
+             if (err) {return err;}
              res.send("The user info has been updated! ヽ(＾Д＾)ﾉ\n");
         })
     })
@@ -482,7 +482,7 @@ app.delete("/user/:userId/info", (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
     console.log(parseInt(req.params.userId, 10));
     scheduleDb.collection("infoClt").deleteOne(query, (err, result) => {
-        if (err) {return console.log(err);}
+        if (err) {return err;}
         res.send("deleted the user: ", parseInt(req.params.userId, 10));
     })
 })
@@ -511,7 +511,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
                  "sex" : req.body.sex};
     /* Filter all standard criteria to an array */
     userDb.collection("infoClt").find(query).toArray((err,inforArray) => {
-        if (err) {return console.log(err);}
+        if (err) {return err;}
 
         var info = inforArray;
 
@@ -537,7 +537,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
 
     /* Filter all standard time to an array */
     scheduleDb.collection("scheduleClt").find(query).toArray((err,scheduleArray) => {
-        if (err) {return console.log(err);}
+        if (err) {return err;}
         /* the user cannot be a potential match of him/herself */
         var schedule = scheduleArray;
 
@@ -559,7 +559,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
             return;}
     /* Return the potential match array */
     userDb.collection("matchesClt").find(query).toArray((err,result) => {
-        if (err) {return console.log(err);}
+        if (err) {return err;}
         /* return the potential matches */
         res.send(result);
     }) }) }) }) });
@@ -584,7 +584,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
 
     /* Get user_a's match document for a specific time and date */
     userDb.collection("matchesClt").find(queryUserA).toArray((err, a) => {
-        if (err) {return console.log(err);}
+        if (err) {return err;}
         if (doesntExist(a)){
             res.send("User A doesn't exist\n");
             return;
@@ -593,7 +593,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
 
         /* Get user_b's match document for a specific time and date */
         userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
-            if (err) {return console.log(err);}
+            if (err) {return err;}
             if (doesntExist(b)){
                 res.send("User B doesn't exist\n");
                 return;
@@ -624,11 +624,11 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
 
             /* Update user_a's matches */
             userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
-                if (err) return console.log(err);
+                if (err) return err;
 
                     /* Update user_b's matches */
                 userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
-                    if (err) return console.log(err);
+                    if (err) return err;
 
                     res.send("Successfully added matches.");
                 })
@@ -646,7 +646,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
     var i;
     /* Find all the match documents for a specified user */
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
-        if (err) return console.log(err);
+        if (err) return err;
         if (doesntExist(matches)){
             res.send("The user with userId doesnt have any matches\n");
         }
@@ -672,7 +672,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
  */
 app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
-        if (err) return console.log(err);
+        if (err) return err;
         res.send(result["wait"]);
     })
 })
@@ -685,7 +685,7 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
 app.delete("/user/:userId/matches/:matchId", (req,res) => {
     var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
-    if(err1 || err2) {return console.log(err)};
+    if(err1 || err2) {return err};
     res.send("Successfully unmatch.");
 })
 
@@ -758,7 +758,7 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
             res.send("The study event with eventId for user with userId doesn't exist\n")
             return;
         }
-        if (err) return console.log(err);
+        if (err) return err;
         res.send(result);
     })
 })
@@ -778,7 +778,7 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
 app.get('/schedule/:userId', (req,res) => {
     var query = {userId : parseInt(req.params.userId, 10)};
     scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
-        if (err) return console.log(err);
+        if (err) return err;
         if (doesntExist(schedule)){
             res.send("The user with userId doesn't have any study events\n")
             return;
@@ -812,7 +812,7 @@ app.post('/user/:userId/schedule', (req,res) => {
              'date' : req.body.date,
              'course' : req.body.course,
              'location' : req.body.location},(err, result) => {
-            if (err) return console.log(err);
+            if (err) return err;
             console.log('Schedule added')
         })
         /* Create a match object for that schedule */
@@ -825,7 +825,7 @@ app.post('/user/:userId/schedule', (req,res) => {
              "request" : [],
              'potentialMatches' : [],
              "match" : -1},(err, result) => {
-               if (err) return console.log(err);
+               if (err) return err;
                console.log('matches document init done')
                res.send("Schedule has been posted!! :)")
         })
@@ -855,7 +855,7 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
          "request" : [],
          'potentialMatches' : [],
          "match" : -1},(err, result) => {
-           if (err) return console.log(err);
+           if (err) return err;
            console.log('matches document init done')
            res.send("Schedule has been posted")
     })
@@ -868,7 +868,7 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
      return;
     }
-     if (err) return console.log(err);
+     if (err) return err;
      res.send("Schedules have been updated.\n");
     })
 })
@@ -887,7 +887,7 @@ app.delete('/user/:userId/schedule/:num_events', (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
     console.log(parseInt(req.params.userId, 10));
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-        if (err) return console.log(err);
+        if (err) return err;
         res.send("deleted the schedule\n");
     })
 })
@@ -908,7 +908,7 @@ app.delete('/user/:userId/schedule/:eventId', (req,res) => {
      /* Now actually delete the schedule */
     var query = {"userId" : req.params.userId, "eventId" : parseInt(req.params.eventId, 10)};
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-        if (err) return console.log(err);
+        if (err) return err;
         res.send("deleted the specific time\n");
         })
     })
