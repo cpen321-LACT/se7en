@@ -96,7 +96,7 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
     for(var i = 0; i < inforArray.length; i++){
         var infor = parseInt(inforArray[parseInt(i, 10)].userId, 10);
         for(var j = 0; j < scheduleArray.length; j++){
-            if(infor === parseInt(scheduleArray[parseInt(j, 10)].userId, 10) && infor != userId){
+            if(infor === parseInt(scheduleArray[parseInt(j, 10)].userId, 10) && infor !== userId){
                 filteredMatches.push(inforArray[parseInt(i, 10)]);
             }
         }
@@ -522,10 +522,10 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
       if (userScheduleEvent[0] === null){
         res.send("There are no users in the database\n");
         return;
-      } else {
-      var t = userScheduleEvent[0].time;
-      var d = userScheduleEvent[0].date;
-    }
+      }
+
+    var t = userScheduleEvent[0].time;
+    var d = userScheduleEvent[0].date;
 
     /*_________________________________________________________
      * Get the schedule array of specific time
