@@ -174,7 +174,7 @@ function matchesDelete(uid, eid){
     /* Read the match object into an object */
     var query = {"userId" : uid,
              "eventId" : eid};
-    userDb.collection("match_clt").find(query).toArray((err,result) => {
+    userDb.collection("matchesClt").find(query).toArray((err,result) => {
         if (err) {return err;}
         var matches = JSON.stringify(result);
         var wait = matches.wait;            /* Will later update the request list of people that this person requested */
@@ -685,7 +685,7 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
 app.delete("/user/:userId/matches/:matchId", (req,res) => {
     var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
-    if(err1 || err2) {return err};
+    if(err1 || err2) {return err;}
     res.send("Successfully unmatch.");
 })
 
@@ -693,44 +693,44 @@ app.delete("/user/:userId/matches/:matchId", (req,res) => {
 
  app.get("/get_all_users",  (req,res) => {
      userDb.collection("infoClt").find().toArray((err, a) => {
-         console.log(a)
-         res.send(a)
+        //  console.log(a);
+         res.send(a);
      })
  })
 
  app.delete("/delete_all_users",  (req,res) => {
      userDb.collection("infoClt").deleteMany({},(err, a) => {
-         console.log(a)
-         res.send(a)
+        //  console.log(a);
+         res.send(a);
      })
  })
 
 app.get("/get_all_schedules",  (req,res) => {
     scheduleDb.collection("scheduleClt").find().toArray((err, a) => {
-        console.log(a)
-        res.send(a)
+        // console.log(a)
+        res.send(a);
     })
 })
 
 app.get("/get_all_matches",  (req,res) => {
     userDb.collection("matchesClt").find().toArray((err, a) => {
-        console.log(a)
-        res.send(a)
+        // console.log(a);
+        res.send(a);
     })
 })
 
 
 app.delete("/delete_all_schedules",  (req,res) => {
     scheduleDb.collection("scheduleClt").deleteMany({},(err, a) => {
-        console.log(a)
-        res.send(a)
+        // console.log(a)
+        res.send(a);
     })
 })
 
 app.delete("/delete_all_matches",  (req,res) => {
     userDb.collection("matchesClt").deleteMany({},(err, a) => {
-        console.log(a)
-        res.send(a)
+        // console.log(a)
+        res.send(a);
     })
 })
 
@@ -758,7 +758,7 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
             res.send("The study event with eventId for user with userId doesn't exist\n")
             return;
         }
-        if (err) return err;
+        if (err) {return err;}
         res.send(result);
     })
 })
@@ -812,8 +812,8 @@ app.post('/user/:userId/schedule', (req,res) => {
              'date' : req.body.date,
              'course' : req.body.course,
              'location' : req.body.location},(err, result) => {
-            if (err) return err;
-            console.log('Schedule added')
+            if (err) {return err;}
+            // console.log('Schedule added')
         })
         /* Create a match object for that schedule */
         userDb.collection("matchesClt").insertOne(
@@ -825,9 +825,9 @@ app.post('/user/:userId/schedule', (req,res) => {
              "request" : [],
              'potentialMatches' : [],
              "match" : -1},(err, result) => {
-               if (err) return err;
-               console.log('matches document init done')
-               res.send("Schedule has been posted!! :)")
+               if (err) {return err;}
+            //    console.log('matches document init done')
+               res.send("Schedule has been posted!! :)");
         })
     })
 })
@@ -855,9 +855,9 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
          "request" : [],
          'potentialMatches' : [],
          "match" : -1},(err, result) => {
-           if (err) return err;
-           console.log('matches document init done')
-           res.send("Schedule has been posted")
+           if (err) {return err;}
+        //    console.log('matches document init done')
+           res.send("Schedule has been posted");
     })
 
     /* Actually update the schedule */
@@ -868,7 +868,7 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
      return;
     }
-     if (err) return err;
+     if (err) {return err;}
      res.send("Schedules have been updated.\n");
     })
 })
@@ -885,9 +885,8 @@ app.delete('/user/:userId/schedule/:num_events', (req,res) => {
     }
     /* Now actually delete the schedule */
     var query = {"userId" : parseInt(req.params.userId, 10)};
-    console.log(parseInt(req.params.userId, 10));
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-        if (err) return err;
+        if (err) {return err;}
         res.send("deleted the schedule\n");
     })
 })
@@ -908,7 +907,7 @@ app.delete('/user/:userId/schedule/:eventId', (req,res) => {
      /* Now actually delete the schedule */
     var query = {"userId" : req.params.userId, "eventId" : parseInt(req.params.eventId, 10)};
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-        if (err) return err;
+        if (err) {return err;}
         res.send("deleted the specific time\n");
         })
     })
