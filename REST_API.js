@@ -909,5 +909,5 @@ app.delete("/user/:userId/schedule/:eventId", (req,res) => {
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.send("deleted the specific time\n");
-        })
-    });
+        });
+    })
