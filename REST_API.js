@@ -345,7 +345,7 @@ app.get("/user/:userId/info", (req,res) => {
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
         if (doesntExist(userInfo)){
             res.status(400).send("You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
+            return err;
         }
         if (err) {return err;}
         res.send(userInfo);
@@ -586,7 +586,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
         if (err) {return err;}
         if (doesntExist(a)){
             res.send("User A doesn't exist\n");
-            return;
+            return err;
         }
         userAMatchDoc = a[0];
 
@@ -595,7 +595,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
             if (err) {return err;}
             if (doesntExist(b)){
                 res.send("User B doesn't exist\n");
-                return;
+                return err;
             }
             userBMatchDoc = b[0];
 
@@ -623,11 +623,11 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
 
             /* Update user_a's matches */
             userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
-                if (err) return err;
+                if (err) {return err;}
 
                     /* Update user_b's matches */
                 userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
-                    if (err) return err;
+                    if (err) {return err;}
 
                     res.send("Successfully added matches.");
                 })
@@ -755,7 +755,7 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
     scheduleDb.collection("scheduleClt").find(query).toArray((err, result) => {
         if (doesntExist(result)){
             res.send("The study event with eventId for user with userId doesn't exist\n");
-            return;
+            return err;
         }
         if (err) {return err;}
         res.send(result);
@@ -780,7 +780,7 @@ app.get("/schedule/:userId", (req,res) => {
         if (err) {return err;}
         if (doesntExist(schedule)){
             res.send("The user with userId doesn't have any study events\n");
-            return;
+            return err;
         }
         res.send(schedule);
     })
@@ -865,7 +865,7 @@ app.put("/schedule/:userId/:eventId", (req,res) => {
     scheduleDb.collection("scheduleClt").updateOne(query, newValues,(err, result) => {
     if (req.body === null) {
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return;
+     return err;
     }
      if (err) {return err;}
      res.send("Schedules have been updated.\n");
