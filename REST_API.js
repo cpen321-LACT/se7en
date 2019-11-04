@@ -126,12 +126,12 @@ function allRequestDelete(userId, wait, time, date){
         })
     }
 }
-function allWaitDelete(userId, request, time, date){
+function allWaitDelete(userId, request, t, d){
     for(var i = 0; i < request.length; i++){
         var waitedId = request[i];
         var query = {"userId" : parseInt(waitedId, 10),
-                     "time" : time,
-                     "date" : date};
+                     "time" : t,
+                     "date" : d};
         userDb.collection("match_clt").find(query).toArray((err,result) => {
             if (err) return console.log(err);
             result = JSON.stringify(result);
@@ -144,7 +144,7 @@ function allWaitDelete(userId, request, time, date){
                 }
             }
             userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
-                if (err) return console.log(err); })
+                if (err) {return console.log(err);} })
         })
     }
 }
