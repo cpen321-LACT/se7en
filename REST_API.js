@@ -27,15 +27,15 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
 
   /* User Database */
   userDb.createCollection("infoClt", function(err, res) {
-    if (err) {throw err};
+    if (err) {throw err}
     // console.log("Info collection created!");
   });
   userDb.createCollection("preferencesClt", function(err, res) {
-    if (err) {throw err};
+    if (err) {throw err}
     // console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
-    if (err) {throw err};
+    if (err) {throw err}
   });
 
   /* Schedule Database */
@@ -652,7 +652,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
                 curMatches.append(
                     {"time" : matches[i]["time"],
                     "date" : matches[i]["date"],
-                    "match" : matches[i]["match"]})
+                    "match" : matches[i]["match"]});
             }
         }
         /* Return JSON object*/
