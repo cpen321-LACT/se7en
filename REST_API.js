@@ -65,7 +65,7 @@ function generateMatch(kindness, hardWorking, patience, array){
     for (i = 0; i < score.length; i++) {
         score[i] = new Array(2);
     }
-
+    var i;
     for(i = 0; i < array.length; i++){
         score[i][0] =   Math.abs(kindness - array[i].kindness) +
                         Math.abs(hardWorking - array[i].hardWorking) +
@@ -73,7 +73,8 @@ function generateMatch(kindness, hardWorking, patience, array){
         score[i][1] =   array[i].userId;
     }
     /* Do insertion sort */
-    for(var i = 0; i < array.length; i++){
+    var i;
+    for(i = 0; i < array.length; i++){
         var sc = score[i][0]; //score
         var id = score[i][1]; //userId
         var j = i;
