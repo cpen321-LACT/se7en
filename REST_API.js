@@ -369,20 +369,20 @@ app.get("/user/:userId/info", (req,res) => {
 app.post("/user/:userId", (req,res) => {
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
-        if (doesntExist(req.body)){
-            res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (doesntExist(req.body)){
+        //     res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
-        if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
-            res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
+        //     res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
-        if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
-            res.status(400).send("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
+        //     res.status(400).send("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
         var id = parseInt(req.params.userId, 10);
         userDb.collection("infoClt").insertOne(
