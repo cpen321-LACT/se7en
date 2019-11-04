@@ -53,6 +53,22 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  * Helper funtions used for the match algorithm
  *______________________________________________________________________________________*/
 
+function insertionSort(array, score){
+    for(var i = 0; i < array.length; i++){
+        var sc = score[parseInt(i, 10)][0]; //score
+        var id = score[parseInt(i, 10)][1]; //userId
+        var j = i;
+        while(j>0 && score[j-1][0] > sc){
+            score[parseInt(j, 10)][0] = score[j-1][0];
+            score[parseInt(j, 10)][1] = score[j-1][1];
+            j--;
+        }
+        score[parseInt(j, 10)][0] = sc;
+        score[parseInt(j, 10)][1] = id;
+    }
+    return score;
+}
+
 
 /* A helper function used for sorting algorithm */
 function generateMatch(kindness, hardWorking, patience, array){
@@ -70,19 +86,9 @@ function generateMatch(kindness, hardWorking, patience, array){
                         Math.abs(patience - array[parseInt(i, 10)].patience);
         score[parseInt(i, 10)][1] =   array[parseInt(i, 10)].userId;
     }
-    /* Do insertion sort */
-    for(i = 0; i < array.length; i++){
-        var sc = score[parseInt(i, 10)][0]; //score
-        var id = score[parseInt(i, 10)][1]; //userId
-        var j = i;
-        while(j>0 && score[j-1][0] > sc){
-            score[parseInt(j, 10)][0] = score[j-1][0];
-            score[parseInt(j, 10)][1] = score[j-1][1];
-            j--;
-        }
-        score[parseInt(j, 10)][0] = sc;
-        score[parseInt(j, 10)][1] = id;
-    }
+    
+    insertionSort(array, score);
+
     var ret = [];
     for(i = 0; i < array.length; i++){
        ret[parseInt(i, 10)] = score[parseInt(i, 10)][1];
