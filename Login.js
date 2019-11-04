@@ -96,9 +96,14 @@ export default class Login extends Component {
   /* Helper function that executes the Sign In sequence */
   signIn() {
     /* We first check for error (NULL/empty) */
-    this.checkErrorSignIn();
+    var signInCheck = [this.props.userID, this.props.password];
+    signInCheck.forEach((item) => {
+      this.checkEmpty(item);
+      this.checkNULL(item);
+    })
+
     /* If no errors, we do a fetch */
-    if (this.state.error === false) {
+    if (!this.state.error) {
       let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
       fetch(fetchURL, {
         method: "GET",
@@ -147,9 +152,17 @@ export default class Login extends Component {
   /* Helper function that executes the Sign Up sequence */
   signUp() {
     /* We first check for error (NULL/empty) */
-    this.checkErrorSignUp();
+    var signUpCheck = [this.state.tmpYearLevel, this.state.tmpCoursesString, this.state.tmpSex, this.state.tmpUserID, this.state.tmpPassword, this.state.tmpEmail, this.state.tmpName];
+    signUpCheck.forEach((item) => {
+      this.checkEmpty(item);
+      this.checkNULL(item);
+    });
+
+    /* Check for sum of prefs */
+    this.checkSumPrefs();
+
     /* If no errors, we do the request */
-    if (this.state.error === false) {
+    if (!this.state.error) {
       /* Split course string -> array first */
       this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
       let fetchURL = baseURL + "user/:" + this.props.userID;
@@ -205,93 +218,45 @@ export default class Login extends Component {
     }
   }
 
-  /* Helper function that checks for NULL/empty entries on Sign Up */
-  checkErrorSignUp() {
-    if (
-      typeof this.state.tmpYearLevel === "undefined" ||
-      this.state.tmpYearLevel === "" ||
-      typeof this.state.tmpCoursesString === "undefined" ||
-      this.state.tmpCoursesString === "" ||
-      typeof this.state.tmpSex === "undefined" ||
-      this.state.tmpSex === "" ||
-      typeof this.state.tmpKindness === "undefined" ||
-      this.state.tmpKindness === "" ||
-      typeof this.state.tmpPatience === "undefined" ||
-      this.state.tmpPatience === "" ||
-      typeof this.state.tmpHardWorking === "undefined" ||
-      this.state.tmpHardWorking === "" ||
-      typeof this.state.tmpPassword === "undefined" ||
-      this.state.tmpPassword === "" ||
-      typeof this.state.tmpUserID === "undefined" ||
-      this.state.tmpUserID === "" ||
-      typeof this.state.tmpEmail === "undefined" ||
-      this.state.tmpEmail === "" ||
-      typeof this.state.tmpName === "undefined" ||
-      this.state.tmpName === ""
-    ) {
+  /* Helper functions that check whether or not any fields are NULL/empty */
+  checkNULL(data) {
+    if (typeof data === "undefined") {
       this.setState({ error: true });
-      // console.log(
-      //   "Values: " +
-      //   this.state.tmpYearLevel +
-      //   ", " +
-      //   this.state.tmpCoursesString +
-      //   ", " +
-      //   this.state.tmpSex +
-      //   ", " +
-      //   this.state.tmpKindness +
-      //   ", " +
-      //   this.state.tmpPatience +
-      //   ", " +
-      //   this.state.tmpHardWorking +
-      //   ", " +
-      //   this.state.tmpPassword +
-      //   ", " +
-      //   this.state.tmpUserID +
-      //   ", " +
-      //   this.state.tmpEmail +
-      //   ", " +
-      //   this.state.tmpName
-      // );
-      // console.log(
-      //   "typeof: " +
-      //   typeof this.state.tmpYearLevel +
-      //   ", " +
-      //   typeof this.state.tmpCoursesString +
-      //   ", " +
-      //   typeof this.state.tmpSex +
-      //   ", " +
-      //   typeof this.state.tmpKindness +
-      //   ", " +
-      //   typeof this.state.tmpPatience +
-      //   ", " +
-      //   typeof this.state.tmpHardWorking +
-      //   ", " +
-      //   typeof this.state.tmpPassword +
-      //   ", " +
-      //   typeof this.state.tmpUserID +
-      //   ", " +
-      //   typeof this.state.tmpEmail +
-      //   ", " +
-      //   typeof this.state.tmpName
-      // );
-      Alert.alert("One of the fields is empty!");
-    } else {
-      /* Check for certain requirements from backend as well :/ */
-      if (
-        this.state.tmpKindness +
-        this.state.tmpPatience +
-        this.state.tmpHardWorking <
-        12
-      ) {
-        this.setState({ error: true });
-        Alert.alert(
-          "The sum of Kindness, Patience and Hardworking must be at least 12"
-        );
-      } else {
-        this.setState({ error: false });
-      }
+      Alert.alert("One of the fields must not be NULL");
+    }
+    else {
+      this.setState({ error: false });
     }
   }
+
+  checkEmpty(data) {
+    if (data === "") {
+      this.setState({ error: true });
+      Alert.alert("One of the fields must not be empty");
+    }
+    else {
+      this.setState({ error: false });
+    }
+  }
+
+  checkSumPrefs() {
+    if (
+      this.state.tmpKindness +
+      this.state.tmpPatience +
+      this.state.tmpHardWorking <
+      12
+    ) {
+      this.setState({ error: true });
+      Alert.alert(
+        "The sum of Kindness, Patience and Hardworking must be at least 12"
+      );
+    }
+    else {
+      this.setState({ error: false });
+    }
+  }
+
+  /* -------------------------------------------------------------------------- */
 
   /* Helper function that populates data of user"s info on Init Sequence
    * Assumes that user must be created before calling this function 
@@ -440,7 +405,7 @@ export default class Login extends Component {
   /* -------------------------------------------------------------------------- */
 
   render() {
-    if (this.state.signUp === false) {
+    if (!this.state.signUp) {
       return (
         <SafeAreaView style={styles.safeContainer}>
           <View style={styles.navBar}>

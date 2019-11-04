@@ -286,7 +286,6 @@ export default class Profile extends React.Component {
             responseJson[0].authentication_token
           );
           this.props.passwordChange(responseJson[0].password);
-          //this.props.userIDChange(responseJson[0].user_id);
           this.props.emailChange(responseJson[0].email);
           this.props.nameChange(responseJson[0].name);
         } else {
@@ -301,7 +300,15 @@ export default class Profile extends React.Component {
   /* Function that pushes all the changes of user"s info to the database */
   pushUserInfo() {
     /* First check for error */
-    this.checkError();
+    var toCheck = [this.state.tmpName, this.state.tmpPassword, this.state.tmpYearLevel, this.state.tmpSex, this.state.tmpEmail, this.state.tmpCoursesString, this.state.tmpKindness, this.state.tmpPatience, this.state.tmpHardWorking];
+    toCheck.forEach((item) => {
+      this.checkEmpty(item);
+      this.checkNULL(item);
+    })
+
+    /* Check for sum of prefs */
+    this.checkSumPrefs();
+
     if (!this.state.error) {
       /* If there"s no error, we do the call */
       /* Split course string -> array first */
@@ -357,6 +364,13 @@ export default class Profile extends React.Component {
     }
   }
 
+  /* Sign out sequence */
+  signOut() {
+    this.props.logVisibleChange();
+    this.props.userIDChange("");
+    this.props.passwordChange("");
+  }
+
   /* Helper functions that (un)render the user input forms */
   renderUserform() {
     this.setState({ userEdit: true });
@@ -387,91 +401,42 @@ export default class Profile extends React.Component {
     );
   }
 
-  /* Helper function that checks for error on user inputs (NULL/empty) */
-  checkError() {
-    if (
-      typeof this.state.tmpYearLevel === "undefined" ||
-      this.state.tmpYearLevel === "" ||
-      typeof this.state.tmpCoursesString === "undefined" ||
-      this.state.tmpCoursesString === "" ||
-      typeof this.state.tmpSex === "undefined" ||
-      this.state.tmpSex === "" ||
-      typeof this.state.tmpKindness === "undefined" ||
-      this.state.tmpKindness === "" ||
-      typeof this.state.tmpPatience === "undefined" ||
-      this.state.tmpPatience === "" ||
-      typeof this.state.tmpHardWorking === "undefined" ||
-      this.state.tmpHardWorking === "" ||
-      typeof this.state.tmpPassword === "undefined" ||
-      this.state.tmpPassword === "" ||
-      typeof this.state.tmpEmail === "undefined" ||
-      this.state.tmpEmail === "" ||
-      typeof this.state.tmpName === "undefined" ||
-      this.state.tmpName === ""
-    ) {
+  /* Helper functions that check whether or not any fields are NULL/empty */
+  checkNULL(data) {
+    if (typeof data === "undefined") {
       this.setState({ error: true });
-      console.log(
-        "Profile update - State:" +
-        this.state.tmpYearLevel +
-        ", " +
-        this.state.tmpCoursesString +
-        ", " +
-        this.state.tmpSex +
-        ", " +
-        this.state.tmpKindness +
-        ", " +
-        this.state.tmpPatience +
-        ", " +
-        this.state.tmpHardWorking +
-        ", " +
-        this.state.tmpPassword +
-        ", " +
-        this.state.tmpEmail +
-        ", " +
-        this.state.tmpName
-      );
-      console.log(
-        "Profile update - typeof:" +
-        typeof this.state.tmpYearLevel +
-        ", " +
-        typeof this.state.tmpCoursesString +
-        ", " +
-        typeof this.state.tmpSex +
-        ", " +
-        typeof this.state.tmpKindness +
-        ", " +
-        typeof this.state.tmpPatience +
-        ", " +
-        typeof this.state.tmpHardWorking +
-        ", " +
-        typeof this.state.tmpPassword +
-        ", " +
-        typeof this.state.tmpEmail +
-        ", " +
-        typeof this.state.tmpName
-      );
-      Alert.alert("One of the fields is empty!");
-    } else {
-      if (
-        this.state.tmpKindness +
-        this.state.tmpPatience +
-        this.state.tmpHardWorking <
-        12
-      ) {
-        this.setState({ error: true });
-        Alert.alert(
-          "The sum of Kindness, Patience and Hardworking must be at least 12"
-        );
-      } else {
-        this.setState({ error: false });
-      }
+      Alert.alert("One of the fields must not be NULL");
+    }
+    else {
+      this.setState({ error: false });
     }
   }
 
-  signOut() {
-    this.props.logVisibleChange();
-    this.props.userIDChange("");
-    this.props.passwordChange("");
+  checkEmpty(data) {
+    if (data === "") {
+      this.setState({ error: true });
+      Alert.alert("One of the fields must not be empty");
+    }
+    else {
+      this.setState({ error: false });
+    }
+  }
+
+  checkSumPrefs() {
+    if (
+      this.state.tmpKindness +
+      this.state.tmpPatience +
+      this.state.tmpHardWorking <
+      12
+    ) {
+      this.setState({ error: true });
+      Alert.alert(
+        "The sum of Kindness, Patience and Hardworking must be at least 12"
+      );
+    }
+    else {
+      this.setState({ error: false });
+    }
   }
 
   /* -------------------------------------------------------------------------- */

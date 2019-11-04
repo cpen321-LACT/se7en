@@ -113,9 +113,13 @@ export default class Calendar extends React.Component {
 
   /* Add a schedule object to the backend */
   addSchedule() {
-    /* First check for error (NULL/empty) */
-    this.checkScheduleUndefined();
-    this.checkScheduleEmpty();
+    /* First check for errors (NULL/empty) */
+    var toCheck = [this.state.tmpDate, this.state.tmpStartTimeString, this.state.tmpEndTimeString, this.state.tmpSubject, this.state.tmpLocation];
+    toCheck.forEach((item) => {
+      this.checkEmpty(item);
+      this.checkNULL(item);
+    });
+
     if (!this.state.error) {
       let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
 
@@ -174,8 +178,9 @@ export default class Calendar extends React.Component {
           location: this.state.tmpLocation,
         }),
       })
-        .then((response) => response.text())
-        .then((responseJson) => {
+        .then(() => {
+          //.then((response) => response.text())
+          //.then((responseJson) => {
           //console.log(responseJson);
           Alert.alert("Added schedule successfully!");
           this.setState({ userEdit: false });
@@ -187,35 +192,27 @@ export default class Calendar extends React.Component {
   }
 
   /* Helper functions that check whether or not any fields are NULL/empty */
-  checkScheduleUndefined() {
-    this.setState({ error: false });
-    if (
-      typeof this.state.tmpColor === "undefined" ||
-      typeof this.state.tmpDate === "undefined" ||
-      typeof this.state.tmpStartTimeString === "undefined" ||
-      typeof this.state.tmpEndTimeString === "undefined" ||
-      typeof this.state.tmpSubject === "undefined" ||
-      typeof this.state.tmpLocation === "undefined"
-    ) {
+  checkNULL(data) {
+    if (typeof data === "undefined") {
       this.setState({ error: true });
-      Alert.alert("One of the fields cannot be empty!");
+      Alert.alert("One of the fields must not be NULL");
+    }
+    else {
+      this.setState({ error: false });
     }
   }
-  checkScheduleEmpty() {
-    this.setState({ error: false });
-    if (
-      this.state.tmpColor === "" ||
-      this.state.tmpDate === "" ||
-      this.state.tmpStartTimeString === "" ||
-      this.state.tmpEndTimeString === "" ||
-      this.state.tmpSubject === "" ||
-      this.state.tmpLocation === ""
-    ) {
-      this.setState({ error: true });
-      Alert.alert("One of the fields cannot be empty!");
-    }
 
+  checkEmpty(data) {
+    if (data === "") {
+      this.setState({ error: true });
+      Alert.alert("One of the fields must not be empty");
+    }
+    else {
+      this.setState({ error: false });
+    }
   }
+
+  /* -------------------------------------------------------------------------- */
 
   /* Function that shows all the possible matches of an user */
   getMatches() {
@@ -225,7 +222,7 @@ export default class Calendar extends React.Component {
     fetch(url, {
       method: "GET",
     })
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((responseJson) => {
         //console.log(responseJson[0].potential_matches);
         Alert.alert(
