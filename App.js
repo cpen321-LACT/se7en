@@ -1,52 +1,73 @@
-/* Main 'view' of the app */
+/* Main "view" of the app */
 
-import React, { Component } from 'react';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { Component } from "react";
+import Icon from "react-native-vector-icons/FontAwesome";
 import {
   StyleSheet,
   Dimensions,
-} from 'react-native';
-import TabNavigator from 'react-native-tab-navigator';
-import Calendar from './Calendar.js';
-import Profile from './Profile.js';
-import Login from './Login.js';
+  Platform,
+} from "react-native";
+import TabNavigator from "react-native-tab-navigator";
+import Calendar from "./Calendar.js";
+import Profile from "./Profile.js";
+import Login from "./Login.js";
 
 /* Suppress warnings for now */
 console.disableYellowBox = true;
 
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const deviceW = Dimensions.get("window").width;
+const basePx = 375;
+function px2dp(px) {
+  return (px * deviceW) / basePx;
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF",
+  },
+  shareText: {
+    fontSize: 20,
+    margin: 10,
+  },
+});
+
 export const baseURL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000/'
-    : 'http://localhost:3000/';
+  Platform.OS === "android"
+    ? "http://10.0.2.2:3000/"
+    : "http://localhost:3000/";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      /* User's info states */
-      year_level: '',
+      /* User"s info states */
+      yearLevel: "",
       courses: [],
-      sex: '0',
-      number_of_ratings: '0.0',
-      kindness_pref: '0.0',
-      patience_pref: '0.0',
-      hard_working_pref: '0.0',
-      authentication_token: '',
-      password: '',
-      user_id: '',
-      email: '',
-      name: '',
+      sex: "0",
+      numberOfRatings: "0.0",
+      kindnessPref: "0.0",
+      patiencePref: "0.0",
+      hardWorkingPref: "0.0",
+      authenticationToken: "",
+      password: "",
+      userID: "",
+      email: "",
+      name: "",
       scheduleArray: [],
 
       /* Transition states */
       loggedIn: false,
-      selectedTab: 'calendar',
+      selectedTab: "calendar",
     };
   }
 
   /* Helper functions that modify user info states (called by other classes) */
   changeUserID(data) {
-    this.setState({ user_id: data });
+    this.setState({ userID: data });
   }
 
   changePassword(data) {
@@ -54,7 +75,7 @@ export default class App extends Component {
   }
 
   changeYearLevel(data) {
-    this.setState({ year_level: data });
+    this.setState({ yearLevel: data });
   }
 
   changeCourses(data) {
@@ -66,23 +87,23 @@ export default class App extends Component {
   }
 
   changeNumberOfRatings(data) {
-    this.setState({ number_of_ratings: data });
+    this.setState({ numberOfRatings: data });
   }
 
   changeKindnessPref(data) {
-    this.setState({ kindness_pref: data });
+    this.setState({ kindnessPref: data });
   }
 
   changePatiencePref(data) {
-    this.setState({ patience_pref: data });
+    this.setState({ patiencePref: data });
   }
 
   changeHardWorkingPref(data) {
-    this.setState({ hard_working_pref: data });
+    this.setState({ hardWorkingPref: data });
   }
 
   changeAuthenticationToken(data) {
-    this.setState({ authentication_token: data });
+    this.setState({ authenticationToken: data });
   }
 
   changeEmail(data) {
@@ -117,19 +138,19 @@ export default class App extends Component {
       return (
         <TabNavigator style={styles.container}>
           <TabNavigator.Item
-            selected={this.state.selectedTab === 'calendar'}
+            selected={this.state.selectedTab === "calendar"}
             title="Calendar"
-            selectedTitleStyle={{ color: '#3496f0' }}
+            selectedTitleStyle={{ color: "#3496f0" }}
             renderIcon={() => (
               <Icon name="calendar" size={px2dp(22)} color="#666" />
             )}
             renderSelectedIcon={() => (
               <Icon name="calendar" size={px2dp(22)} color="#3496f0" />
             )}
-            onPress={() => this.setState({ selectedTab: 'calendar' })}>
+            onPress={() => this.setState({ selectedTab: "calendar" })}>
             <Calendar
               /* States */
-              user_id={this.state.user_id}
+              userID={this.state.userID}
               scheduleArray={this.state.scheduleArray}
               /* Functions */
               scheduleArrayAdd={this.addScheduleArray.bind(this)}
@@ -139,28 +160,28 @@ export default class App extends Component {
           </TabNavigator.Item>
 
           <TabNavigator.Item
-            selected={this.state.selectedTab === 'profile'}
+            selected={this.state.selectedTab === "profile"}
             title="Profile"
-            selectedTitleStyle={{ color: '#3496f0' }}
+            selectedTitleStyle={{ color: "#3496f0" }}
             renderIcon={() => (
               <Icon name="user" size={px2dp(22)} color="#666" />
             )}
             renderSelectedIcon={() => (
               <Icon name="user" size={px2dp(22)} color="#3496f0" />
             )}
-            onPress={() => this.setState({ selectedTab: 'profile' })}>
+            onPress={() => this.setState({ selectedTab: "profile" })}>
             <Profile
               /* States */
-              year_level={this.state.year_level}
+              yearLevel={this.state.yearLevel}
               courses={this.state.courses}
               sex={this.state.sex}
-              number_of_ratings={this.state.number_of_ratings}
-              kindness_pref={this.state.kindness_pref}
-              patience_pref={this.state.patience_pref}
-              hard_working_pref={this.state.hard_working_pref}
-              authentication_token={this.state.authentication_token}
+              numberOfRatings={this.state.numberOfRatings}
+              kindnessPref={this.state.kindnessPref}
+              patiencePref={this.state.patiencePref}
+              hardWorkingPref={this.state.hardWorkingPref}
+              authenticationToken={this.state.authenticationToken}
               password={this.state.password}
-              user_id={this.state.user_id}
+              userID={this.state.userID}
               email={this.state.email}
               name={this.state.name}
               /* Functions */
@@ -188,7 +209,7 @@ export default class App extends Component {
         <Login
           /* States */
           password={this.state.password}
-          user_id={this.state.user_id}
+          userID={this.state.userID}
           scheduleArray={this.state.scheduleArray}
           /* Functions */
           yearLevelChange={this.changeYearLevel.bind(this)}
@@ -212,23 +233,3 @@ export default class App extends Component {
     }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Styles */
-const deviceW = Dimensions.get('window').width;
-const basePx = 375;
-function px2dp(px) {
-  return (px * deviceW) / basePx;
-}
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  shareText: {
-    fontSize: 20,
-    margin: 10,
-  },
-});

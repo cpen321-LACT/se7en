@@ -1,39 +1,94 @@
-'use strict';
+"use strict";
 
-import React from 'react';
-import WeekView, { addLocale } from 'react-native-week-view';
+import React from "react";
+import WeekView, { addLocale } from "react-native-week-view";
 import {
   StyleSheet,
   Text,
   Alert,
   View,
   StatusBar,
-  Platform,
   RefreshControl,
   SafeAreaView,
   ScrollView,
-} from 'react-native';
-import ActionButton from 'react-native-action-button';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { TextField } from 'react-native-material-textfield';
-import { TextButton } from 'react-native-material-buttons';
+  Platform,
+} from "react-native";
+import ActionButton from "react-native-action-button";
+import Icon from "react-native-vector-icons/Ionicons";
+import { TextField } from "react-native-material-textfield";
+import { TextButton } from "react-native-material-buttons";
+
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
+const statusBarHeight = Platform.OS === "ios" ? 35 : 0;
+
+const styles = StyleSheet.create({
+  container_calendar: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+  },
+  header_calendar: {
+    backgroundColor: "#4286f4",
+  },
+  navBar: {
+    backgroundColor: "#4286f4",
+    height: 44 + statusBarHeight,
+    alignSelf: "stretch",
+    paddingTop: statusBarHeight,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  navBarTitle: {
+    color: "#FFF",
+    fontFamily,
+    fontSize: 17,
+  },
+  scroll: {
+    backgroundColor: "transparent",
+  },
+
+  input_container: {
+    margin: 8,
+    marginTop: Platform.select({ ios: 2, android: 2 }),
+    flex: 1,
+  },
+
+  contentContainer: {
+    padding: 8,
+  },
+
+  buttonContainer: {
+    paddingTop: 8,
+    margin: 8,
+  },
+
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+});
+
+/* -------------------------------------------------------------------------- */
 
 /* Fields for rendering week view */
-addLocale('en', {
-  months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split(
-    '_'
+addLocale("en", {
+  months: "January_February_March_April_May_June_July_August_September_October_November_December".split(
+    "_"
   ),
-  monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sept_Oct_Nov_Dec'.split('_'),
-  weekdays: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split(
-    '_'
+  monthsShort: "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sept_Oct_Nov_Dec".split("_"),
+  weekdays: "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
+    "_"
   ),
-  weekdaysShort: 'Sun_Mon_Tue_Wed_Thur_Fri_Sat'.split('_'),
+  weekdaysShort: "Sun_Mon_Tue_Wed_Thur_Fri_Sat".split("_"),
 });
 
 export const baseURL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000/'
-    : 'http://localhost:3000/';
+  Platform.OS === "android"
+    ? "http://10.0.2.2:3000/"
+    : "http://localhost:3000/";
 
 export default class Calendar extends React.Component {
   constructor(props) {
@@ -41,18 +96,18 @@ export default class Calendar extends React.Component {
     this.state = {
       /* Input states */
       tmpId: 0,
-      tmpColor: 'rgba(66,134,244,1)',
-      tmpDate: '0',
-      tmpStartTimeString: '',
+      tmpColor: "rgba(66,134,244,1)",
+      tmpDate: "0",
+      tmpStartTimeString: "",
       tmpStartTime: new Date(),
-      tmpEndTimeString: '',
+      tmpEndTimeString: "",
       tmpEndTime: new Date(),
-      tmpSubject: '',
-      tmpLocation: '',
+      tmpSubject: "",
+      tmpLocation: "",
       /* Transition states */
       error: false,
       userEdit: false,
-      calendar_refreshing: false,
+      calendarRefreshing: false,
     };
   }
 
@@ -60,20 +115,20 @@ export default class Calendar extends React.Component {
   addSchedule() {
     /* First check for error (NULL/empty) */
     this.checkScheduleError();
-    if (this.state.error === false) {
-      let fetchURL = baseURL + 'user/:' + this.props.user_id + '/schedule';
+    if (!this.state.error) {
+      let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
 
       /* Start time */
       var eventStart = new Date();
-      eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate) - 1);
-      var tempTime = this.state.tmpStartTimeString.split(' ');
-      eventStart.setHours(parseInt(tempTime[0]), parseInt(tempTime[1]));
+      eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+      var tempTime = this.state.tmpStartTimeString.split(" ");
+      eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
 
       /* End time */
       var eventEnd = new Date();
-      eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate) - 1);
-      var tempTime2 = this.state.tmpEndTimeString.split(' ');
-      eventEnd.setHours(parseInt(tempTime2[0]), parseInt(tempTime2[1]));
+      eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+      var tempTime2 = this.state.tmpEndTimeString.split(" ");
+      eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
 
       /* Setting the temporary states */
       this.setState({ tmpStartTime: eventStart });
@@ -98,30 +153,30 @@ export default class Calendar extends React.Component {
 
       /* Post the schedle obj to the database */
       fetch(fetchURL, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user_id: this.props.user_id,
+          user_id: this.props.userID,
           event_id: this.state.tmpId,
-          time: this.state.tmpStartTimeString + '-' + this.state.tmpEndTimeString,
+          time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
           date:
             this.state.tmpStartTime.getUTCMonth() +
             1 +
-            '/' +
+            "/" +
             this.state.tmpStartTime.getUTCDate() +
-            '/' +
+            "/" +
             this.state.tmpStartTime.getUTCFullYear(),
           course: this.state.tmpSubject,
           location: this.state.tmpLocation,
         }),
       })
-        .then(response => response.text())
-        .then(responseJson => {
-          console.log(responseJson);
-          Alert.alert('Added schedule successfully!');
+        .then((response) => response.text())
+        .then((responseJson) => {
+          //console.log(responseJson);
+          Alert.alert("Added schedule successfully!");
           this.setState({ userEdit: false });
         })
         .catch(error => {
@@ -133,18 +188,18 @@ export default class Calendar extends React.Component {
   /* Helper function that checks whether or not any fields are NULL/empty */
   checkScheduleError() {
     if (
-      typeof this.state.tmpColor === 'undefined' ||
-      this.state.tmpColor === '' ||
-      typeof this.state.tmpDate === 'undefined' ||
-      this.state.tmpDate === '' ||
-      typeof this.state.tmpStartTimeString === 'undefined' ||
-      this.state.tmpStartTimeString === '' ||
-      typeof this.state.tmpEndTimeString === 'undefined' ||
-      this.state.tmpEndTimeString === '' ||
-      typeof this.state.tmpSubject === 'undefined' ||
-      this.state.tmpSubject === '' ||
-      typeof this.state.tmpLocation === 'undefined' ||
-      this.state.tmpLocation === ''
+      typeof this.state.tmpColor === "undefined" ||
+      this.state.tmpColor === "" ||
+      typeof this.state.tmpDate === "undefined" ||
+      this.state.tmpDate === "" ||
+      typeof this.state.tmpStartTimeString === "undefined" ||
+      this.state.tmpStartTimeString === "" ||
+      typeof this.state.tmpEndTimeString === "undefined" ||
+      this.state.tmpEndTimeString === "" ||
+      typeof this.state.tmpSubject === "undefined" ||
+      this.state.tmpSubject === "" ||
+      typeof this.state.tmpLocation === "undefined" ||
+      this.state.tmpLocation === ""
     ) {
       this.setState({ error: true });
       Alert.alert("One of the fields cannot be empty!");
@@ -157,17 +212,16 @@ export default class Calendar extends React.Component {
   /* Function that shows all the possible matches of an user */
   getMatches() {
     let url =
-      baseURL + 'user/:' + this.props.user_id + '/matches/potential_matches';
+      baseURL + "user/:" + this.props.userID + "/matches/potential_matches";
     //console.log(url);
     fetch(url, {
-      method: 'GET',
+      method: "GET",
     })
-      .then(response => response.text())
-      .then(responseJson => {
-        this.setState({ data: responseJson });
-        console.log(this.state.data[0].potential_matches);
+      .then((response) => response.text())
+      .then((responseJson) => {
+        //console.log(responseJson[0].potential_matches);
         Alert.alert(
-          'Potential matches:\n' + this.state.data[0].potential_matches
+          "Potential matches:\n" + responseJson[0].potential_matches
         );
       })
       .catch(error => {
@@ -178,23 +232,23 @@ export default class Calendar extends React.Component {
 
   /* Function handling refreshes */
   _onRefresh = () => {
-    this.setState({ calendar_refreshing: true });
+    this.setState({ calendarRefreshing: true });
     this.refreshSchedule();
-    this.setState({ calendar_refreshing: false });
+    this.setState({ calendarRefreshing: false });
   };
 
   /* Function that refreshes schedule array */
   refreshSchedule() {
-    let fetchURL = baseURL + 'schedule/:' + this.props.user_id;
+    let fetchURL = baseURL + "schedule/:" + this.props.userID;
     fetch(fetchURL, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     })
-      .then(response => response.text())
-      .then(responseJson => {
+      .then((response) => response.text())
+      .then((responseJson) => {
         /* First check if user has any schedule to fetch or not */
         if (responseJson.includes("doesn't have any")) {
           return;
@@ -202,15 +256,15 @@ export default class Calendar extends React.Component {
         else {
           /* If not, we do the actual fetch */
           fetch(fetchURL, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
+              Accept: "application/json",
+              "Content-Type": "application/json",
             },
           })
-            .then(response => response.json())
-            .then(responseJson => {
-              if (typeof responseJson !== 'undefined') {
+            .then((response) => response.json())
+            .then((responseJson) => {
+              if (typeof responseJson !== "undefined") {
                 this.props.scheduleArrayClear();
                 responseJson.forEach(item => {
                   var startTimeToAdd = new Date(item.date);
@@ -223,7 +277,7 @@ export default class Calendar extends React.Component {
                     id: item.event_id,
                     startDate: startTimeToAdd,
                     endDate: endTimeToAdd,
-                    color: 'rgba(66,134,244,1)',
+                    color: "rgba(66,134,244,1)",
                     description: item.course,
                     subject: item.course,
                     location: item.location,
@@ -246,12 +300,12 @@ export default class Calendar extends React.Component {
   /* Helper functions for (un)rendering user input forms */
   renderUserform() {
     this.setState({ userEdit: true });
-    //console.log('userform requested!');
+    //console.log("userform requested!");
   }
 
   unrenderUserform() {
     this.setState({ userEdit: false });
-    //console.log('go back!');
+    //console.log("go back!");
   }
 
   /* -------------------------------------------------------------------------- */
@@ -259,13 +313,13 @@ export default class Calendar extends React.Component {
   render() {
     if (!this.state.userEdit) {
       return (
-        <View style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
+        <View style={{ flex: 1, backgroundColor: "#f3f3f3" }}>
           {
             <SafeAreaView style={styles.container}>
               <ScrollView
                 refreshControl={
                   <RefreshControl
-                    refreshing={this.state.calendar_refreshing}
+                    refreshing={this.state.calendarRefreshing}
                     onRefresh={this._onRefresh}
                   />
                 }>
@@ -284,24 +338,24 @@ export default class Calendar extends React.Component {
                     numberOfDays={7}
                     onEventPress={event =>
                       Alert.alert(
-                        'Event: ' + event.id,
-                        'Time: ' +
+                        "Event: " + event.id,
+                        "Time: " +
                         event.startDate.getHours() +
-                        ':' +
+                        ":" +
                         event.startDate.getMinutes() +
-                        ' - ' +
+                        " - " +
                         event.endDate.getHours() +
-                        ':' +
+                        ":" +
                         event.endDate.getMinutes() +
-                        '\nDate: ' +
+                        "\nDate: " +
                         (event.startDate.getUTCMonth() + 1) +
-                        '/' +
+                        "/" +
                         event.startDate.getUTCDate() +
-                        '/' +
+                        "/" +
                         event.startDate.getUTCFullYear() +
-                        '\nSubject: ' +
+                        "\nSubject: " +
                         event.subject +
-                        '\nLocation: ' +
+                        "\nLocation: " +
                         event.location
                       )
                     }
@@ -345,15 +399,15 @@ export default class Calendar extends React.Component {
             <View style={styles.input_container}>
               <TextField
                 label="Date: "
-                value={''}
+                value={""}
                 title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
                 characterRestriction={1}
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpDate: data })}
               />
               <TextField
-                label="Start time: "
-                value={''}
+                label="Start Time: "
+                value={""}
                 title="Enter in form 'hh mm'"
                 characterRestriction={5}
                 clearTextOnFocus={true}
@@ -363,8 +417,8 @@ export default class Calendar extends React.Component {
               />
 
               <TextField
-                label="End time: "
-                value={''}
+                label="End Time: "
+                value={""}
                 title="Enter in form 'hh mm'"
                 characterRestriction={5}
                 clearTextOnFocus={true}
@@ -372,7 +426,7 @@ export default class Calendar extends React.Component {
               />
               <TextField
                 label="Subject: "
-                value={''}
+                value={""}
                 title="This is a required field or it would show CPEN 321 by default"
                 clearTextOnFocus={true}
                 characterRestriction={10}
@@ -381,14 +435,14 @@ export default class Calendar extends React.Component {
 
               <TextField
                 label="Location: "
-                value={''}
+                value={""}
                 clearTextOnFocus={true}
                 characterRestriction={20}
                 onChangeText={data => this.setState({ tmpLocation: data })}
               />
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
@@ -418,56 +472,3 @@ export default class Calendar extends React.Component {
     }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Styles */
-const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
-const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
-
-const styles = StyleSheet.create({
-  container_calendar: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-  },
-  header_calendar: {
-    backgroundColor: '#4286f4',
-  },
-  navBar: {
-    backgroundColor: '#4286f4',
-    height: 44 + statusBarHeight,
-    alignSelf: 'stretch',
-    paddingTop: statusBarHeight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navBarTitle: {
-    color: '#FFF',
-    fontFamily,
-    fontSize: 17,
-  },
-  scroll: {
-    backgroundColor: 'transparent',
-  },
-
-  input_container: {
-    margin: 8,
-    marginTop: Platform.select({ ios: 2, android: 2 }),
-    flex: 1,
-  },
-
-  contentContainer: {
-    padding: 8,
-  },
-
-  buttonContainer: {
-    paddingTop: 8,
-    margin: 8,
-  },
-
-  safeContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-});

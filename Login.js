@@ -1,45 +1,93 @@
-'use strict';
+"use strict";
 
 /* Login view of the app */
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
   Alert,
   View,
-  Platform,
   SafeAreaView,
   ScrollView,
-} from 'react-native';
-import { TextField } from 'react-native-material-textfield';
-import { TextButton } from 'react-native-material-buttons';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+  Platform,
+} from "react-native";
+import { TextField } from "react-native-material-textfield";
+import { TextButton } from "react-native-material-buttons";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+
+/* -------------------------------------------------------------------------- */
+/* Styles */
+const statusBarHeight = Platform.OS === "ios" ? 35 : 0;
+const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
+
+const styles = StyleSheet.create({
+  scroll: {
+    backgroundColor: "transparent",
+  },
+
+  input_container: {
+    margin: 8,
+    marginTop: Platform.select({ ios: 2, android: 2 }),
+    flex: 1,
+  },
+
+  contentContainer: {
+    padding: 8,
+  },
+
+  buttonContainer: {
+    paddingTop: 8,
+    margin: 8,
+  },
+
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+
+  navBar: {
+    backgroundColor: "#4286f4",
+    height: 44 + statusBarHeight,
+    alignSelf: "stretch",
+    paddingTop: statusBarHeight,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  navBarTitle: {
+    color: "#FFF",
+    fontFamily,
+    fontSize: 17,
+  },
+});
+
+/* -------------------------------------------------------------------------- */
 
 export const baseURL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000/'
-    : 'http://localhost:3000/';
+  Platform.OS === "android"
+    ? "http://10.0.2.2:3000/"
+    : "http://localhost:3000/";
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
       /* Input states */
-      tmpYearLevel: '',
-      tmpCoursesString: '',
+      tmpYearLevel: "",
+      tmpCoursesString: "",
       tmpCourses: [],
-      tmpSex: '',
-      tmpKindness: '4',
-      tmpPatience: '4',
-      tmpHardWorking: '4',
-      tmpUser_id: '',
-      tmpPassword: '',
-      tmpEmail: '',
-      tmpName: '',
+      tmpSex: "",
+      tmpKindness: "4",
+      tmpPatience: "4",
+      tmpHardWorking: "4",
+      tmpUserID: "",
+      tmpPassword: "",
+      tmpEmail: "",
+      tmpName: "",
 
       /* Transition states */
-      login_secureTextEntry: true,
+      loginSecureTextEntry: true,
       error: false,
       signUp: false,
     };
@@ -51,40 +99,40 @@ export default class Login extends Component {
     this.checkErrorSignIn();
     /* If no errors, we do a fetch */
     if (this.state.error === false) {
-      let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
+      let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
       fetch(fetchURL, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
       })
         /* First check if this user ID exists or not */
-        .then(response => response.text())
-        .then(responseJson => {
-          if (responseJson.includes('does not exist')) {
-            Alert.alert('User ID does not exist');
+        .then((response) => response.text())
+        .then((responseJson) => {
+          if (responseJson.includes("does not exist")) {
+            Alert.alert("User ID does not exist");
             return;
           } else {
             /* If user ID does exist, we do the actual call */
             fetch(fetchURL, {
-              method: 'GET',
+              method: "GET",
               headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
+                Accept: "application/json",
+                "Content-Type": "application/json",
               },
             })
-              .then(response => response.json())
-              .then(responseJson => {
+              .then((response) => response.json())
+              .then((responseJson) => {
                 /* Then check if the data got from database matches the password typed */
-                if (typeof responseJson !== 'undefined' && typeof responseJson[0] !== 'undefined'
+                if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
                   && responseJson[0].password === this.props.password) {
-                  Alert.alert('Signed in successfully!');
+                  Alert.alert("Signed in successfully!");
                   /* Do the Initialize sequence after signing in successfully */
                   this.initSequence();
                   this.props.logVisibleChange();
                 } else {
-                  Alert.alert('Incorrect user ID or password!');
+                  Alert.alert("Incorrect user ID or password!");
                   return;
                 }
               })
@@ -104,35 +152,35 @@ export default class Login extends Component {
     if (this.state.error === false) {
       /* Split course string -> array first */
       this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
-      let fetchURL = baseURL + 'user/:' + this.props.user_id;
+      let fetchURL = baseURL + "user/:" + this.props.userID;
       fetch(fetchURL, {/* Split course string -> array first */
-        method: 'POST',
+        method: "POST",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           year_level: this.state.tmpYearLevel,
           courses: this.state.tmpCourses,
           sex: this.state.tmpSex,
-          number_of_ratings: '0',
+          number_of_ratings: "0",
           kindness: this.state.tmpKindness,
           patience: this.state.tmpPatience,
           hard_working: this.state.tmpHardWorking,
-          authentication_token: '',
+          authentication_token: "",
           password: this.state.tmpPassword,
           email: this.state.tmpEmail,
           name: this.state.tmpName,
         }),
       })
-        .then(response => response.text())
-        .then(responseJson => {
-          console.log(responseJson);
+        .then((response) => response.text())
+        .then((responseJson) => {
+          //console.log(responseJson);
           /* Check if user ID already exists or not */
-          if (responseJson.includes('already exists')) {
-            Alert.alert('User ID already exists!');
+          if (responseJson.includes("already exists")) {
+            Alert.alert("User ID already exists!");
           } else {
-            Alert.alert('Signed up successfully!');
+            Alert.alert("Signed up successfully!");
             this.unrenderSignUpForm();
           }
         })
@@ -145,13 +193,13 @@ export default class Login extends Component {
   /* Helper function that checks for NULL/empty entries on Sign In */
   checkErrorSignIn() {
     if (
-      typeof this.props.user_id === 'underfined' ||
-      typeof this.props.password === 'undefined' ||
-      this.props.user_id === '' ||
-      this.props.password === ''
+      typeof this.props.userID === "undefined" ||
+      typeof this.props.password === "undefined" ||
+      this.props.userID === "" ||
+      this.props.password === ""
     ) {
       this.setState({ error: true });
-      Alert.alert('User ID and password should not be empty');
+      Alert.alert("User ID and password should not be empty");
     } else {
       this.setState({ error: false });
     }
@@ -160,73 +208,73 @@ export default class Login extends Component {
   /* Helper function that checks for NULL/empty entries on Sign Up */
   checkErrorSignUp() {
     if (
-      typeof this.state.tmpYearLevel === 'undefined' ||
-      this.state.tmpYearLevel === '' ||
-      typeof this.state.tmpCoursesString === 'undefined' ||
-      this.state.tmpCoursesString === '' ||
-      typeof this.state.tmpSex === 'undefined' ||
-      this.state.tmpSex === '' ||
-      typeof this.state.tmpKindness === 'undefined' ||
-      this.state.tmpKindness === '' ||
-      typeof this.state.tmpPatience === 'undefined' ||
-      this.state.tmpPatience === '' ||
-      typeof this.state.tmpHardWorking === 'undefined' ||
-      this.state.tmpHardWorking === '' ||
-      typeof this.state.tmpPassword === 'undefined' ||
-      this.state.tmpPassword === '' ||
-      typeof this.state.tmpUser_id === 'undefined' ||
-      this.state.tmpUser_id === '' ||
-      typeof this.state.tmpEmail === 'undefined' ||
-      this.state.tmpEmail === '' ||
-      typeof this.state.tmpName === 'undefined' ||
-      this.state.tmpName === ''
+      typeof this.state.tmpYearLevel === "undefined" ||
+      this.state.tmpYearLevel === "" ||
+      typeof this.state.tmpCoursesString === "undefined" ||
+      this.state.tmpCoursesString === "" ||
+      typeof this.state.tmpSex === "undefined" ||
+      this.state.tmpSex === "" ||
+      typeof this.state.tmpKindness === "undefined" ||
+      this.state.tmpKindness === "" ||
+      typeof this.state.tmpPatience === "undefined" ||
+      this.state.tmpPatience === "" ||
+      typeof this.state.tmpHardWorking === "undefined" ||
+      this.state.tmpHardWorking === "" ||
+      typeof this.state.tmpPassword === "undefined" ||
+      this.state.tmpPassword === "" ||
+      typeof this.state.tmpUserID === "undefined" ||
+      this.state.tmpUserID === "" ||
+      typeof this.state.tmpEmail === "undefined" ||
+      this.state.tmpEmail === "" ||
+      typeof this.state.tmpName === "undefined" ||
+      this.state.tmpName === ""
     ) {
       this.setState({ error: true });
-      console.log(
-        'Values: ' +
-        this.state.tmpYearLevel +
-        ', ' +
-        this.state.tmpCoursesString +
-        ', ' +
-        this.state.tmpSex +
-        ', ' +
-        this.state.tmpKindness +
-        ', ' +
-        this.state.tmpPatience +
-        ', ' +
-        this.state.tmpHardWorking +
-        ', ' +
-        this.state.tmpPassword +
-        ', ' +
-        this.state.tmpUser_id +
-        ', ' +
-        this.state.tmpEmail +
-        ', ' +
-        this.state.tmpName
-      );
-      console.log(
-        'typeof: ' +
-        typeof this.state.tmpYearLevel +
-        ', ' +
-        typeof this.state.tmpCoursesString +
-        ', ' +
-        typeof this.state.tmpSex +
-        ', ' +
-        typeof this.state.tmpKindness +
-        ', ' +
-        typeof this.state.tmpPatience +
-        ', ' +
-        typeof this.state.tmpHardWorking +
-        ', ' +
-        typeof this.state.tmpPassword +
-        ', ' +
-        typeof this.state.tmpUser_id +
-        ', ' +
-        typeof this.state.tmpEmail +
-        ', ' +
-        typeof this.state.tmpName
-      );
-      Alert.alert('One of the fields is empty!');
+      // console.log(
+      //   "Values: " +
+      //   this.state.tmpYearLevel +
+      //   ", " +
+      //   this.state.tmpCoursesString +
+      //   ", " +
+      //   this.state.tmpSex +
+      //   ", " +
+      //   this.state.tmpKindness +
+      //   ", " +
+      //   this.state.tmpPatience +
+      //   ", " +
+      //   this.state.tmpHardWorking +
+      //   ", " +
+      //   this.state.tmpPassword +
+      //   ", " +
+      //   this.state.tmpUserID +
+      //   ", " +
+      //   this.state.tmpEmail +
+      //   ", " +
+      //   this.state.tmpName
+      // );
+      // console.log(
+      //   "typeof: " +
+      //   typeof this.state.tmpYearLevel +
+      //   ", " +
+      //   typeof this.state.tmpCoursesString +
+      //   ", " +
+      //   typeof this.state.tmpSex +
+      //   ", " +
+      //   typeof this.state.tmpKindness +
+      //   ", " +
+      //   typeof this.state.tmpPatience +
+      //   ", " +
+      //   typeof this.state.tmpHardWorking +
+      //   ", " +
+      //   typeof this.state.tmpPassword +
+      //   ", " +
+      //   typeof this.state.tmpUserID +
+      //   ", " +
+      //   typeof this.state.tmpEmail +
+      //   ", " +
+      //   typeof this.state.tmpName
+      // );
+      Alert.alert("One of the fields is empty!");
     } else {
       /* Check for certain requirements from backend as well :/ */
       if (
@@ -237,7 +285,7 @@ export default class Login extends Component {
       ) {
         this.setState({ error: true });
         Alert.alert(
-          'The sum of Kindness, Patience and Hardworking must be at least 12'
+          "The sum of Kindness, Patience and Hardworking must be at least 12"
         );
       } else {
         this.setState({ error: false });
@@ -245,22 +293,22 @@ export default class Login extends Component {
     }
   }
 
-  /* Helper function that populates data of user's info on Init Sequence
+  /* Helper function that populates data of user"s info on Init Sequence
    * Assumes that user must be created before calling this function 
    */
   initUserInfo() {
-    let fetchURL = baseURL + 'user/:' + this.props.user_id + '/info';
+    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
     fetch(fetchURL, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     })
-      .then(response => response.json())
-      .then(responseJson => {
+      .then((response) => response.json())
+      .then((responseJson) => {
         //console.log("initUserInfo: " + responseJson)
-        if (typeof responseJson !== 'undefined' && typeof responseJson[0] !== 'undefined') {
+        if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
           this.props.yearLevelChange(responseJson[0].year_level);
           this.props.coursesChange(responseJson[0].courses);
           this.props.sexChange(responseJson[0].sex);
@@ -286,34 +334,34 @@ export default class Login extends Component {
       });
   }
 
-  /* Helper function that populates data of user's schedule on Init Sequence */
+  /* Helper function that populates data of user"s schedule on Init Sequence */
   initUserSchedule() {
-    let fetchURL = baseURL + 'schedule/:' + this.props.user_id;
+    let fetchURL = baseURL + "schedule/:" + this.props.userID;
     fetch(fetchURL, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     })
       /* First check if user, especially newly created ones have any schedules to initialize */
-      .then(response => response.text())
-      .then(responseJson => {
+      .then((response) => response.text())
+      .then((responseJson) => {
         if (responseJson.includes("doesn't have any")) {
           return;
         }
         else {
           /* Otw, we do the actual fetch */
           fetch(fetchURL, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
+              Accept: "application/json",
+              "Content-Type": "application/json",
             },
           })
-            .then(response => response.json())
-            .then(responseJson => {
-              if (typeof responseJson !== 'undefined' && typeof responseJson[0] !== 'undefined') {
+            .then((response) => response.json())
+            .then((responseJson) => {
+              if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
                 /* Debug print */
                 //console.log("initUserSchedule: " + responseJson);
 
@@ -333,7 +381,7 @@ export default class Login extends Component {
                     id: item.event_id,
                     startDate: startTimeToAdd,
                     endDate: endTimeToAdd,
-                    color: 'rgba(66,134,244,1)',
+                    color: "rgba(66,134,244,1)",
                     description: item.course,
                     subject: item.course,
                     location: item.location,
@@ -370,13 +418,13 @@ export default class Login extends Component {
 
   /* Helper functions for printing password */
   onAccessoryPress() {
-    this.setState({ login_secureTextEntry: !this.state.login_secureTextEntry });
+    this.setState({ loginSecureTextEntry: !this.state.loginSecureTextEntry });
   }
 
   login_renderPasswordAccessory() {
-    let name = this.state.login_secureTextEntry
-      ? 'visibility'
-      : 'visibility-off';
+    let name = this.state.loginSecureTextEntry
+      ? "visibility"
+      : "visibility-off";
 
     return (
       <MaterialIcon
@@ -414,13 +462,13 @@ export default class Login extends Component {
               <TextField
                 label="Password: "
                 clearTextOnFocus={true}
-                secureTextEntry={this.state.login_secureTextEntry}
+                secureTextEntry={this.state.loginSecureTextEntry}
                 renderRightAccessory={this.login_renderPasswordAccessory()}
                 onChangeText={data => this.props.passwordChange(data)}
               />
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
@@ -493,14 +541,14 @@ export default class Login extends Component {
                 label="User ID: "
                 characterRestriction={10}
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpUser_id: data })}
+                onChangeText={data => this.setState({ tmpUserID: data })}
               />
 
               <TextField
                 label="Password: "
                 clearTextOnFocus={true}
                 characterRestriction={20}
-                secureTextEntry={this.state.login_secureTextEntry}
+                secureTextEntry={this.state.loginSecureTextEntry}
                 renderRightAccessory={this.login_renderPasswordAccessory()}
                 onChangeText={data => this.setState({ tmpPassword: data })}
               />
@@ -520,7 +568,7 @@ export default class Login extends Component {
               />
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
@@ -542,49 +590,3 @@ export default class Login extends Component {
     }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Styles */
-const statusBarHeight = Platform.OS === 'ios' ? 35 : 0;
-const fontFamily = Platform.OS === 'ios' ? 'Avenir' : 'sans-serif';
-
-const styles = StyleSheet.create({
-  scroll: {
-    backgroundColor: 'transparent',
-  },
-
-  input_container: {
-    margin: 8,
-    marginTop: Platform.select({ ios: 2, android: 2 }),
-    flex: 1,
-  },
-
-  contentContainer: {
-    padding: 8,
-  },
-
-  buttonContainer: {
-    paddingTop: 8,
-    margin: 8,
-  },
-
-  safeContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-
-  navBar: {
-    backgroundColor: '#4286f4',
-    height: 44 + statusBarHeight,
-    alignSelf: 'stretch',
-    paddingTop: statusBarHeight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  navBarTitle: {
-    color: '#FFF',
-    fontFamily,
-    fontSize: 17,
-  },
-});
