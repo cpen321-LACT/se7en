@@ -62,30 +62,30 @@ function generateMatch(kindness, hardWorking, patience, array){
     var i;
     // Loop to create 2D array using 1D array
     for (i = 0; i < score.length; i++) {
-        score[i] = new Array(2);
+        score[parseInt(i, 10)] = new Array(2);
     }
     for(i = 0; i < array.length; i++){
-        score[i][0] =   Math.abs(kindness - array[i].kindness) +
-                        Math.abs(hardWorking - array[i].hardWorking) +
-                        Math.abs(patience - array[i].patience);
-        score[i][1] =   array[i].userId;
+        score[parseInt(i, 10)][0] =   Math.abs(kindness - array[parseInt(i, 10)].kindness) +
+                        Math.abs(hardWorking - array[parseInt(i, 10)].hardWorking) +
+                        Math.abs(patience - array[parseInt(i, 10)].patience);
+        score[parseInt(i, 10)][1] =   array[parseInt(i, 10)].userId;
     }
     /* Do insertion sort */
     for(i = 0; i < array.length; i++){
-        var sc = score[i][0]; //score
-        var id = score[i][1]; //userId
+        var sc = score[parseInt(i, 10)][0]; //score
+        var id = score[parseInt(i, 10)][1]; //userId
         var j = i;
         while(j>0 && score[j-1][0] > sc){
-            score[j][0] = score[j-1][0];
-            score[j][1] = score[j-1][1];
+            score[parseInt(j, 10)][0] = score[j-1][0];
+            score[parseInt(j, 10)][1] = score[j-1][1];
             j--;
         }
-        score[j][0] = sc;
-        score[j][1] = id;
+        score[parseInt(j, 10)][0] = sc;
+        score[parseInt(j, 10)][1] = id;
     }
     var ret = [];
     for(i = 0; i < array.length; i++){
-       ret[i] = score[i][1];
+       ret[parseInt(i, 10)] = score[parseInt(i, 10)][1];
     }
 
     return ret;
@@ -94,10 +94,10 @@ function generateMatch(kindness, hardWorking, patience, array){
 function timeFilterMatch(inforArray, scheduleArray, userId){
     var filteredMatches = [];
     for(var i = 0; i < inforArray.length; i++){
-        var infor = parseInt(inforArray[i].userId, 10);
+        var infor = parseInt(inforArray[parseInt(i, 10)].userId, 10);
         for(var j = 0; j < scheduleArray.length; j++){
-            if(infor === parseInt(scheduleArray[j].userId, 10) && infor != userId){
-                filteredMatches.push(inforArray[i]);
+            if(infor === parseInt(scheduleArray[parseInt(j, 10)].userId, 10) && infor != userId){
+                filteredMatches.push(inforArray[parseInt(i, 10)]);
             }
         }
     }
@@ -106,7 +106,7 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
 /* Delete the all the requests that the given userId sent */
 function allRequestDelete(userId, wait, t, d){
     for(var i = 0; i < wait.length; i++){
-        var requestedId = wait[i];
+        var requestedId = wait[parseInt(i, 10)];
         var query = {"userId" : parseInt(requestedId, 10),
                      "time" : t,
                      "date" : d};
@@ -116,7 +116,7 @@ function allRequestDelete(userId, wait, t, d){
             var request = result.request;
             /* Find the id and delete it */
             for(var j = 0; j < request.length; j++){
-                if(parseInt(request[j], 10) === parseInt(userId, 10)){
+                if(parseInt(request[parseInt(j, 10)], 10) === parseInt(userId, 10)){
                     request.splice(j,1);
                     break;
                 }
@@ -131,7 +131,7 @@ function allRequestDelete(userId, wait, t, d){
 }
 function allWaitDelete(userId, request, t, d){
     for(var i = 0; i < request.length; i++){
-        var waitedId = request[i];
+        var waitedId = request[parseInt(i, 10)];
         var query = {"userId" : parseInt(waitedId, 10),
                      "time" : t,
                      "date" : d};
@@ -141,7 +141,7 @@ function allWaitDelete(userId, request, t, d){
             var wait = result.wait;
             /* Find the id and delete it */
             for(var j = 0; j < wait.length; j++){
-                if(parseInt(wait[j], 10) === parseInt(userId, 10)){
+                if(parseInt(wait[parseInt(j, 10)], 10) === parseInt(userId, 10)){
                     wait.splice(j,1);
                     break;
                 }
@@ -652,12 +652,12 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
-            if (matches[i]["match"] != null) {
+            if (matches[parseInt(i, 10)]["match"] != null) {
                 /* Add the match to the list */
                 curMatches.append(
-                    {"time" : matches[i]["time"],
-                    "date" : matches[i]["date"],
-                    "match" : matches[i]["match"]});
+                    {"time" : matches[parseInt(i, 10)]["time"],
+                    "date" : matches[parseInt(i, 10)]["date"],
+                    "match" : matches[parseInt(i, 10)]["match"]});
             }
         }
         /* Return JSON object*/
