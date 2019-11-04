@@ -9,7 +9,7 @@ var scheduleDb;
 
 var doesntExist = function(obj) {
     return Object.keys(obj).length === 0;
-}
+};
 
 var isAcceptablePreferences = function(a,b,c) {
     return a + b + c === 12;
@@ -27,11 +27,11 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
 
   /* User Database */
   userDb.createCollection("infoClt", function(err, res) {
-    if (err) throw err;
+    if (err) {throw err};
     console.log("Info collection created!");
   });
   userDb.createCollection("preferencesClt", function(err, res) {
-    if (err) throw err;
+    if (err) {throw err};
     console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
@@ -129,7 +129,7 @@ function matches_delete(userId, eventId){
         /* Delete the match object */
         var query = {"userId" : userId, "time" : time, "date" : date};
         userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-            if (err) return console.log(err);
+            if (err) {return console.log(err)};
         })
     })
 
@@ -142,7 +142,7 @@ function all_request_delete(userId, wait, time, date){
                      "time" : time,
                      "date" : date};
         userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) return console.log(err);
+            if (err) {return console.log(err)};
             result = JSON.stringify(result);
             var request = result.request;
             /* Find the id and delete it */
@@ -186,7 +186,7 @@ function person_match_delete(userId, time, date){
                  "date" : date};
     var newValues = {$set:{"match" : null}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
-        if (err) return 1;
+        if (err) {return 1};
         return 0; })
 }
 /*______________________________________________________________________________________
@@ -334,7 +334,7 @@ app.put("/user/:userId/preferences", (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
-app.get('/user/:userId/info', (req,res) => {
+app.get("/user/:userId/info", (req,res) => {
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
         if (doesntExist(userInfo)){
             res.status(400).send("You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
@@ -362,13 +362,9 @@ app.get('/user/:userId/info', (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
-app.post('/user/:userId', (req,res) => {
+app.post("/user/:userId", (req,res) => {
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
-       // if (userInfo != null){
-        //    res.status(400).send("The user with this userId already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-         //   return;
-        //}
         if (doesntExist(req.body)){
             res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
@@ -390,7 +386,7 @@ app.post('/user/:userId', (req,res) => {
             {"yearLevel"           : req.body.yearLevel,
              "sex"                  : parseInt(req.body.sex, 10),
              "courses"              : req.body.courses,
-             "numberOfRatings"    : parseInt(req.body.numberOfRatings, 10),
+             "numberOfRatings"      : parseInt(req.body.numberOfRatings, 10),
              "kindness"             : parseFloat(req.body.kindness),
              "patience"             : parseFloat(req.body.patience),
              "hardWorking"         : parseFloat(req.body.hardWorking),
@@ -519,7 +515,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
     scheduleDb.collection("scheduleClt").find(timeDateQuery).toArray((err, userScheduleEvent) => {
 
       if (userScheduleEvent[0] == null){
-        res.send("There are no users in the database\n")
+        res.send("There are no users in the database\n");
         return;
       } else {
       var time = userScheduleEvent[0].time;
@@ -584,7 +580,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
     userDb.collection("matchesClt").find(queryUserA).toArray((err, a) => {
         if (err) return console.log(err);
         if (doesntExist(a)){
-            res.send("User A doesn't exist\n")
+            res.send("User A doesn't exist\n");
             return;
         }
         userAMatchDoc = a[0];
@@ -593,30 +589,30 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
         userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
             if (err) return console.log(err);
             if (doesntExist(b)){
-                res.send("User B doesn't exist\n")
+                res.send("User B doesn't exist\n");
                 return;
             }
             userBMatchDoc = b[0];
 
 
             /* If user_b has already requested to match with user_a and is waiting */
-            if (userBMatchDoc['wait'].includes(parseInt(req.params.userIdA, 10))) {
+            if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
 
                 /* user_b is user_a's match */
-                userAMatchDoc['match'] = parseInt(req.params.userIdB, 10);
+                userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
                 /* user_a to user_b's match */
-                userBMatchDoc['match'] = parseInt(req.params.userIdA, 10);
+                userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
 
-                userBMatchDoc['wait'].splice(userBMatchDoc['wait'].indexOf(parseInt(req.params.userIdA, 10)), 1)
-                userAMatchDoc['request'].splice(userAMatchDoc['request'].indexOf(parseInt(req.params.userIdB, 10)), 1)
+                userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
+                userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
 
             }
             else {
                 /* user_a has requested to match with user_b*/
-                userBMatchDoc['request'].push(parseInt(req.params.userIdA, 10))
+                userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
 
                 /* user_a is waiting to match with user_b */
-                userAMatchDoc['wait'].push(parseInt(req.params.userIdB, 10));
+                userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
 
             }
 
@@ -646,12 +642,12 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
         if (err) return console.log(err);
         if (doesntExist(matches)){
-            res.send("The user with userId doesnt have any matches\n")
+            res.send("The user with userId doesnt have any matches\n");
         }
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
-            if (matches[i]['match'] != null) {
+            if (matches[i]["match"] != null) {
                 /* Add the match to the list */
                 curMatches.append(
                     {"time" : matches[i]["time"],
@@ -660,7 +656,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
             }
         }
         /* Return JSON object*/
-        res.send({"current_matches" : curMatches})
+        res.send({"current_matches" : curMatches});
     })
 })
 
@@ -668,7 +664,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
  * Get who the user is waiting to match with
  * Adam: To test
  */
-app.get('/user/:userId/matches/userIsWaitingToMatchWith', (req,res) => {
+app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
         if (err) return console.log(err);
         res.send(result["wait"]);
@@ -819,10 +815,10 @@ app.post('/user/:userId/schedule', (req,res) => {
              'eventId' : parseInt(req.body.eventId, 10),
              'time' : req.body.time,
              'date' : req.body.date,
-             'wait' : [],
-             'request' : [],
+             "wait" : [],
+             "request" : [],
              'potentialMatches' : [],
-             'match' : -1},(err, result) => {
+             "match" : -1},(err, result) => {
                if (err) return console.log(err);
                console.log('matches document init done')
                res.send("Schedule has been posted!! :)")
@@ -849,10 +845,10 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
          'eventId' : parseInt(req.params.eventId, 10),
          'time' : req.body.time,
          'date' : req.body.date,
-         'wait' : [],
-         'request' : [],
+         "wait" : [],
+         "request" : [],
          'potentialMatches' : [],
-         'match' : -1},(err, result) => {
+         "match" : -1},(err, result) => {
            if (err) return console.log(err);
            console.log('matches document init done')
            res.send("Schedule has been posted")
