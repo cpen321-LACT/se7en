@@ -53,6 +53,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
  * Helper funtions used for the match algorithm
  *______________________________________________________________________________________*/
 
+ 
 /* A helper function used for sorting algorithm */
 function generateMatch(kindness, hardWorking, patience, array){
 
