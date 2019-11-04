@@ -91,7 +91,7 @@ function generateMatch(kindness, hardWorking, patience, array){
     return ret;
 }
 /* A helper function that filters the array by the time, date */
-function time_filter_match(inforArray, scheduleArray, userId){
+function timeFilterMatch(inforArray, scheduleArray, userId){
     var filteredMatches = [];
     for(var i = 0; i < inforArray.length; i++){
         var infor = parseInt(inforArray[i].userId, 10);
@@ -106,9 +106,9 @@ function time_filter_match(inforArray, scheduleArray, userId){
 /*
  *  Delete the the matching with given time and userId.
  *  Modify other userId matches as needed.
- *  This will call for all_request_delete, all_wait_delete, and person_match_delete
+ *  This will call for allRequestDelete, allWaitDelete, and personMatchDelete
  */
-function matches_delete(userId, eventId){
+function matchesDelete(userId, eventId){
     /* Read the match object into an object */
     query = {"userId" : userId,
              "eventId" : eventId}
@@ -121,10 +121,10 @@ function matches_delete(userId, eventId){
         var time = matches.time;
         var date = matches.date;
           /* Delete requests and waits to others */
-        all_request_delete(userId, wait, time, date);
-        all_wait_delete(userId, request, time, date);
+        allRequestDelete(userId, wait, time, date);
+        allWaitDelete(userId, request, time, date);
           /* Delete the matching person */
-        if(matchPerson != null) person_match_delete(matchPerson, time, date);
+        if(matchPerson != null) personMatchDelete(matchPerson, time, date);
 
         /* Delete the match object */
         var query = {"userId" : userId, "time" : time, "date" : date};
@@ -135,7 +135,7 @@ function matches_delete(userId, eventId){
 
 }
 /* Delete the all the requests that the given userId sent */
-function all_request_delete(userId, wait, time, date){
+function allRequestDelete(userId, wait, time, date){
     for(var i = 0; i < wait.length; i++){
         var requestedId = wait[i];
         var query = {"userId" : parseInt(requestedId, 10),
@@ -157,7 +157,7 @@ function all_request_delete(userId, wait, time, date){
         })
     }
 }
-function all_wait_delete(userId, request, time, date){
+function allWaitDelete(userId, request, time, date){
     for(var i = 0; i < request.length; i++){
         var waitedId = request[i];
         var query = {"userId" : parseInt(waitedId, 10),
@@ -180,7 +180,7 @@ function all_wait_delete(userId, request, time, date){
     }
 }
 /* Delete the matching of 2 people */
-function person_match_delete(userId, time, date){
+function personMatchDelete(userId, time, date){
     var query = {"userId" : parseInt(userId, 10),
                  "time" : time,
                  "date" : date};
@@ -540,7 +540,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
      * Call for the function generateMatch which sort all the matches
      * and return an array "ret" of potential matches and put that into the database
      *_________________________________________________________ */
-    var stdMatchArray = time_filter_match(info, schedule, parseInt(req.body.userId, 10));
+    var stdMatchArray = timeFilterMatch(info, schedule, parseInt(req.body.userId, 10));
 
     var ret = generateMatch(req.body.kindness, req.body.hardWorking, req.body.patience, stdMatchArray);
 
@@ -673,12 +673,12 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
 
 /*
  * Unmatch user with userId with user with matchId and vice versa.
- * This will call helper function person_match_delete()
+ * This will call helper function personMatchDelete()
  * Tung: Can you test this
  */
 app.delete("/user/:userId/matches/:matchId", (req,res) => {
-    var err1 = person_match_delete(req.param.userIdA, req.body.time, req.body.date);
-    var err2 = person_match_delete(req.param.userIdB, req.body.time, req.body.date);
+    var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
+    var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
     if(err1 || err2) {return console.log(err)};
     res.send("Successfully unmatch.");
 })
@@ -838,7 +838,7 @@ app.post('/user/:userId/schedule', (req,res) => {
  */
 app.put('/schedule/:userId/:eventId', (req,res) => {
     /* First need to delete the current corresponding maches */
-    matches_delete(req.params.userId, req.params.eventId);
+    matchesDelete(req.params.userId, req.params.eventId);
     /* Create a new corresponding matches */
     userDb.collection("matchesClt").insertOne( // should this be insert or update?
         {'userId' : parseInt(req.params.userId, 10),
@@ -875,7 +875,7 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
 app.delete('/user/:userId/schedule/:num_events', (req,res) => {
     /* Delete every single corresponding match */
     for(var i = 0; i < parseInt(req.params.num_events, 10); i++){
-      matches_delete(req.params.userId, i);
+      matchesDelete(req.params.userId, i);
     }
     /* Now actually delete the schedule */
     var query = {"userId" : parseInt(req.params.userId, 10)};
@@ -897,7 +897,7 @@ app.delete('/user/:userId/schedule/:eventId', (req,res) => {
      *  Before deleting the schedule, we need to delete the matching first
      *  This function is written in the matches sections
      */
-    matches_delete(parseInt(req.params.userId, 10), parseInt(req.params.eventId, 10));
+    matchesDelete(parseInt(req.params.userId, 10), parseInt(req.params.eventId, 10));
 
      /* Now actually delete the schedule */
     var query = {"userId" : req.params.userId, "eventId" : parseInt(req.params.eventId, 10)};
