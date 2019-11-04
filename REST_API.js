@@ -96,7 +96,7 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
     for(var i = 0; i < inforArray.length; i++){
         var infor = parseInt(inforArray[i].userId, 10);
         for(var j = 0; j < scheduleArray.length; j++){
-            if(infor == parseInt(scheduleArray[j].userId, 10) && infor != userId){
+            if(infor === parseInt(scheduleArray[j].userId, 10) && infor != userId){
                 filteredMatches.push(inforArray[i]);
             }
         }
@@ -116,7 +116,7 @@ function allRequestDelete(userId, wait, t, d){
             var request = result.request;
             /* Find the id and delete it */
             for(var j = 0; j < request.length; j++){
-                if(parseInt(request[j], 10) == parseInt(userId, 10)){
+                if(parseInt(request[j], 10) === parseInt(userId, 10)){
                     request.splice(j,1);
                     break;
                 }
@@ -141,7 +141,7 @@ function allWaitDelete(userId, request, t, d){
             var wait = result.wait;
             /* Find the id and delete it */
             for(var j = 0; j < wait.length; j++){
-                if(parseInt(wait[j], 10) == parseInt(userId, 10)){
+                if(parseInt(wait[j], 10) === parseInt(userId, 10)){
                     wait.splice(j,1);
                     break;
                 }
@@ -178,7 +178,7 @@ function matchesDelete(uid, eid){
         if (err) {return err;}
         var matches = JSON.stringify(result);
         var wait = matches.wait;            /* Will later update the request list of people that this person requested */
-        var request = matches.request;      /* Delete this list won't affect other people's matches */
+        var request = matches.request;      /* Delete this list wont affect other people's matches */
         var matchPerson = matches.match;   /* Will later update the matched person's "match" to NULL  */
         var t = matches.time;
         var d = matches.date;
@@ -519,7 +519,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
 
     scheduleDb.collection("scheduleClt").find(timeDateQuery).toArray((err, userScheduleEvent) => {
 
-      if (userScheduleEvent[0] == null){
+      if (userScheduleEvent[0] === null){
         res.send("There are no users in the database\n");
         return;
       } else {
@@ -553,7 +553,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
                  "eventId" : parseInt(req.body.eventId, 10)};
     var newValues = {$set:{"potentialMatches" : ret}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
-        if(req.body == null){
+        if(req.body === null){
             res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
             return;}
     /* Return the potential match array */
@@ -863,7 +863,7 @@ app.put("/schedule/:userId/:eventId", (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10), "eventId" : parseInt(req.params.eventId, 10)};
     var newValues = {$set: req.body};
     scheduleDb.collection("scheduleClt").updateOne(query, newValues,(err, result) => {
-    if (req.body == null) {
+    if (req.body === null) {
      res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
      return;
     }
