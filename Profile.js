@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
-  input_container: {
+  inputContainer: {
     margin: 8,
     marginTop: Platform.select({ ios: 2, android: 2 }),
     flex: 1,
@@ -293,7 +293,7 @@ export default class Profile extends React.Component {
           // Do nothing
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
@@ -351,7 +351,7 @@ export default class Profile extends React.Component {
           /* Render the Profile view again */
           this.setState({ userEdit: false });
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
         });
     }
@@ -536,13 +536,13 @@ export default class Profile extends React.Component {
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
-            <View style={styles.input_container}>
+            <View style={styles.inputContainer}>
               <TextField
                 label="Name: "
                 value={this.props.name}
                 characterRestriction={30}
                 //clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpName: data })}
+                onChangeText={(data) => this.setState({ tmpName: data })}
               />
 
               <TextField
@@ -552,7 +552,7 @@ export default class Profile extends React.Component {
                 //clearTextOnFocus={true}
                 secureTextEntry={this.state.secureTextEntry}
                 renderRightAccessory={this.renderPasswordAccessory()}
-                onChangeText={data => this.setState({ tmpPassword: data })}
+                onChangeText={(data) => this.setState({ tmpPassword: data })}
               />
 
               <TextField
@@ -560,7 +560,7 @@ export default class Profile extends React.Component {
                 value={this.props.yearLevel}
                 characterRestriction={1}
                 //clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpYearLevel: data })}
+                onChangeText={(data) => this.setState({ tmpYearLevel: data })}
               />
 
               <TextField
@@ -569,7 +569,7 @@ export default class Profile extends React.Component {
                 characterRestriction={1}
                 title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
                 //clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpSex: data })}
+                onChangeText={(data) => this.setState({ tmpSex: data })}
               />
 
               <TextField
@@ -578,35 +578,35 @@ export default class Profile extends React.Component {
                 keyboardType="email-address"
                 characterRestriction={50}
                 //clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpEmail: data })}
+                onChangeText={(data) => this.setState({ tmpEmail: data })}
               />
 
               <TextField
                 label="Courses: "
                 value={this.props.courses}
                 title="Please input in form: 'Course A,Course B,Course C'"
-                onChangeText={data => this.setState({ tmpCoursesString: data })}
+                onChangeText={(data) => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
                 label="Kindness preference: "
                 value={this.props.kindnessPref}
                 characterRestriction={2}
-                onChangeText={data => this.setState({ tmpKindness: data })}
+                onChangeText={(data) => this.setState({ tmpKindness: data })}
               />
 
               <TextField
                 label="Patience preference: "
                 value={this.props.patiencePref}
                 characterRestriction={2}
-                onChangeText={data => this.setState({ tmpPatience: data })}
+                onChangeText={(data) => this.setState({ tmpPatience: data })}
               />
 
               <TextField
                 label="Hardworking preference: "
                 value={this.props.hardWorkingPref}
                 characterRestriction={2}
-                onChangeText={data => this.setState({ tmpHardWorking: data })}
+                onChangeText={(data) => this.setState({ tmpHardWorking: data })}
               />
             </View>
 

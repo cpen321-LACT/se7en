@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
-  input_container: {
+  inputContainer: {
     margin: 8,
     marginTop: Platform.select({ ios: 2, android: 2 }),
     flex: 1,
@@ -136,7 +136,7 @@ export default class Login extends Component {
                   return;
                 }
               })
-              .catch(error => {
+              .catch((error) => {
                 console.error(error);
               });
           }
@@ -184,7 +184,7 @@ export default class Login extends Component {
             this.unrenderSignUpForm();
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
         });
     }
@@ -329,7 +329,7 @@ export default class Login extends Component {
           // Do nothing
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
@@ -367,7 +367,7 @@ export default class Login extends Component {
 
                 this.props.scheduleArrayClear();
                 /* Traverse through each item to populate needed fields of scheduleArray for rendering */
-                responseJson.forEach(item => {
+                responseJson.forEach((item) => {
                   /* Start time of a schedule */
                   var startTimeToAdd = new Date(item.date);
                   startTimeToAdd.setHours(item.time.substring(0, 2));
@@ -394,7 +394,7 @@ export default class Login extends Component {
                 // Do nothing
               }
             })
-            .catch(error => {
+            .catch((error) => {
               console.error(error);
             });
         }
@@ -450,13 +450,13 @@ export default class Login extends Component {
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
-            <View style={styles.input_container}>
+            <View style={styles.inputContainer}>
               <TextField
                 label="User ID: "
                 title="Please enter User ID as an integer!"
                 characterRestriction={10}
                 clearTextOnFocus={true}
-                onChangeText={data => this.props.userIDChange(data)}
+                onChangeText={(data) => this.props.userIDChange(data)}
               />
 
               <TextField
@@ -464,7 +464,7 @@ export default class Login extends Component {
                 clearTextOnFocus={true}
                 secureTextEntry={this.state.loginSecureTextEntry}
                 renderRightAccessory={this.login_renderPasswordAccessory()}
-                onChangeText={data => this.props.passwordChange(data)}
+                onChangeText={(data) => this.props.passwordChange(data)}
               />
             </View>
 
@@ -497,18 +497,18 @@ export default class Login extends Component {
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
-            <View style={styles.input_container}>
+            <View style={styles.inputContainer}>
               <TextField
                 label="Year level: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
-                onChangeText={data => this.setState({ tmpYearLevel: data })}
+                onChangeText={(data) => this.setState({ tmpYearLevel: data })}
               />
               <TextField
                 label="Courses: "
                 clearTextOnFocus={true}
                 title="Please input in form: 'Course A,Course B,Course C'"
-                onChangeText={data => this.setState({ tmpCoursesString: data })}
+                onChangeText={(data) => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
@@ -516,7 +516,7 @@ export default class Login extends Component {
                 clearTextOnFocus={true}
                 characterRestriction={1}
                 title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
-                onChangeText={data => this.setState({ tmpSex: data })}
+                onChangeText={(data) => this.setState({ tmpSex: data })}
               />
 
               {/* <TextField
@@ -541,7 +541,7 @@ export default class Login extends Component {
                 label="User ID: "
                 characterRestriction={10}
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpUserID: data })}
+                onChangeText={(data) => this.setState({ tmpUserID: data })}
               />
 
               <TextField
@@ -550,21 +550,21 @@ export default class Login extends Component {
                 characterRestriction={20}
                 secureTextEntry={this.state.loginSecureTextEntry}
                 renderRightAccessory={this.login_renderPasswordAccessory()}
-                onChangeText={data => this.setState({ tmpPassword: data })}
+                onChangeText={(data) => this.setState({ tmpPassword: data })}
               />
 
               <TextField
                 label="Email: "
                 clearTextOnFocus={true}
                 characterRestriction={50}
-                onChangeText={data => this.setState({ tmpEmail: data })}
+                onChangeText={(data) => this.setState({ tmpEmail: data })}
               />
 
               <TextField
                 label="Name: "
                 clearTextOnFocus={true}
                 characterRestriction={30}
-                onChangeText={data => this.setState({ tmpName: data })}
+                onChangeText={(data) => this.setState({ tmpName: data })}
               />
             </View>
 

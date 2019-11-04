@@ -24,13 +24,13 @@ const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
 const statusBarHeight = Platform.OS === "ios" ? 35 : 0;
 
 const styles = StyleSheet.create({
-  container_calendar: {
+  containerCalendar: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFF",
   },
-  header_calendar: {
+  headerCalendar: {
     backgroundColor: "#4286f4",
   },
   navBar: {
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
-  input_container: {
+  inputContainer: {
     margin: 8,
     marginTop: Platform.select({ ios: 2, android: 2 }),
     flex: 1,
@@ -289,11 +289,11 @@ export default class Calendar extends React.Component {
                 // Do nothing
               }
             })
-            .catch(error => {
+            .catch((error) => {
               console.error(error);
             });
         }
-      })
+      });
   }
 
 
@@ -323,7 +323,7 @@ export default class Calendar extends React.Component {
                     onRefresh={this._onRefresh}
                   />
                 }>
-                <View style={styles.container_calendar}>
+                <View style={styles.containerCalendar}>
                   <StatusBar
                     barStyle="light-content"
                     backgroundColor="#4286f4"
@@ -336,7 +336,7 @@ export default class Calendar extends React.Component {
                     events={this.props.scheduleArray}
                     selectedDate={new Date()}
                     numberOfDays={7}
-                    onEventPress={event =>
+                    onEventPress={(event) =>
                       Alert.alert(
                         "Event: " + event.id,
                         "Time: " +
@@ -359,7 +359,7 @@ export default class Calendar extends React.Component {
                         event.location
                       )
                     }
-                    headerStyle={styles.header_calendar}
+                    headerStyle={styles.headerCalendar}
                     formatDateHeader="ddd D"
                     locale="en"
                   />
@@ -396,14 +396,14 @@ export default class Calendar extends React.Component {
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
-            <View style={styles.input_container}>
+            <View style={styles.inputContainer}>
               <TextField
                 label="Date: "
                 value={""}
                 title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
                 characterRestriction={1}
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpDate: data })}
+                onChangeText={(data) => this.setState({ tmpDate: data })}
               />
               <TextField
                 label="Start Time: "
@@ -411,7 +411,7 @@ export default class Calendar extends React.Component {
                 title="Enter in form 'hh mm'"
                 characterRestriction={5}
                 clearTextOnFocus={true}
-                onChangeText={data =>
+                onChangeText={(data) =>
                   this.setState({ tmpStartTimeString: data })
                 }
               />
@@ -422,7 +422,7 @@ export default class Calendar extends React.Component {
                 title="Enter in form 'hh mm'"
                 characterRestriction={5}
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpEndTimeString: data })}
+                onChangeText={(data) => this.setState({ tmpEndTimeString: data })}
               />
               <TextField
                 label="Subject: "
@@ -430,7 +430,7 @@ export default class Calendar extends React.Component {
                 title="This is a required field or it would show CPEN 321 by default"
                 clearTextOnFocus={true}
                 characterRestriction={10}
-                onChangeText={data => this.setState({ tmpSubject: data })}
+                onChangeText={(data) => this.setState({ tmpSubject: data })}
               />
 
               <TextField
@@ -438,7 +438,7 @@ export default class Calendar extends React.Component {
                 value={""}
                 clearTextOnFocus={true}
                 characterRestriction={20}
-                onChangeText={data => this.setState({ tmpLocation: data })}
+                onChangeText={(data) => this.setState({ tmpLocation: data })}
               />
             </View>
 
