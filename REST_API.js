@@ -103,37 +103,6 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
     }
     return filteredMatches;
 }
-/*
- *  Delete the the matching with given time and userId.
- *  Modify other userId matches as needed.
- *  This will call for allRequestDelete, allWaitDelete, and personMatchDelete
- */
-function matchesDelete(userId, eventId){
-    /* Read the match object into an object */
-    query = {"userId" : userId,
-             "eventId" : eventId}
-    userDb.collection("match_clt").find(query).toArray((err,result) => {
-        if (err) return console.log(err);
-        var matches = JSON_stringify(result);
-        var wait = matches.wait;            /* Will later update the request list of people that this person requested */
-        var request = matches.request;      /* Delete this list won't affect other people's matches */
-        var matchPerson = matches.match;   /* Will later update the matched person's "match" to NULL  */
-        var time = matches.time;
-        var date = matches.date;
-          /* Delete requests and waits to others */
-        allRequestDelete(userId, wait, time, date);
-        allWaitDelete(userId, request, time, date);
-          /* Delete the matching person */
-        if(matchPerson != null) personMatchDelete(matchPerson, time, date);
-
-        /* Delete the match object */
-        var query = {"userId" : userId, "time" : time, "date" : date};
-        userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-            if (err) {return console.log(err)};
-        })
-    })
-
-}
 /* Delete the all the requests that the given userId sent */
 function allRequestDelete(userId, wait, time, date){
     for(var i = 0; i < wait.length; i++){
@@ -188,6 +157,37 @@ function personMatchDelete(userId, time, date){
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
         if (err) {return 1};
         return 0; })
+}
+/*
+ *  Delete the the matching with given time and userId.
+ *  Modify other userId matches as needed.
+ *  This will call for allRequestDelete, allWaitDelete, and personMatchDelete
+ */
+function matchesDelete(uid, eid){
+    /* Read the match object into an object */
+    query = {"userId" : uid,
+             "eventId" : eid}
+    userDb.collection("match_clt").find(query).toArray((err,result) => {
+        if (err) return console.log(err);
+        var matches = JSON_stringify(result);
+        var wait = matches.wait;            /* Will later update the request list of people that this person requested */
+        var request = matches.request;      /* Delete this list won't affect other people's matches */
+        var matchPerson = matches.match;   /* Will later update the matched person's "match" to NULL  */
+        var time = matches.time;
+        var date = matches.date;
+          /* Delete requests and waits to others */
+        allRequestDelete(uid, wait, time, date);
+        allWaitDelete(uid, request, time, date);
+          /* Delete the matching person */
+        if(matchPerson != null) personMatchDelete(matchPerson, time, date);
+
+        /* Delete the match object */
+        var query = {"userId" : uid, "time" : time, "date" : date};
+        userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
+            if (err) {return console.log(err)};
+        })
+    })
+
 }
 /*______________________________________________________________________________________
  *  End of helper funtions used for the match algorithm
