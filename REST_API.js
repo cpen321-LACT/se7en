@@ -645,7 +645,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
     var i;
     /* Find all the match documents for a specified user */
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
-        if (err) return err;
+        if (err) {return err;}
         if (doesntExist(matches)){
             res.send("The user with userId doesnt have any matches\n");
         }
@@ -789,7 +789,7 @@ app.get("/schedule/:userId", (req,res) => {
 /*
  * Add an event the schedule of the user with with userId.\
  */
-app.post('/user/:userId/schedule', (req,res) => {
+app.post("/user/:userId/schedule", (req,res) => {
 
     if (doesntExist(req.body)){
         res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
@@ -909,5 +909,5 @@ app.delete("/user/:userId/schedule/:eventId", (req,res) => {
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.send("deleted the specific time\n");
-        });
+        })
     })
