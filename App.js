@@ -11,6 +11,26 @@ import Calendar from './Calendar.js';
 import Profile from './Profile.js';
 import Login from './Login.js';
 
+/* Styles */
+const deviceW = Dimensions.get('window').width;
+const basePx = 375;
+function px2dp(px) {
+  return (px * deviceW) / basePx;
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  shareText: {
+    fontSize: 20,
+    margin: 10,
+  },
+});
+/* -------------------------------------------------------------------------- */
+
 /* Suppress warnings for now */
 console.disableYellowBox = true;
 
@@ -213,22 +233,3 @@ export default class App extends Component {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Styles */
-const deviceW = Dimensions.get('window').width;
-const basePx = 375;
-function px2dp(px) {
-  return (px * deviceW) / basePx;
-}
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  shareText: {
-    fontSize: 20,
-    margin: 10,
-  },
-});
