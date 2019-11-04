@@ -122,7 +122,7 @@ function allRequestDelete(userId, wait, time, date){
                 }
             }
             userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
-                if (err) return console.log(err); })
+                if (err) {return console.log(err); }})
         })
     }
 }
@@ -155,7 +155,7 @@ function personMatchDelete(userId, time, date){
                  "date" : date};
     var newValues = {$set:{"match" : null}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
-        if (err) {return 1};
+        if (err) {return 1;}
         return 0; })
 }
 /*
@@ -184,7 +184,7 @@ function matchesDelete(uid, eid){
         /* Delete the match object */
         var query = {"userId" : uid, "time" : time, "date" : date};
         userDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-            if (err) {return console.log(err)};
+            if (err) {return console.log(err);}
         })
     })
 
