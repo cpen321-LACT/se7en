@@ -140,7 +140,7 @@ export default class Login extends Component {
                 console.error(error);
               });
           }
-        })
+        });
     }
   }
 
