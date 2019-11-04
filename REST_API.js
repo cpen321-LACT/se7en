@@ -104,12 +104,12 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
     return filteredMatches;
 }
 /* Delete the all the requests that the given userId sent */
-function allRequestDelete(userId, wait, time, date){
+function allRequestDelete(userId, wait, t, d){
     for(var i = 0; i < wait.length; i++){
         var requestedId = wait[i];
         var query = {"userId" : parseInt(requestedId, 10),
-                     "time" : time,
-                     "date" : date};
+                     "time" : t,
+                     "date" : d};
         userDb.collection("match_clt").find(query).toArray((err,result) => {
             if (err) {return console.log(err);}
             result = JSON.stringify(result);
@@ -144,7 +144,10 @@ function allWaitDelete(userId, request, t, d){
                 }
             }
             userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
-                if (err) {return console.log(err);} })
+                if (err) {
+                    return res.send(err);
+                } 
+            })
         })
     }
 }
