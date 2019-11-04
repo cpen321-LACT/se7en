@@ -295,20 +295,20 @@ app.put("/user/:userId/preferences", (req,res) => {
     /* Check if the user exists in the database */
     userDb.collection("infoClt").find(userQuery).toArray((err, user) => {
 
-        if (doesntExist(req.body)){
-            res.status(400).send("you sent a null body (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (doesntExist(req.body)){
+        //     res.status(400).send("you sent a null body (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
-        if (doesntExist(user)){
-            res.status(400).send("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (doesntExist(user)){
+        //     res.status(400).send("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
-        if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
-            res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
+        //     res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
         /* No errors, update the user preferences */
         userDb.collection("preferencesClt").updateOne(userQuery, newValues,(err, result) => {
