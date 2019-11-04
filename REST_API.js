@@ -62,7 +62,8 @@ function generateMatch(kindness, hardWorking, patience, array){
 
     // Loop to create 2D array using 1D array
     for (var i = 0; i < score.length; i++) {
-        score[i] = new Array(2);
+        var j = i;
+        score[j] = new Array(2);
     }
     for(var i = 0; i < array.length; i++){
         score[i][0] =   Math.abs(kindness - array[i].kindness) +
@@ -480,7 +481,6 @@ app.put("/user/:userId/info", (req,res) => {
  */
 app.delete("/user/:userId/info", (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
-    console.log(parseInt(req.params.userId, 10));
     scheduleDb.collection("infoClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.send("deleted the user: ", parseInt(req.params.userId, 10));
