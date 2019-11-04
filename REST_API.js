@@ -111,7 +111,7 @@ function allRequestDelete(userId, wait, t, d){
                      "time" : t,
                      "date" : d};
         userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) {return console.log(err);}
+            if (err) {return err;}
             result = JSON.stringify(result);
             var request = result.request;
             /* Find the id and delete it */
@@ -122,7 +122,10 @@ function allRequestDelete(userId, wait, t, d){
                 }
             }
             userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
-                if (err) {return console.log(err); }})
+                if (err) {
+                    return err; 
+                }
+            })
         })
     }
 }
@@ -145,7 +148,7 @@ function allWaitDelete(userId, request, t, d){
             }
             userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
                 if (err) {
-                    return res.send(err);
+                    return err;
                 } 
             })
         })
@@ -173,7 +176,7 @@ function matchesDelete(uid, eid){
              "eventId" : eid};
     userDb.collection("match_clt").find(query).toArray((err,result) => {
         if (err) {return console.log(err);}
-        var matches = JSON_stringify(result);
+        var matches = JSON.stringify(result);
         var wait = matches.wait;            /* Will later update the request list of people that this person requested */
         var request = matches.request;      /* Delete this list won't affect other people's matches */
         var matchPerson = matches.match;   /* Will later update the matched person's "match" to NULL  */
