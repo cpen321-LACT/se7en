@@ -386,6 +386,12 @@ export default class Profile extends React.Component {
     }
   }
 
+  signOut() {
+    this.props.logVisibleChange();
+    this.props.userIDChange('');
+    this.props.passwordChange('');
+  }
+
   /* -------------------------------------------------------------------------- */
 
   render() {
@@ -430,7 +436,7 @@ export default class Profile extends React.Component {
               title="Sign Out"
               onPress={() => {
                 Alert.alert("Signing out");
-                this.props.logVisibleChange();
+                this.signOut();
               }}>
               <Icon name="md-exit" style={styles.actionButtonIcon} />
             </ActionButton.Item>

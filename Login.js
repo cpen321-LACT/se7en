@@ -537,7 +537,7 @@ export default class Login extends Component {
               />
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView >
       );
     }
   }
@@ -572,6 +572,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+
   navBar: {
     backgroundColor: '#4286f4',
     height: 44 + statusBarHeight,
@@ -580,6 +581,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   navBarTitle: {
     color: '#FFF',
     fontFamily,
