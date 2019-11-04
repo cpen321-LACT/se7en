@@ -116,7 +116,7 @@ function allRequestDelete(userId, wait, time, date){
             var request = result.request;
             /* Find the id and delete it */
             for(var j = 0; j < request.length; j++){
-                if(parseInt(request[j], 10) == pareInt(userId, 10)){
+                if(parseInt(request[j], 10) == parseInt(userId, 10)){
                     request.splice(j,1);
                     break;
                 }
@@ -166,7 +166,7 @@ function personMatchDelete(userId, time, date){
 function matchesDelete(uid, eid){
     /* Read the match object into an object */
     query = {"userId" : uid,
-             "eventId" : eid}
+             "eventId" : eid};
     userDb.collection("match_clt").find(query).toArray((err,result) => {
         if (err) return console.log(err);
         var matches = JSON_stringify(result);
@@ -380,7 +380,6 @@ app.post("/user/:userId", (req,res) => {
             return;
         }
 
-        console.log(req.params.userId);
         var id = parseInt(req.params.userId, 10);
         userDb.collection("infoClt").insertOne(
             {"yearLevel"           : req.body.yearLevel,
@@ -518,15 +517,15 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
         res.send("There are no users in the database\n");
         return;
       } else {
-      var time = userScheduleEvent[0].time;
-      var date = userScheduleEvent[0].date;
+      var t = userScheduleEvent[0].time;
+      var d = userScheduleEvent[0].date;
     }
 
     /*_________________________________________________________
      * Get the schedule array of specific time
      *_________________________________________________________ */
-    var query = {"time" : time,
-                 "date" : date,
+    var query = {"time" : t,
+                 "date" : d,
                  "course" : req.body.course};
 
     /* Filter all standard time to an array */
@@ -556,7 +555,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
         if (err) return console.log(err);
         /* return the potential matches */
         res.send(result);
-    }) }) }) }) })
+    }) }) }) }) });
 })
 
 
