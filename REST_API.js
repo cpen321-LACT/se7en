@@ -561,7 +561,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
         if (err) {return err;}
         /* return the potential matches */
         res.send(result);
-    }) }) }) }) });
+    }) }) }) }) })
 })
 
 
@@ -684,7 +684,7 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
 app.delete("/user/:userId/matches/:matchId", (req,res) => {
     var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
-    if(err1 || err2) {return err;}
+    if(err1 || err2) {return (err1 || err2);} 
     res.send("Successfully unmatch.");
 })
 
@@ -754,7 +754,7 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
 
     scheduleDb.collection("scheduleClt").find(query).toArray((err, result) => {
         if (doesntExist(result)){
-            res.send("The study event with eventId for user with userId doesn't exist\n")
+            res.send("The study event with eventId for user with userId doesn't exist\n");
             return;
         }
         if (err) {return err;}
@@ -777,9 +777,9 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
 app.get("/schedule/:userId", (req,res) => {
     var query = {userId : parseInt(req.params.userId, 10)};
     scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
-        if (err) return err;
+        if (err) {return err;}
         if (doesntExist(schedule)){
-            res.send("The user with userId doesn't have any study events\n")
+            res.send("The user with userId doesn't have any study events\n");
             return;
         }
         res.send(schedule);
@@ -799,7 +799,7 @@ app.post('/user/:userId/schedule', (req,res) => {
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
 
         if (doesntExist(userInfo)){
-            res.send("You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻\n")
+            res.send("You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻\n");
             return;
         }
 
