@@ -774,7 +774,7 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
  *   'course' : 'CPEN 321',
  *   'location' : 'Irving K. Barber'}
  */
-app.get('/schedule/:userId', (req,res) => {
+app.get("/schedule/:userId", (req,res) => {
     var query = {userId : parseInt(req.params.userId, 10)};
     scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
         if (err) return err;
@@ -805,24 +805,24 @@ app.post('/user/:userId/schedule', (req,res) => {
 
         /* Create schedule object */
         scheduleDb.collection("scheduleClt").insertOne(
-            {'userId' : parseInt(req.params.userId, 10),
-             'eventId' : parseInt(req.body.eventId, 10),
-             'time' : req.body.time,
-             'date' : req.body.date,
-             'course' : req.body.course,
-             'location' : req.body.location},(err, result) => {
+            {"userId" : parseInt(req.params.userId, 10),
+             "eventId" : parseInt(req.body.eventId, 10),
+             "time" : req.body.time,
+             "date" : req.body.date,
+             "course" : req.body.course,
+             "location" : req.body.location},(err, result) => {
             if (err) {return err;}
             // console.log('Schedule added')
         })
         /* Create a match object for that schedule */
         userDb.collection("matchesClt").insertOne(
-            {'userId' : parseInt(req.params.userId, 10),
-             'eventId' : parseInt(req.body.eventId, 10),
-             'time' : req.body.time,
-             'date' : req.body.date,
+            {"userId" : parseInt(req.params.userId, 10),
+             "eventId" : parseInt(req.body.eventId, 10),
+             "time" : req.body.time,
+             "date" : req.body.date,
              "wait" : [],
              "request" : [],
-             'potentialMatches' : [],
+             "potentialMatches" : [],
              "match" : -1},(err, result) => {
                if (err) {return err;}
             //    console.log('matches document init done')
@@ -841,18 +841,18 @@ app.post('/user/:userId/schedule', (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.put('/schedule/:userId/:eventId', (req,res) => {
+app.put("/schedule/:userId/:eventId", (req,res) => {
     /* First need to delete the current corresponding maches */
     matchesDelete(req.params.userId, req.params.eventId);
     /* Create a new corresponding matches */
     userDb.collection("matchesClt").insertOne( // should this be insert or update?
-        {'userId' : parseInt(req.params.userId, 10),
-         'eventId' : parseInt(req.params.eventId, 10),
-         'time' : req.body.time,
-         'date' : req.body.date,
+        {"userId" : parseInt(req.params.userId, 10),
+         "eventId" : parseInt(req.params.eventId, 10),
+         "time" : req.body.time,
+         "date" : req.body.date,
          "wait" : [],
          "request" : [],
-         'potentialMatches' : [],
+         "potentialMatches" : [],
          "match" : -1},(err, result) => {
            if (err) {return err;}
         //    console.log('matches document init done')
@@ -877,9 +877,10 @@ app.put('/schedule/:userId/:eventId', (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.delete('/user/:userId/schedule/:num_events', (req,res) => {
+app.delete("/user/:userId/schedule/:num_events", (req,res) => {
     /* Delete every single corresponding match */
-    for(var i = 0; i < parseInt(req.params.num_events, 10); i++){
+    var i;
+    for(i = 0; i < parseInt(req.params.num_events, 10); i++){
       matchesDelete(req.params.userId, i);
     }
     /* Now actually delete the schedule */
@@ -896,7 +897,7 @@ app.delete('/user/:userId/schedule/:num_events', (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.delete('/user/:userId/schedule/:eventId', (req,res) => {
+app.delete("/user/:userId/schedule/:eventId", (req,res) => {
     /*
      *  Before deleting the schedule, we need to delete the matching first
      *  This function is written in the matches sections
