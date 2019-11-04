@@ -104,31 +104,31 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
     return filteredMatches;
 }
 /* Delete the all the requests that the given userId sent */
-function allRequestDelete(userId, wait, t, d){
-    for(var i = 0; i < wait.length; i++){
-        var requestedId = wait[parseInt(i, 10)];
-        var query = {"userId" : parseInt(requestedId, 10),
-                     "time" : t,
-                     "date" : d};
-        userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) {return err;}
-            result = JSON.stringify(result);
-            var request = result.request;
-            /* Find the id and delete it */
-            for(var j = 0; j < request.length; j++){
-                if(parseInt(request[parseInt(j, 10)], 10) === parseInt(userId, 10)){
-                    request.splice(j,1);
-                    break;
-                }
-            }
-            userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
-                if (err) {
-                    return err; 
-                }
-            })
-        })
-    }
-}
+// function allRequestDelete(userId, wait, t, d){
+//     for(var i = 0; i < wait.length; i++){
+//         var requestedId = wait[parseInt(i, 10)];
+//         var query = {"userId" : parseInt(requestedId, 10),
+//                      "time" : t,
+//                      "date" : d};
+//         userDb.collection("match_clt").find(query).toArray((err,result) => {
+//             if (err) {return err;}
+//             result = JSON.stringify(result);
+//             var request = result.request;
+//             /* Find the id and delete it */
+//             for(var j = 0; j < request.length; j++){
+//                 if(parseInt(request[parseInt(j, 10)], 10) === parseInt(userId, 10)){
+//                     request.splice(j,1);
+//                     break;
+//                 }
+//             }
+//             userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
+//                 if (err) {
+//                     return err; 
+//                 }
+//             })
+//         })
+//     }
+// }
 // function allWaitDelete(userId, request, t, d){
 //     for(var i = 0; i < request.length; i++){
 //         var waitedId = request[parseInt(i, 10)];
@@ -183,8 +183,8 @@ function matchesDelete(uid, eid){
         var t = matches.time;
         var d = matches.date;
           /* Delete requests and waits to others */
-        allRequestDelete(uid, wait, t, d);
-        allWaitDelete(uid, request, t, d);
+        // allRequestDelete(uid, wait, t, d);
+        // allWaitDelete(uid, request, t, d);
           /* Delete the matching person */
         if(matchPerson != null) {personMatchDelete(matchPerson, t, d);}
 
