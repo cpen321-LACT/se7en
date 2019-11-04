@@ -114,7 +114,8 @@ export default class Calendar extends React.Component {
   /* Add a schedule object to the backend */
   addSchedule() {
     /* First check for error (NULL/empty) */
-    this.checkScheduleError();
+    this.checkScheduleUndefined();
+    this.checkScheduleEmpty();
     if (!this.state.error) {
       let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
 
@@ -185,28 +186,35 @@ export default class Calendar extends React.Component {
     }
   }
 
-  /* Helper function that checks whether or not any fields are NULL/empty */
-  checkScheduleError() {
+  /* Helper functions that check whether or not any fields are NULL/empty */
+  checkScheduleUndefined() {
+    this.setState({ error: false });
     if (
       typeof this.state.tmpColor === "undefined" ||
-      this.state.tmpColor === "" ||
       typeof this.state.tmpDate === "undefined" ||
-      this.state.tmpDate === "" ||
       typeof this.state.tmpStartTimeString === "undefined" ||
-      this.state.tmpStartTimeString === "" ||
       typeof this.state.tmpEndTimeString === "undefined" ||
-      this.state.tmpEndTimeString === "" ||
       typeof this.state.tmpSubject === "undefined" ||
+      typeof this.state.tmpLocation === "undefined"
+    ) {
+      this.setState({ error: true });
+      Alert.alert("One of the fields cannot be empty!");
+    }
+  }
+  checkScheduleEmpty() {
+    this.setState({ error: false });
+    if (
+      this.state.tmpColor === "" ||
+      this.state.tmpDate === "" ||
+      this.state.tmpStartTimeString === "" ||
+      this.state.tmpEndTimeString === "" ||
       this.state.tmpSubject === "" ||
-      typeof this.state.tmpLocation === "undefined" ||
       this.state.tmpLocation === ""
     ) {
       this.setState({ error: true });
       Alert.alert("One of the fields cannot be empty!");
     }
-    else {
-      this.setState({ error: false });
-    }
+
   }
 
   /* Function that shows all the possible matches of an user */
