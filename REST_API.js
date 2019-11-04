@@ -86,7 +86,7 @@ function generateMatch(kindness, hardWorking, patience, array){
                         Math.abs(patience - array[parseInt(i, 10)].patience);
         score[parseInt(i, 10)][1] =   array[parseInt(i, 10)].userId;
     }
-    
+
     insertionSort(array, score);
 
     var ret = [];
@@ -96,13 +96,16 @@ function generateMatch(kindness, hardWorking, patience, array){
 
     return ret;
 }
+function accept(infor, userId, otherUserId){
+    return ((infor === userId) && (infor !== otherUserId));
+}
 /* A helper function that filters the array by the time, date */
 function timeFilterMatch(inforArray, scheduleArray, userId){
     var filteredMatches = [];
     for(var i = 0; i < inforArray.length; i++){
         var infor = parseInt(inforArray[parseInt(i, 10)].userId, 10);
         for(var j = 0; j < scheduleArray.length; j++){
-            if(infor === parseInt(scheduleArray[parseInt(j, 10)].userId, 10) && infor !== userId){
+            if (accept(infor, parseInt(scheduleArray[parseInt(j, 10)].userId, 10), userId)){
                 filteredMatches.push(inforArray[parseInt(i, 10)]);
             }
         }
