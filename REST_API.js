@@ -214,18 +214,18 @@ app.post("/user/:userId/preferences", (req,res) => {
 
     var userQuery = {userId : parseInt(req.params.userId, 10)};
 
-    if (doesntExist(req.body)){
-        res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-    }
-    else if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
-        res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-    }
-    else if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 2) {
-        res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
-        return;
-    }
+    // if (doesntExist(req.body)){
+    //     res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+    //     return;
+    // }
+    // else if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
+    //     res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+    //     return;
+    // }
+    // else if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 2) {
+    //     res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
+    //     return;
+    // }
 
     /* Check if the user exists in the database */
     userDb.collection("infoClt").find(userQuery).toArray((err, user) => {
@@ -439,24 +439,24 @@ app.put("/user/:userId/info", (req,res) => {
                             name                 : req.body.name}};
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
-        if (!doesntExist(userInfo)){
-            res.status(400).send("The user with this userId already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
-        if (doesntExist(req.body)){
-            res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (!doesntExist(userInfo)){
+        //     res.status(400).send("The user with this userId already exists in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
+        // if (doesntExist(req.body)){
+        //     res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
-        if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
-            res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
+        //     res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
-        if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
-            res.status(400).send("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
-            return;
-        }
+        // if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
+        //     res.status(400).send("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻\n");
+        //     return;
+        // }
 
         userDb.collection("infoClt").updateOne(query, newValues,(err, result) => {
              if (err) {return err;}
@@ -642,10 +642,10 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
     var i;
     /* Find all the match documents for a specified user */
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
-        if (err) {return err;}
-        if (doesntExist(matches)){
-            res.send("The user with userId doesnt have any matches\n");
-        }
+        // if (err) {return err;}
+        // if (doesntExist(matches)){
+        //     res.send("The user with userId doesnt have any matches\n");
+        // }
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
