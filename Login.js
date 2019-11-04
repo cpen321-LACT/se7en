@@ -398,7 +398,7 @@ export default class Login extends Component {
               console.error(error);
             });
         }
-      })
+      });
   }
 
   /* Init Sequence after successully signing in */
@@ -421,7 +421,7 @@ export default class Login extends Component {
     this.setState({ loginSecureTextEntry: !this.state.loginSecureTextEntry });
   }
 
-  login_renderPasswordAccessory() {
+  loginRenderPasswordAccessory() {
     let name = this.state.loginSecureTextEntry
       ? "visibility"
       : "visibility-off";
@@ -463,7 +463,7 @@ export default class Login extends Component {
                 label="Password: "
                 clearTextOnFocus={true}
                 secureTextEntry={this.state.loginSecureTextEntry}
-                renderRightAccessory={this.login_renderPasswordAccessory()}
+                renderRightAccessory={this.loginRenderPasswordAccessory()}
                 onChangeText={(data) => this.props.passwordChange(data)}
               />
             </View>
@@ -549,7 +549,7 @@ export default class Login extends Component {
                 clearTextOnFocus={true}
                 characterRestriction={20}
                 secureTextEntry={this.state.loginSecureTextEntry}
-                renderRightAccessory={this.login_renderPasswordAccessory()}
+                renderRightAccessory={this.loginRenderPasswordAccessory()}
                 onChangeText={(data) => this.setState({ tmpPassword: data })}
               />
 

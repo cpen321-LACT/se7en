@@ -232,7 +232,7 @@ export default class Calendar extends React.Component {
           "Potential matches:\n" + responseJson[0].potential_matches
         );
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
@@ -274,7 +274,7 @@ export default class Calendar extends React.Component {
             .then((responseJson) => {
               if (typeof responseJson !== "undefined") {
                 this.props.scheduleArrayClear();
-                responseJson.forEach(item => {
+                responseJson.forEach((item) => {
                   var startTimeToAdd = new Date(item.date);
                   startTimeToAdd.setHours(item.time.substring(0, 2));
                   startTimeToAdd.setMinutes(item.time.substring(3, 5));
