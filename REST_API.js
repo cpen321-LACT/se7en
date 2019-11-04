@@ -129,31 +129,31 @@ function allRequestDelete(userId, wait, t, d){
         })
     }
 }
-function allWaitDelete(userId, request, t, d){
-    for(var i = 0; i < request.length; i++){
-        var waitedId = request[parseInt(i, 10)];
-        var query = {"userId" : parseInt(waitedId, 10),
-                     "time" : t,
-                     "date" : d};
-        userDb.collection("match_clt").find(query).toArray((err,result) => {
-            if (err) {return err;}
-            result = JSON.stringify(result);
-            var wait = result.wait;
-            /* Find the id and delete it */
-            for(var j = 0; j < wait.length; j++){
-                if(parseInt(wait[parseInt(j, 10)], 10) === parseInt(userId, 10)){
-                    wait.splice(j,1);
-                    break;
-                }
-            }
-            userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
-                if (err) {
-                    return err;
-                } 
-            })
-        })
-    }
-}
+// function allWaitDelete(userId, request, t, d){
+//     for(var i = 0; i < request.length; i++){
+//         var waitedId = request[parseInt(i, 10)];
+//         var query = {"userId" : parseInt(waitedId, 10),
+//                      "time" : t,
+//                      "date" : d};
+//         userDb.collection("match_clt").find(query).toArray((err,result) => {
+//             if (err) {return err;}
+//             result = JSON.stringify(result);
+//             var wait = result.wait;
+//             /* Find the id and delete it */
+//             for(var j = 0; j < wait.length; j++){
+//                 if(parseInt(wait[parseInt(j, 10)], 10) === parseInt(userId, 10)){
+//                     wait.splice(j,1);
+//                     break;
+//                 }
+//             }
+//             userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
+//                 if (err) {
+//                     return err;
+//                 } 
+//             })
+//         })
+//     }
+// }
 /* Delete the matching of 2 people */
 function personMatchDelete(userId, t, d){
     var query = {"userId" : parseInt(userId, 10),
