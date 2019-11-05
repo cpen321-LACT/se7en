@@ -229,12 +229,7 @@ export default class Login extends Component {
   }
 
   checkSumPrefs() {
-    if (
-      this.state.tmpKindness +
-      this.state.tmpPatience +
-      this.state.tmpHardWorking <
-      12
-    ) {
+    if (this.state.tmpKindness + this.state.tmpPatience + this.state.tmpHardWorking < 12) {
       this.setState({ error: true });
       Alert.alert(
         "The sum of Kindness, Patience and Hardworking must be at least 12"
