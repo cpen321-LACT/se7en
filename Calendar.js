@@ -291,14 +291,9 @@ export default class Calendar extends React.Component {
                   this.props.scheduleArrayAdd(tmpSchedule);
                 });
                 //console.log(this.props.scheduleArray);
-              } else {
-                // Do nothing
-              }
+              } 
             });
-          // .catch((error) => {
-          //   console.error(error);
-          // });
-        }
+         }
       });
   }
 
