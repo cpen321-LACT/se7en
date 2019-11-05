@@ -140,7 +140,7 @@ export default class Login extends Component {
                   Alert.alert("Incorrect user ID or password!");
                   return;
                 }
-              })
+              });
             // .catch((error) => {
             //   console.error(error);
             // });

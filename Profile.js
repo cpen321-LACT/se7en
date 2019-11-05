@@ -291,7 +291,7 @@ export default class Profile extends React.Component {
         } else {
           // Do nothing
         }
-      })
+      });
     // .catch((error) => {
     //   console.error(error);
     // });
