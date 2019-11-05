@@ -240,7 +240,6 @@ export default class Calendar extends React.Component {
   _onRefresh = () => {
     this.setState({ calendarRefreshing: true });
     this.refreshSchedule();
-    this.setState({ calendarRefreshing: false });
   };
 
   /* Function that refreshes schedule array */
@@ -295,6 +294,8 @@ export default class Calendar extends React.Component {
             });
          }
       });
+    this.setState({ calendarRefreshing: false });
+    
   }
 
 
