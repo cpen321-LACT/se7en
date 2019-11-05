@@ -229,7 +229,7 @@ export default class Calendar extends React.Component {
         Alert.alert(
           "Potential matches:\n" + responseJson[0].potential_matches
         );
-      })
+      });
     // .catch((error) => {
     //   console.error(error);
     // });

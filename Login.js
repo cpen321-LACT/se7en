@@ -281,7 +281,7 @@ export default class Login extends Component {
         } else {
           // Do nothing
         }
-      })
+      });
     // .catch((error) => {
     //   console.error(error);
     // });

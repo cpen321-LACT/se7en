@@ -321,14 +321,14 @@ export default class Profile extends React.Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          year_level: this.state.tmpYearLevel,
+          yearLevel: this.state.tmpYearLevel,
           courses: this.state.tmpCourses,
           sex: this.state.tmpSex,
-          number_of_ratings: this.props.numberOfRatings,
+          numberOfRatings: this.props.numberOfRatings,
           kindness: this.props.kindnessPref,
           patience: this.props.patiencePref,
           hard_working: this.props.hardWorkingPref,
-          authentication_token: this.props.authenticationToken,
+          authenticationToken: this.props.authenticationToken,
           password: this.state.tmpPassword,
           email: this.state.tmpEmail,
           name: this.state.tmpName,
@@ -341,7 +341,7 @@ export default class Profile extends React.Component {
             Alert.alert("Failed to update information, please try again!");
             return;
           }
-          console.log(responseJson);
+          //console.log(responseJson);
           this.props.yearLevelChange(this.state.tmpYearLevel);
           this.props.coursesChange(this.state.tmpCourses);
           this.props.sexChange(this.state.tmpSex);
@@ -357,7 +357,7 @@ export default class Profile extends React.Component {
           Alert.alert("Updated successfully!");
           /* Render the Profile view again */
           this.setState({ userEdit: false });
-        })
+        });
       // .catch((error) => {
       //   console.error(error);
       // });
