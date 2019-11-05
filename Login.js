@@ -467,7 +467,7 @@ export default class Login extends Component {
                 onChangeText={(data) => this.setState({ tmpSex: data })}
               />
 
-              {/* <TextField
+              /* <TextField
                 label="Kindness preference: "
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpKindness: data })}
@@ -483,7 +483,7 @@ export default class Login extends Component {
                 label="Hardworking preference: "
                 clearTextOnFocus={true}
                 onChangeText={data => this.setState({ tmpHardWorking: data })}
-              /> */}
+              /> */
 
               <TextField
                 label="User ID: "
