@@ -92,6 +92,159 @@ export default class Login extends Component {
       signUp: false,
     };
   }
+  
+  render() {
+    if (!this.state.signUp) {
+      return (
+        <SafeAreaView style={styles.safeContainer}>
+          <View style={styles.navBar}>
+            <Text style={styles.navBarTitle}>SE7EN</Text>
+          </View>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled">
+            <View style={styles.inputContainer}>
+              <TextField
+                label="User ID: "
+                title="Please enter User ID as an integer!"
+                characterRestriction={10}
+                clearTextOnFocus={true}
+                onChangeText={(data) => this.props.userIDChange(data)}
+              />
+
+              <TextField
+                label="Password: "
+                clearTextOnFocus={true}
+                secureTextEntry={this.state.loginSecureTextEntry}
+                renderRightAccessory={this.loginRenderPasswordAccessory()}
+                onChangeText={(data) => this.props.passwordChange(data)}
+              />
+            </View>
+
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="Sign In"
+                onPress={() => this.signIn()}
+              />
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="Sign Up"
+                onPress={() => this.renderSignUpForm()}
+              />
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      );
+    } else {
+      return (
+        <SafeAreaView style={styles.safeContainer}>
+          <View style={styles.navBar}>
+            <Text style={styles.navBarTitle}>Sign up</Text>
+          </View>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled">
+            <View style={styles.inputContainer}>
+              <TextField
+                label="Year level: "
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                onChangeText={(data) => this.setState({ tmpYearLevel: data })}
+              />
+              <TextField
+                label="Courses: "
+                clearTextOnFocus={true}
+                title="Please input in form: 'Course A,Course B,Course C'"
+                onChangeText={(data) => this.setState({ tmpCoursesString: data })}
+              />
+
+              <TextField
+                label="Sex: "
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
+                onChangeText={(data) => this.setState({ tmpSex: data })}
+              />
+
+              /* <TextField
+                label="Kindness preference: "
+                clearTextOnFocus={true}
+                onChangeText={data => this.setState({ tmpKindness: data })}
+              />
+
+              <TextField
+                label="Patience preference: "
+                clearTextOnFocus={true}
+                onChangeText={data => this.setState({ tmpPatience: data })}
+              />
+
+              <TextField
+                label="Hardworking preference: "
+                clearTextOnFocus={true}
+                onChangeText={data => this.setState({ tmpHardWorking: data })}
+              /> */
+
+              <TextField
+                label="User ID: "
+                characterRestriction={10}
+                clearTextOnFocus={true}
+                onChangeText={(data) => this.setState({ tmpUserID: data })}
+              />
+
+              <TextField
+                label="Password: "
+                clearTextOnFocus={true}
+                characterRestriction={20}
+                secureTextEntry={this.state.loginSecureTextEntry}
+                renderRightAccessory={this.loginRenderPasswordAccessory()}
+                onChangeText={(data) => this.setState({ tmpPassword: data })}
+              />
+
+              <TextField
+                label="Email: "
+                clearTextOnFocus={true}
+                characterRestriction={50}
+                onChangeText={(data) => this.setState({ tmpEmail: data })}
+              />
+
+              <TextField
+                label="Name: "
+                clearTextOnFocus={true}
+                characterRestriction={30}
+                onChangeText={(data) => this.setState({ tmpName: data })}
+              />
+            </View>
+
+            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="go back"
+                onPress={() => this.unrenderSignUpForm()}
+              />
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+                title="sign up"
+                onPress={() => this.signUp()}
+              />
+            </View>
+          </ScrollView>
+        </SafeAreaView >
+      );
+    }
+  }
+  
+  //---------------------------------------------------------------------------//
 
   /* Helper function that executes the Sign In sequence */
   signIn() {
@@ -387,154 +540,4 @@ export default class Login extends Component {
 
   /* -------------------------------------------------------------------------- */
 
-  render() {
-    if (!this.state.signUp) {
-      return (
-        <SafeAreaView style={styles.safeContainer}>
-          <View style={styles.navBar}>
-            <Text style={styles.navBarTitle}>SE7EN</Text>
-          </View>
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.contentContainer}
-            keyboardShouldPersistTaps="handled">
-            <View style={styles.inputContainer}>
-              <TextField
-                label="User ID: "
-                title="Please enter User ID as an integer!"
-                characterRestriction={10}
-                clearTextOnFocus={true}
-                onChangeText={(data) => this.props.userIDChange(data)}
-              />
-
-              <TextField
-                label="Password: "
-                clearTextOnFocus={true}
-                secureTextEntry={this.state.loginSecureTextEntry}
-                renderRightAccessory={this.loginRenderPasswordAccessory()}
-                onChangeText={(data) => this.props.passwordChange(data)}
-              />
-            </View>
-
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="Sign In"
-                onPress={() => this.signIn()}
-              />
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="Sign Up"
-                onPress={() => this.renderSignUpForm()}
-              />
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-      );
-    } else {
-      return (
-        <SafeAreaView style={styles.safeContainer}>
-          <View style={styles.navBar}>
-            <Text style={styles.navBarTitle}>Sign up</Text>
-          </View>
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.contentContainer}
-            keyboardShouldPersistTaps="handled">
-            <View style={styles.inputContainer}>
-              <TextField
-                label="Year level: "
-                clearTextOnFocus={true}
-                characterRestriction={1}
-                onChangeText={(data) => this.setState({ tmpYearLevel: data })}
-              />
-              <TextField
-                label="Courses: "
-                clearTextOnFocus={true}
-                title="Please input in form: 'Course A,Course B,Course C'"
-                onChangeText={(data) => this.setState({ tmpCoursesString: data })}
-              />
-
-              <TextField
-                label="Sex: "
-                clearTextOnFocus={true}
-                characterRestriction={1}
-                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
-                onChangeText={(data) => this.setState({ tmpSex: data })}
-              />
-
-              /* <TextField
-                label="Kindness preference: "
-                clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpKindness: data })}
-              />
-
-              <TextField
-                label="Patience preference: "
-                clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpPatience: data })}
-              />
-
-              <TextField
-                label="Hardworking preference: "
-                clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpHardWorking: data })}
-              /> */
-
-              <TextField
-                label="User ID: "
-                characterRestriction={10}
-                clearTextOnFocus={true}
-                onChangeText={(data) => this.setState({ tmpUserID: data })}
-              />
-
-              <TextField
-                label="Password: "
-                clearTextOnFocus={true}
-                characterRestriction={20}
-                secureTextEntry={this.state.loginSecureTextEntry}
-                renderRightAccessory={this.loginRenderPasswordAccessory()}
-                onChangeText={(data) => this.setState({ tmpPassword: data })}
-              />
-
-              <TextField
-                label="Email: "
-                clearTextOnFocus={true}
-                characterRestriction={50}
-                onChangeText={(data) => this.setState({ tmpEmail: data })}
-              />
-
-              <TextField
-                label="Name: "
-                clearTextOnFocus={true}
-                characterRestriction={30}
-                onChangeText={(data) => this.setState({ tmpName: data })}
-              />
-            </View>
-
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="go back"
-                onPress={() => this.unrenderSignUpForm()}
-              />
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="sign up"
-                onPress={() => this.signUp()}
-              />
-            </View>
-          </ScrollView>
-        </SafeAreaView >
-      );
-    }
-  }
 }
