@@ -147,6 +147,9 @@ export default class Login extends Component {
           }
         });
     }
+    else {
+      Alert.alert("One of the fields must not be NULL or empty");
+    }
   }
 
   /* Helper function that executes the Sign Up sequence */
@@ -201,13 +204,15 @@ export default class Login extends Component {
       //   console.error(error);
       // });
     }
+    else {
+      Alert.alert("One of the fields must not be NULL or empty");
+    }
   }
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
     if (typeof data === "undefined") {
       this.setState({ error: true });
-      Alert.alert("One of the fields must not be NULL");
     }
     else {
       this.setState({ error: false });
@@ -217,7 +222,6 @@ export default class Login extends Component {
   checkEmpty(data) {
     if (data === "") {
       this.setState({ error: true });
-      Alert.alert("One of the fields must not be empty");
     }
     else {
       this.setState({ error: false });
@@ -342,7 +346,7 @@ export default class Login extends Component {
               } else {
                 // Do nothing
               }
-            })
+            });
           // .catch((error) => {
           //   console.error(error);
           // });

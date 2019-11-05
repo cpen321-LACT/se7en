@@ -189,13 +189,15 @@ export default class Calendar extends React.Component {
       //   console.error(error);
       // });
     }
+    else {
+      Alert.alert("One of the fields must not be NULL or empty");
+    }
   }
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
     if (typeof data === "undefined") {
       this.setState({ error: true });
-      Alert.alert("One of the fields must not be NULL");
     }
     else {
       this.setState({ error: false });
@@ -205,7 +207,6 @@ export default class Calendar extends React.Component {
   checkEmpty(data) {
     if (data === "") {
       this.setState({ error: true });
-      Alert.alert("One of the fields must not be empty");
     }
     else {
       this.setState({ error: false });
@@ -279,7 +280,7 @@ export default class Calendar extends React.Component {
                   endTimeToAdd.setHours(item.time.substring(7, 9));
                   endTimeToAdd.setMinutes(item.time.substring(9, 13));
                   var tmpSchedule = {
-                    id: item.event_id,
+                    id: item.eventId,
                     startDate: startTimeToAdd,
                     endDate: endTimeToAdd,
                     color: "rgba(66,134,244,1)",
@@ -293,7 +294,7 @@ export default class Calendar extends React.Component {
               } else {
                 // Do nothing
               }
-            })
+            });
           // .catch((error) => {
           //   console.error(error);
           // });
