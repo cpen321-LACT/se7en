@@ -184,7 +184,7 @@ export default class Calendar extends React.Component {
           //console.log(responseJson);
           Alert.alert("Added schedule successfully!");
           this.setState({ userEdit: false });
-        })
+        });
       // .catch((error) => {
       //   console.error(error);
       // });

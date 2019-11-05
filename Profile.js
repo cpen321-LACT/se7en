@@ -304,7 +304,7 @@ export default class Profile extends React.Component {
     toCheck.forEach((item) => {
       this.checkEmpty(item);
       this.checkNULL(item);
-    })
+    });
 
     /* Check for sum of prefs */
     this.checkSumPrefs();
@@ -327,7 +327,7 @@ export default class Profile extends React.Component {
           numberOfRatings: this.props.numberOfRatings,
           kindness: this.props.kindnessPref,
           patience: this.props.patiencePref,
-          hard_working: this.props.hardWorkingPref,
+          hardWorking: this.props.hardWorkingPref,
           authenticationToken: this.props.authenticationToken,
           password: this.state.tmpPassword,
           email: this.state.tmpEmail,

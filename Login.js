@@ -199,7 +199,7 @@ export default class Login extends Component {
             Alert.alert("Signed up successfully!");
             this.unrenderSignUpForm();
           }
-        })
+        });
       // .catch((error) => {
       //   console.error(error);
       // });
