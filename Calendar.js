@@ -238,12 +238,12 @@ export default class Calendar extends React.Component {
 
   /* Function handling refreshes */
   _onRefresh = () => {
-    this.setState({ calendarRefreshing: true });
-    this.refreshSchedule();
+     this.refreshSchedule();
   };
 
   /* Function that refreshes schedule array */
   refreshSchedule() {
+    this.setState({ calendarRefreshing: true });
     let fetchURL = baseURL + "schedule/:" + this.props.userID;
     fetch(fetchURL, {
       method: "GET",
