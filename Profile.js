@@ -281,9 +281,9 @@ export default class Profile extends React.Component {
           );
           this.props.kindnessPrefChange(responseJson[0].kindness);
           this.props.patiencePrefChange(responseJson[0].patience);
-          this.props.hardWorkingPrefChange(responseJson[0].hard_working);
+          this.props.hardWorkingPrefChange(responseJson[0].hardWorking);
           this.props.authenticationTokenChange(
-            responseJson[0].authentication_token
+            responseJson[0].authenticationToken
           );
           this.props.passwordChange(responseJson[0].password);
           this.props.emailChange(responseJson[0].email);
@@ -292,9 +292,9 @@ export default class Profile extends React.Component {
           // Do nothing
         }
       })
-      .catch((error) => {
-        console.error(error);
-      });
+    // .catch((error) => {
+    //   console.error(error);
+    // });
   }
 
   /* Function that pushes all the changes of user"s info to the database */
@@ -358,9 +358,9 @@ export default class Profile extends React.Component {
           /* Render the Profile view again */
           this.setState({ userEdit: false });
         })
-        .catch((error) => {
-          console.error(error);
-        });
+      // .catch((error) => {
+      //   console.error(error);
+      // });
     }
   }
 

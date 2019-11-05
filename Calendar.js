@@ -164,8 +164,8 @@ export default class Calendar extends React.Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user_id: this.props.userID,
-          event_id: this.state.tmpId,
+          userId: this.props.userID,
+          eventId: this.state.tmpId,
           time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
           date:
             this.state.tmpStartTime.getUTCMonth() +
@@ -185,9 +185,9 @@ export default class Calendar extends React.Component {
           Alert.alert("Added schedule successfully!");
           this.setState({ userEdit: false });
         })
-        .catch(error => {
-          console.error(error);
-        });
+      // .catch((error) => {
+      //   console.error(error);
+      // });
     }
   }
 
@@ -229,9 +229,9 @@ export default class Calendar extends React.Component {
           "Potential matches:\n" + responseJson[0].potential_matches
         );
       })
-      .catch((error) => {
-        console.error(error);
-      });
+    // .catch((error) => {
+    //   console.error(error);
+    // });
   }
 
 
@@ -294,9 +294,9 @@ export default class Calendar extends React.Component {
                 // Do nothing
               }
             })
-            .catch((error) => {
-              console.error(error);
-            });
+          // .catch((error) => {
+          //   console.error(error);
+          // });
         }
       });
   }

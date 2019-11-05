@@ -141,9 +141,9 @@ export default class Login extends Component {
                   return;
                 }
               })
-              .catch((error) => {
-                console.error(error);
-              });
+            // .catch((error) => {
+            //   console.error(error);
+            // });
           }
         });
     }
@@ -173,14 +173,14 @@ export default class Login extends Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          year_level: this.state.tmpYearLevel,
+          yearLevel: this.state.tmpYearLevel,
           courses: this.state.tmpCourses,
           sex: this.state.tmpSex,
-          number_of_ratings: "0",
+          numberOfRatings: "0",
           kindness: this.state.tmpKindness,
           patience: this.state.tmpPatience,
-          hard_working: this.state.tmpHardWorking,
-          authentication_token: "",
+          hardWorking: this.state.tmpHardWorking,
+          authenticationToken: "",
           password: this.state.tmpPassword,
           email: this.state.tmpEmail,
           name: this.state.tmpName,
@@ -197,24 +197,9 @@ export default class Login extends Component {
             this.unrenderSignUpForm();
           }
         })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  }
-
-  /* Helper function that checks for NULL/empty entries on Sign In */
-  checkErrorSignIn() {
-    if (
-      typeof this.props.userID === "undefined" ||
-      typeof this.props.password === "undefined" ||
-      this.props.userID === "" ||
-      this.props.password === ""
-    ) {
-      this.setState({ error: true });
-      Alert.alert("User ID and password should not be empty");
-    } else {
-      this.setState({ error: false });
+      // .catch((error) => {
+      //   console.error(error);
+      // });
     }
   }
 
@@ -274,29 +259,28 @@ export default class Login extends Component {
       .then((responseJson) => {
         //console.log("initUserInfo: " + responseJson)
         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-          this.props.yearLevelChange(responseJson[0].year_level);
+          this.props.yearLevelChange(responseJson[0].yearLevel);
           this.props.coursesChange(responseJson[0].courses);
           this.props.sexChange(responseJson[0].sex);
           this.props.numberOfRatingsChange(
-            responseJson[0].number_of_ratings
+            responseJson[0].numberOfRatings
           );
           this.props.kindnessPrefChange(responseJson[0].kindness);
           this.props.patiencePrefChange(responseJson[0].patience);
-          this.props.hardWorkingPrefChange(responseJson[0].hard_working);
+          this.props.hardWorkingPrefChange(responseJson[0].hardWorking);
           this.props.authenticationTokenChange(
-            responseJson[0].authentication_token
+            responseJson[0].authenticationToken
           );
           this.props.passwordChange(responseJson[0].password);
-          //this.props.userIDChange(responseJson[0].user_id);
           this.props.emailChange(responseJson[0].email);
           this.props.nameChange(responseJson[0].name);
         } else {
           // Do nothing
         }
       })
-      .catch((error) => {
-        console.error(error);
-      });
+    // .catch((error) => {
+    //   console.error(error);
+    // });
   }
 
   /* Helper function that populates data of user"s schedule on Init Sequence */
@@ -343,7 +327,7 @@ export default class Login extends Component {
                   endTimeToAdd.setMinutes(item.time.substring(9, 12));
                   /* Schedule obj to add to scheduleArray */
                   var tmpSchedule = {
-                    id: item.event_id,
+                    id: item.eventId,
                     startDate: startTimeToAdd,
                     endDate: endTimeToAdd,
                     color: "rgba(66,134,244,1)",
@@ -359,9 +343,9 @@ export default class Login extends Component {
                 // Do nothing
               }
             })
-            .catch((error) => {
-              console.error(error);
-            });
+          // .catch((error) => {
+          //   console.error(error);
+          // });
         }
       });
   }

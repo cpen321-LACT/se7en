@@ -13,7 +13,7 @@ import Profile from "./Profile.js";
 import Login from "./Login.js";
 
 /* Suppress warnings for now */
-console.disableYellowBox = true;
+//console.disableYellowBox = true;
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
