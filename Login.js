@@ -100,7 +100,7 @@ export default class Login extends Component {
     signInCheck.forEach((item) => {
       this.checkEmpty(item);
       this.checkNULL(item);
-    })
+    });
 
     /* If no errors, we do a fetch */
     if (!this.state.error) {
