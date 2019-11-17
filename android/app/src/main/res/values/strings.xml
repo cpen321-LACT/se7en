@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">se7en</string>
+    <string name="facebook_app_id">382500729304098</string>
+    <string name="fb_login_protocol_scheme">fb382500729304098</string>
 </resources>

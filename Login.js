@@ -15,7 +15,8 @@ import {
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-import BackgroundTimer from 'react-native-background-timer';
+import BackgroundTimer from "react-native-background-timer";
+import { LoginButton, AccessToken } from "react-native-fbsdk";
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -131,21 +132,55 @@ export default class Login extends Component {
               />
             </View>
 
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <View style={{
+              flexDirection: "column",
+              flex: 1,
+              alignItems: "stretch",
+              justifyContent: "center",
+            }}>
               <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
+                style={{
+                  margin: 4,
+                }}
+                titleColor="white"
+                color="#4286f4"
                 title="Sign In"
                 onPress={() => this.signIn()}
               />
               <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
+                style={{
+                  margin: 4,
+                }}
+                titleColor="white"
+                color="cadetblue"
                 title="Sign Up"
                 onPress={() => this.renderSignUpForm()}
               />
+              <LoginButton
+                scope={'public_profile email'}
+                style={{
+                  padding: 15,
+                  margin: 4
+                }}
+                onLoginFinished={
+                  (error, result) => {
+                    if (error) {
+                      console.log("login has error: " + result.error);
+                      Alert.alert("Facebook login ran into an error\nPlease try again later.");
+                    } else if (result.isCancelled) {
+                      console.log("login is cancelled.");
+                      Alert.alert("Facebook login got cancelled.")
+                    } else {
+                      AccessToken.getCurrentAccessToken().then(
+                        (data) => {
+                          console.log(data.accessToken.toString())
+                          /* TODO: handle login with authentication token */
+                        }
+                      )
+                    }
+                  }
+                }
+                onLogoutFinished={() => console.log("logout.")} />
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -238,20 +273,25 @@ export default class Login extends Component {
               />
             </View>
 
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <View style={{
+              lexDirection: "column",
+              flex: 1,
+              alignItems: "stretch",
+              justifyContent: "center",
+            }}>
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="white"
+                color="#4286f4"
+                title="sign up"
+                onPress={() => this.signUp()}
+              />
               <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="go back"
                 onPress={() => this.unrenderSignUpForm()}
-              />
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="sign up"
-                onPress={() => this.signUp()}
               />
             </View>
           </ScrollView>

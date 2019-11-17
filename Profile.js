@@ -21,7 +21,7 @@ import {
 } from "react-native-settings-screen";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
-import BackgroundTimer from 'react-native-background-timer';
+import BackgroundTimer from "react-native-background-timer";
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -164,7 +164,7 @@ export default class Profile extends React.Component {
       type: "SECTION",
       header: "My info".toUpperCase(),
       footer:
-        "Donec sed odio dui. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.",
+        "( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ             ~ヾ(・ω・) ~ヾ(・ω・) ~ヾ(・ω・) ~ヾ(・ω・)",
       rows: [
         {
           title: "Name",
@@ -252,7 +252,7 @@ export default class Profile extends React.Component {
             marginTop: -30,
             fontFamily,
           }}>
-          v1.0.0
+          v2.0.0
         </Text>
       ),
     },
@@ -470,9 +470,9 @@ export default class Profile extends React.Component {
               </ScrollView>
             </SafeAreaView>
           }
-          <ActionButton buttonColor="rgba(66,134,244,1)">
+          <ActionButton buttonColor="crimson">
             <ActionButton.Item
-              buttonColor="rgba(66,134,244,1)"
+              buttonColor="mediumspringgreen"
               title="Modify Profile"
               onPress={() => this.renderUserform()}>
               <Icon name="md-create" style={styles.actionButtonIcon} />
@@ -574,20 +574,27 @@ export default class Profile extends React.Component {
               />
             </View>
 
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <View style={{
+              flexDirection: "column",
+              flex: 1,
+              alignItems: "stretch",
+              justifyContent: "center",
+            }}>
+
+              <TextButton
+                style={{ margin: 4 }}
+                titleColor="white"
+                color="#4286f4"
+                title="change profile"
+                onPress={() => this.pushUserInfo()}
+              />
+
               <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="go back"
                 onPress={() => this.unrenderUserform()}
-              />
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="change"
-                onPress={() => this.pushUserInfo()}
               />
               {/* <TextButton
                 style={{ margin: 4 }}

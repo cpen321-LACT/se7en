@@ -365,15 +365,15 @@ export default class Calendar extends React.Component {
               </ScrollView>
             </SafeAreaView>
           }
-          <ActionButton buttonColor="rgba(66,134,244,1)">
+          <ActionButton buttonColor="crimson">
             <ActionButton.Item
-              buttonColor="rgba(66,134,244,1)"
+              buttonColor="palegreen"
               title="New Schedule"
               onPress={() => this.renderUserform()}>
               <Icon name="md-create" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
-              buttonColor="rgba(66,134,244,1)"
+              buttonColor="lemonchiffon"
               title="Get Matches"
               onPress={() => this.getMatches()}>
               <Icon
