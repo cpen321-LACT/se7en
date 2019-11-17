@@ -85,19 +85,26 @@ addLocale("en", {
   weekdaysShort: "Sun_Mon_Tue_Wed_Thur_Fri_Sat".split("_"),
 });
 
+/* For emulator */
 export const baseURL =
   Platform.OS === "android"
     ? "http://10.0.2.2:3000/"
     : "http://localhost:3000/";
+
+/* For physical device */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://127.0.0.1:3000/"
+//     : "http://localhost:3000/";
 
 export default class Calendar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       /* Input states */
-      tmpId: 0,
+      tmpId: this.props.eventID,
       tmpColor: "rgba(66,134,244,1)",
-      tmpDate: "0",
+      tmpDate: "",
       tmpStartTimeString: "",
       tmpStartTime: new Date(),
       tmpEndTimeString: "",
@@ -105,7 +112,6 @@ export default class Calendar extends React.Component {
       tmpSubject: "",
       tmpLocation: "",
       /* Transition states */
-      error: false,
       userEdit: false,
       calendarRefreshing: false,
     };
@@ -115,101 +121,97 @@ export default class Calendar extends React.Component {
   addSchedule() {
     /* First check for errors (NULL/empty) */
     var toCheck = [this.state.tmpDate, this.state.tmpStartTimeString, this.state.tmpEndTimeString, this.state.tmpSubject, this.state.tmpLocation];
-    toCheck.forEach((item) => {
-      this.checkEmpty(item);
-      this.checkNULL(item);
-    });
+    for (var i = 0; i < toCheck.length; i++) {
+      if (this.checkNULL(toCheck[i]) || this.checkEmpty(toCheck[i])) {
+        Alert.alert("One of the fields must not be NULL or empty");
+        return;
+      }
+    }
 
-    if (!this.state.error) {
-      let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
+    let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
 
-      /* Start time */
-      var eventStart = new Date();
-      eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
-      var tempTime = this.state.tmpStartTimeString.split(" ");
-      eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
+    /* Start time */
+    var eventStart = new Date();
+    eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+    var tempTime = this.state.tmpStartTimeString.split(" ");
+    eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
 
-      /* End time */
-      var eventEnd = new Date();
-      eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
-      var tempTime2 = this.state.tmpEndTimeString.split(" ");
-      eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
+    /* End time */
+    var eventEnd = new Date();
+    eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+    var tempTime2 = this.state.tmpEndTimeString.split(" ");
+    eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
 
-      /* Setting the temporary states */
-      this.setState({ tmpStartTime: eventStart });
-      this.setState({ tmpEndTime: eventEnd });
+    /* Setting the temporary states */
+    this.setState({ tmpStartTime: eventStart });
+    this.setState({ tmpEndTime: eventEnd });
 
-      /* Create a temporary schedule obj */
-      var tmp = {
-        id: this.state.tmpId,
-        startDate: this.state.tmpStartTime,
-        endDate: this.state.tmpEndTime,
-        color: this.state.tmpColor,
-        description: this.state.tmpSubject,
-        subject: this.state.tmpSubject,
+    /* Increase the event ID and update accordingly */
+    this.setState({ tmpId: this.state.tmpId + 1 });
+    var tmpIDUpdate = this.state.tmpId;
+    this.props.eventIDChange({ tmpIDUpdate });
+
+    /* Create a temporary schedule obj */
+    var tmp = {
+      id: this.state.tmpId,
+      startDate: this.state.tmpStartTime,
+      endDate: this.state.tmpEndTime,
+      color: this.state.tmpColor,
+      description: this.state.tmpSubject,
+      subject: this.state.tmpSubject,
+      location: this.state.tmpLocation,
+    };
+
+    /* Add it to the local scheduleArray for rendering */
+    this.props.scheduleArrayAdd(tmp);
+
+    /* Post the schedle obj to the database */
+    fetch(fetchURL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: this.props.userID,
+        eventId: this.state.tmpId,
+        time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
+        date:
+          this.state.tmpStartTime.getUTCMonth() +
+          1 +
+          "/" +
+          this.state.tmpStartTime.getUTCDate() +
+          "/" +
+          this.state.tmpStartTime.getUTCFullYear(),
+        course: this.state.tmpSubject,
         location: this.state.tmpLocation,
-      };
-
-      /* Add it to the local scheduleArray for rendering */
-      this.props.scheduleArrayAdd(tmp);
-
-      /* Increase the event ID */
-      this.setState({ tmpId: this.state.tmpId + 1 });
-
-      /* Post the schedle obj to the database */
-      fetch(fetchURL, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: this.props.userID,
-          eventId: this.state.tmpId,
-          time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
-          date:
-            this.state.tmpStartTime.getUTCMonth() +
-            1 +
-            "/" +
-            this.state.tmpStartTime.getUTCDate() +
-            "/" +
-            this.state.tmpStartTime.getUTCFullYear(),
-          course: this.state.tmpSubject,
-          location: this.state.tmpLocation,
-        }),
-      })
-        .then(() => {
-          //.then((response) => response.text())
-          //.then((responseJson) => {
-          //console.log(responseJson);
-          Alert.alert("Added schedule successfully!");
-          this.setState({ userEdit: false });
-        });
-      // .catch((error) => {
-      //   console.error(error);
-      // });
-    }
-    else {
-      Alert.alert("One of the fields must not be NULL or empty");
-    }
+      }),
+    })
+      .then(() => {
+        Alert.alert("Added schedule successfully!");
+        this.setState({ userEdit: false });
+      });
   }
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
+    console.log("checkNULL typeof data: " + typeof data);
     if (typeof data === "undefined") {
-      this.setState({ error: true });
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
   checkEmpty(data) {
     if (data === "") {
-      this.setState({ error: true });
+      //console.log("data is empty");
+      return true;
     }
     else {
-      this.setState({ error: false });
+      //console.log("data is not empty");
+      return false;
     }
   }
 
@@ -223,25 +225,20 @@ export default class Calendar extends React.Component {
     fetch(url, {
       method: "GET",
     })
-      .then((response) => response.json())
+      .then((response) => response.text()) // CHECK LATER
       .then((responseJson) => {
-        //console.log(responseJson[0].potential_matches);
         Alert.alert(
           "Potential matches:\n" + responseJson[0].potential_matches
         );
       });
-    // .catch((error) => {
-    //   console.error(error);
-    // });
   }
 
 
-  /* Function handling refreshes */
+  /* Functions handling refreshes */
   _onRefresh = () => {
-     this.refreshSchedule();
+    this.refreshSchedule();
   };
 
-  /* Function that refreshes schedule array */
   refreshSchedule() {
     this.setState({ calendarRefreshing: true });
     let fetchURL = baseURL + "schedule/:" + this.props.userID;
@@ -276,8 +273,8 @@ export default class Calendar extends React.Component {
                   startTimeToAdd.setHours(item.time.substring(0, 2));
                   startTimeToAdd.setMinutes(item.time.substring(3, 5));
                   var endTimeToAdd = new Date(item.date);
-                  endTimeToAdd.setHours(item.time.substring(7, 9));
-                  endTimeToAdd.setMinutes(item.time.substring(9, 13));
+                  endTimeToAdd.setHours(item.time.substring(6, 8));
+                  endTimeToAdd.setMinutes(item.time.substring(9, 11));
                   var tmpSchedule = {
                     id: item.eventId,
                     startDate: startTimeToAdd,
@@ -289,25 +286,24 @@ export default class Calendar extends React.Component {
                   };
                   this.props.scheduleArrayAdd(tmpSchedule);
                 });
-                //console.log(this.props.scheduleArray);
-              } 
+                /* Update event ID accordingly */
+                this.props.eventIDChange(responseJson[responseJson.length - 1].eventId);
+                console.log("Updated event ID: " + this.props.eventID);
+              }
             });
-         }
+        }
       });
     this.setState({ calendarRefreshing: false });
-    
   }
 
 
   /* Helper functions for (un)rendering user input forms */
   renderUserform() {
     this.setState({ userEdit: true });
-    //console.log("userform requested!");
   }
 
   unrenderUserform() {
     this.setState({ userEdit: false });
-    //console.log("go back!");
   }
 
   /* -------------------------------------------------------------------------- */
@@ -404,6 +400,7 @@ export default class Calendar extends React.Component {
                 value={""}
                 title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
                 characterRestriction={1}
+                keyboardType='number-pad'
                 clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpDate: data })}
               />
@@ -411,6 +408,7 @@ export default class Calendar extends React.Component {
                 label="Start Time: "
                 value={""}
                 title="Enter in form 'hh mm'"
+                keyboardType='number-pad'
                 characterRestriction={5}
                 clearTextOnFocus={true}
                 onChangeText={(data) =>
@@ -422,6 +420,7 @@ export default class Calendar extends React.Component {
                 label="End Time: "
                 value={""}
                 title="Enter in form 'hh mm'"
+                keyboardType='number-pad'
                 characterRestriction={5}
                 clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpEndTimeString: data })}
@@ -429,7 +428,7 @@ export default class Calendar extends React.Component {
               <TextField
                 label="Subject: "
                 value={""}
-                title="This is a required field or it would show CPEN 321 by default"
+                title="This is a required field"
                 clearTextOnFocus={true}
                 characterRestriction={10}
                 onChangeText={(data) => this.setState({ tmpSubject: data })}
@@ -464,8 +463,8 @@ export default class Calendar extends React.Component {
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
-                title="log"
-                onPress={() => console.log(this.state.tmpSubject)}
+                title="log event id"
+                onPress={() => console.log(this.props.eventID)}
               /> */}
             </View>
           </ScrollView>

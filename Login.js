@@ -15,6 +15,7 @@ import {
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import BackgroundTimer from 'react-native-background-timer';
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -64,10 +65,17 @@ const styles = StyleSheet.create({
 
 /* -------------------------------------------------------------------------- */
 
+/* For emulator */
 export const baseURL =
   Platform.OS === "android"
     ? "http://10.0.2.2:3000/"
     : "http://localhost:3000/";
+
+/* For physical device */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://127.0.0.1:3000/"
+//     : "http://localhost:3000/";
 
 export default class Login extends Component {
   constructor(props) {
@@ -78,21 +86,21 @@ export default class Login extends Component {
       tmpCoursesString: "",
       tmpCourses: [],
       tmpSex: "",
-      tmpKindness: "4",
-      tmpPatience: "4",
-      tmpHardWorking: "4",
+      tmpKindness: 0,
+      tmpPatience: 0,
+      tmpHardWorking: 0,
       tmpUserID: "",
       tmpPassword: "",
       tmpEmail: "",
       tmpName: "",
+      tmpPotentialMatches: [],
 
       /* Transition states */
       loginSecureTextEntry: true,
-      error: false,
       signUp: false,
     };
   }
-  
+
   render() {
     if (!this.state.signUp) {
       return (
@@ -110,6 +118,7 @@ export default class Login extends Component {
                 title="Please enter User ID as an integer!"
                 characterRestriction={10}
                 clearTextOnFocus={true}
+                keyboardType='number-pad'
                 onChangeText={(data) => this.props.userIDChange(data)}
               />
 
@@ -156,8 +165,10 @@ export default class Login extends Component {
                 label="Year level: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
+                keyboardType='number-pad'
                 onChangeText={(data) => this.setState({ tmpYearLevel: data })}
               />
+
               <TextField
                 label="Courses: "
                 clearTextOnFocus={true}
@@ -169,32 +180,37 @@ export default class Login extends Component {
                 label="Sex: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
+                keyboardType='number-pad'
                 title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
                 onChangeText={(data) => this.setState({ tmpSex: data })}
               />
 
-              /* <TextField
+              <TextField
                 label="Kindness preference: "
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpKindness: data })}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpKindness: parseInt(data, 10) })}
               />
 
               <TextField
                 label="Patience preference: "
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpPatience: data })}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpPatience: parseInt(data, 10) })}
               />
 
               <TextField
                 label="Hardworking preference: "
                 clearTextOnFocus={true}
-                onChangeText={data => this.setState({ tmpHardWorking: data })}
-              /> */
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpHardWorking: parseInt(data, 10) })}
+              />
 
               <TextField
                 label="User ID: "
                 characterRestriction={10}
                 clearTextOnFocus={true}
+                keyboardType='number-pad'
                 onChangeText={(data) => this.setState({ tmpUserID: data })}
               />
 
@@ -243,153 +259,143 @@ export default class Login extends Component {
       );
     }
   }
-  
+
   //---------------------------------------------------------------------------//
 
   /* Helper function that executes the Sign In sequence */
   signIn() {
     /* We first check for error (NULL/empty) */
     var signInCheck = [this.props.userID, this.props.password];
-    signInCheck.forEach((item) => {
-      this.checkEmpty(item);
-      this.checkNULL(item);
-    });
+    for (var i = 0; i < signInCheck.length; i++) {
+      if (this.checkNULL(signInCheck[i]) || this.checkEmpty(signInCheck[i])) {
+        Alert.alert("One of the fields must not be NULL or empty");
+        return;
+      }
+    }
 
     /* If no errors, we do a fetch */
-    if (!this.state.error) {
-      let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
-      fetch(fetchURL, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-        /* First check if this user ID exists or not */
-        .then((response) => response.text())
-        .then((responseJson) => {
-          if (responseJson.includes("does not exist")) {
-            Alert.alert("User ID does not exist");
-            return;
-          } else {
-            /* If user ID does exist, we do the actual call */
-            fetch(fetchURL, {
-              method: "GET",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-            })
-              .then((response) => response.json())
-              .then((responseJson) => {
-                /* Then check if the data got from database matches the password typed */
-                if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
-                  && responseJson[0].password === this.props.password) {
-                  Alert.alert("Signed in successfully!");
-                  /* Do the Initialize sequence after signing in successfully */
-                  this.initSequence();
-                  this.props.logVisibleChange();
-                } else {
-                  Alert.alert("Incorrect user ID or password!");
-                  return;
-                }
-              });
-            // .catch((error) => {
-            //   console.error(error);
-            // });
-          }
-        });
-    }
-    else {
-      Alert.alert("One of the fields must not be NULL or empty");
-    }
+    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
+    fetch(fetchURL, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+      /* First check if this user ID exists or not */
+      .then((response) => response.text())
+      .then((responseJson) => {
+        if (responseJson.includes("does not exist")) {
+          Alert.alert("User ID does not exist");
+          return;
+        } else {
+          /* If user ID does exist, we do the actual call */
+          fetch(fetchURL, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((responseJson) => {
+              /* Then check if the data got from database matches the password typed */
+              if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
+                && responseJson[0].password === this.props.password) {
+                Alert.alert("Signed in successfully!");
+                /* Do the Initialize sequence after signing in successfully */
+                this.initSequence();
+                this.props.logVisibleChange();
+              } else {
+                Alert.alert("Incorrect user ID or password!");
+                return;
+              }
+            });
+        }
+      });
   }
 
   /* Helper function that executes the Sign Up sequence */
   signUp() {
     /* We first check for error (NULL/empty) */
     var signUpCheck = [this.state.tmpYearLevel, this.state.tmpCoursesString, this.state.tmpSex, this.state.tmpUserID, this.state.tmpPassword, this.state.tmpEmail, this.state.tmpName];
-    signUpCheck.forEach((item) => {
-      this.checkEmpty(item);
-      this.checkNULL(item);
-    });
+    for (var i = 0; i < signUpCheck.length; i++) {
+      if (this.checkNULL(signUpCheck[i]) || this.checkEmpty(signUpCheck[i])) {
+        Alert.alert("One of the fields must not be NULL or empty");
+        return;
+      }
+    }
 
     /* Check for sum of prefs */
-    this.checkSumPrefs();
+    if (this.checkSumPrefs()) {
+      Alert.alert(
+        "The sum of Kindness, Patience and Hardworking must be at least 12"
+      );
+      return;
+    }
 
     /* If no errors, we do the request */
-    if (!this.state.error) {
-      /* Split course string -> array first */
-      this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
-      let fetchURL = baseURL + "user/:" + this.props.userID;
-      fetch(fetchURL, {/* Split course string -> array first */
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          yearLevel: this.state.tmpYearLevel,
-          courses: this.state.tmpCourses,
-          sex: this.state.tmpSex,
-          numberOfRatings: "0",
-          kindness: this.state.tmpKindness,
-          patience: this.state.tmpPatience,
-          hardWorking: this.state.tmpHardWorking,
-          authenticationToken: "",
-          password: this.state.tmpPassword,
-          email: this.state.tmpEmail,
-          name: this.state.tmpName,
-        }),
-      })
-        .then((response) => response.text())
-        .then((responseJson) => {
-          //console.log(responseJson);
-          /* Check if user ID already exists or not */
-          if (responseJson.includes("already exists")) {
-            Alert.alert("User ID already exists!");
-          } else {
-            Alert.alert("Signed up successfully!");
-            this.unrenderSignUpForm();
-          }
-        });
-      // .catch((error) => {
-      //   console.error(error);
-      // });
-    }
-    else {
-      Alert.alert("One of the fields must not be NULL or empty");
-    }
+    /* Split course string -> array first */
+    this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
+    let fetchURL = baseURL + "user/:" + this.props.userID;
+    fetch(fetchURL, {/* Split course string -> array first */
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        yearLevel: this.state.tmpYearLevel,
+        courses: this.state.tmpCourses,
+        sex: this.state.tmpSex,
+        numberOfRatings: "0",
+        kindness: this.state.tmpKindness,
+        patience: this.state.tmpPatience,
+        hardWorking: this.state.tmpHardWorking,
+        authenticationToken: "",
+        password: this.state.tmpPassword,
+        email: this.state.tmpEmail,
+        name: this.state.tmpName,
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        //console.log(responseJson);
+        /* Check if user ID already exists or not */
+        if (responseJson.includes("already exists")) {
+          Alert.alert("User ID already exists!");
+        } else {
+          Alert.alert("Signed up successfully!");
+          this.unrenderSignUpForm();
+        }
+      });
   }
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
     if (typeof data === "undefined") {
-      this.setState({ error: true });
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
   checkEmpty(data) {
-    if (data === "") {
-      this.setState({ error: true });
+    if (data === "" || data === []) {
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
   checkSumPrefs() {
     if (this.state.tmpKindness + this.state.tmpPatience + this.state.tmpHardWorking < 12) {
-      this.setState({ error: true });
-      Alert.alert(
-        "The sum of Kindness, Patience and Hardworking must be at least 12"
-      );
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
@@ -426,13 +432,8 @@ export default class Login extends Component {
           this.props.passwordChange(responseJson[0].password);
           this.props.emailChange(responseJson[0].email);
           this.props.nameChange(responseJson[0].name);
-        } else {
-          // Do nothing
         }
       });
-    // .catch((error) => {
-    //   console.error(error);
-    // });
   }
 
   /* Helper function that populates data of user"s schedule on Init Sequence */
@@ -463,9 +464,6 @@ export default class Login extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
               if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-                /* Debug print */
-                //console.log("initUserSchedule: " + responseJson);
-
                 this.props.scheduleArrayClear();
                 /* Traverse through each item to populate needed fields of scheduleArray for rendering */
                 responseJson.forEach((item) => {
@@ -475,8 +473,8 @@ export default class Login extends Component {
                   startTimeToAdd.setMinutes(item.time.substring(3, 5));
                   /* End time of a schedule */
                   var endTimeToAdd = new Date(item.date);
-                  endTimeToAdd.setHours(item.time.substring(7, 9));
-                  endTimeToAdd.setMinutes(item.time.substring(9, 12));
+                  endTimeToAdd.setHours(item.time.substring(6, 8));
+                  endTimeToAdd.setMinutes(item.time.substring(9, 11));
                   /* Schedule obj to add to scheduleArray */
                   var tmpSchedule = {
                     id: item.eventId,
@@ -490,14 +488,10 @@ export default class Login extends Component {
                   /* Now we add this schedule obj to scheduleArray */
                   this.props.scheduleArrayAdd(tmpSchedule);
                 });
-                //console.log(this.props.scheduleArray);
-              } else {
-                // Do nothing
+                /* Update event ID accordingly */
+                this.props.eventIDChange(responseJson[responseJson.length - 1].eventId);
               }
             });
-          // .catch((error) => {
-          //   console.error(error);
-          // });
         }
       });
   }
@@ -506,6 +500,31 @@ export default class Login extends Component {
   async initSequence() {
     this.initUserSchedule();
     this.initUserInfo();
+    /* Start a timer for checking potential matches notify user using Push Notification */
+    BackgroundTimer.runBackgroundTimer(() => {
+      let url =
+        baseURL + 'user/:' + this.props.user_id + '/matches/potential_matches';
+      fetch(url, {
+        method: 'GET',
+      })
+        .then(response => response.text()) // CHECK THIS LATER
+        .then(responseJson => {
+          /* Gotta check if the potential matches change or not */
+          if (this.checkNULL(responseJson[0].potential_matches) || this.checkEmpty(responseJson[0].potential_matches) || responseJson[0].potential_matches === this.state.tmpPotentialMatches) {
+            console.log("In if");
+            return;
+          }
+          /* If they do, we send a push notification and change the current potential matches array */
+          else {
+            console.log("In else");
+            this.setState({ tmpPotentialMatches: responseJson[0].potential_matches });
+            this.props.push_noti.localNotif(responseJson[0].potential_matches, responseJson[0].event_id, responseJson[0].time, responseJson[0].date);
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }, 10000); /* This is in miliseconds. We repeat this for every 10 seconds. Can be a smaller time interval as well */
   }
 
   /* Helper functions for un/rendering the Sign Up form */

@@ -21,6 +21,7 @@ import {
 } from "react-native-settings-screen";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
+import BackgroundTimer from 'react-native-background-timer';
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -104,10 +105,17 @@ const styles = StyleSheet.create({
 
 /* -------------------------------------------------------------------------- */
 
+/* For emulator */
 export const baseURL =
   Platform.OS === "android"
     ? "http://10.0.2.2:3000/"
     : "http://localhost:3000/";
+
+/* For physical device */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://127.0.0.1:3000/"
+//     : "http://localhost:3000/";
 
 export default class Profile extends React.Component {
   constructor(props) {
@@ -127,8 +135,6 @@ export default class Profile extends React.Component {
       /* Transition states */
       userEdit: false,
       secureTextEntry: true,
-      refreshing: false,
-      error: false,
     };
   }
 
@@ -271,7 +277,6 @@ export default class Profile extends React.Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        //console.log(responseJson)
         if (typeof responseJson !== "undefined") {
           this.props.yearLevelChange(responseJson[0].yearLevel);
           this.props.coursesChange(responseJson[0].courses);
@@ -288,80 +293,78 @@ export default class Profile extends React.Component {
           this.props.passwordChange(responseJson[0].password);
           this.props.emailChange(responseJson[0].email);
           this.props.nameChange(responseJson[0].name);
-        } else {
-          // Do nothing
         }
       });
-    // .catch((error) => {
-    //   console.error(error);
-    // });
   }
 
   /* Function that pushes all the changes of user"s info to the database */
   pushUserInfo() {
     /* First check for error */
+    console.log("here");
     var toCheck = [this.state.tmpName, this.state.tmpPassword, this.state.tmpYearLevel, this.state.tmpSex, this.state.tmpEmail, this.state.tmpCoursesString, this.state.tmpKindness, this.state.tmpPatience, this.state.tmpHardWorking];
-    toCheck.forEach((item) => {
-      this.checkEmpty(item);
-      this.checkNULL(item);
-    });
+    for (var i = 0; i < toCheck.length; i++) {
+      if (this.checkNULL(toCheck[i]) || this.checkEmpty(toCheck[i])) {
+        Alert.alert("One of the fields must not be NULL or empty");
+        return;
+      }
+    }
 
     /* Check for sum of prefs */
-    this.checkSumPrefs();
-
-    if (!this.state.error) {
-      /* If there"s no error, we do the call */
-      /* Split course string -> array first */
-      this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
-      let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
-      fetch(fetchURL, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          yearLevel: this.state.tmpYearLevel,
-          courses: this.state.tmpCourses,
-          sex: this.state.tmpSex,
-          numberOfRatings: this.props.numberOfRatings,
-          kindness: this.props.kindnessPref,
-          patience: this.props.patiencePref,
-          hardWorking: this.props.hardWorkingPref,
-          authenticationToken: this.props.authenticationToken,
-          password: this.state.tmpPassword,
-          email: this.state.tmpEmail,
-          name: this.state.tmpName,
-        }),
-      })
-        .then((response) => response.text())
-        /* Then we apply to the local variables for rendering */
-        .then((responseJson) => {
-          if (responseJson.includes("already exists")) {
-            Alert.alert("Failed to update information, please try again!");
-            return;
-          }
-          //console.log(responseJson);
-          this.props.yearLevelChange(this.state.tmpYearLevel);
-          this.props.coursesChange(this.state.tmpCourses);
-          this.props.sexChange(this.state.tmpSex);
-          // Number of ratings unchanged
-          this.props.kindnessPrefChange(this.state.tmpKindness);
-          this.props.patiencePrefChange(this.state.tmpPatience);
-          this.props.hardWorkingPrefChange(this.state.tmpHardWorking);
-          // Authentication token unchanged
-          this.props.passwordChange(this.state.tmpPassword);
-          // User ID unchanged
-          this.props.emailChange(this.state.tmpEmail);
-          this.props.nameChange(this.state.tmpName);
-          Alert.alert("Updated successfully!");
-          /* Render the Profile view again */
-          this.setState({ userEdit: false });
-        });
-      // .catch((error) => {
-      //   console.error(error);
-      // });
+    if (this.checkSumPrefs()) {
+      Alert.alert(
+        "The sum of Kindness, Patience and Hardworking must be at least 12"
+      );
+      return;
     }
+
+    /* If there"s no error, we do the call */
+    /* Split course string -> array first */
+    this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
+    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
+    fetch(fetchURL, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        yearLevel: this.state.tmpYearLevel,
+        courses: this.state.tmpCourses,
+        sex: this.state.tmpSex,
+        numberOfRatings: this.props.numberOfRatings,
+        kindness: this.props.kindnessPref,
+        patience: this.props.patiencePref,
+        hardWorking: this.props.hardWorkingPref,
+        authenticationToken: this.props.authenticationToken,
+        password: this.state.tmpPassword,
+        email: this.state.tmpEmail,
+        name: this.state.tmpName,
+      }),
+    })
+      .then((response) => response.text())
+      /* Then we apply to the local variables for rendering */
+      .then((responseJson) => {
+        if (responseJson.includes("already exists")) {
+          Alert.alert("Failed to update information, please try again!");
+          return;
+        }
+        //console.log(responseJson);
+        this.props.yearLevelChange(this.state.tmpYearLevel);
+        this.props.coursesChange(this.state.tmpCourses);
+        this.props.sexChange(this.state.tmpSex);
+        // Number of ratings unchanged
+        this.props.kindnessPrefChange(this.state.tmpKindness);
+        this.props.patiencePrefChange(this.state.tmpPatience);
+        this.props.hardWorkingPrefChange(this.state.tmpHardWorking);
+        // Authentication token unchanged
+        this.props.passwordChange(this.state.tmpPassword);
+        // User ID unchanged
+        this.props.emailChange(this.state.tmpEmail);
+        this.props.nameChange(this.state.tmpName);
+        Alert.alert("Updated successfully!");
+        /* Render the Profile view again */
+        this.setState({ userEdit: false });
+      });
   }
 
   /* Sign out sequence */
@@ -369,17 +372,18 @@ export default class Profile extends React.Component {
     this.props.logVisibleChange();
     this.props.userIDChange("");
     this.props.passwordChange("");
+    this.props.defaultSelectedTabChange();
+    /* Stop push notification timer as well */
+    BackgroundTimer.stopBackgroundTimer();
   }
 
   /* Helper functions that (un)render the user input forms */
   renderUserform() {
     this.setState({ userEdit: true });
-    //console.log("userform requested!");
   }
 
   unrenderUserform() {
     this.setState({ userEdit: false });
-    //console.log("go back!");
   }
 
   /* Helper functions that render characters for password */
@@ -404,21 +408,19 @@ export default class Profile extends React.Component {
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
     if (typeof data === "undefined") {
-      this.setState({ error: true });
-      Alert.alert("One of the fields must not be NULL");
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
   checkEmpty(data) {
     if (data === "") {
-      this.setState({ error: true });
-      Alert.alert("One of the fields must not be empty");
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
@@ -429,13 +431,10 @@ export default class Profile extends React.Component {
       this.state.tmpHardWorking <
       12
     ) {
-      this.setState({ error: true });
-      Alert.alert(
-        "The sum of Kindness, Patience and Hardworking must be at least 12"
-      );
+      return true;
     }
     else {
-      this.setState({ error: false });
+      return false;
     }
   }
 
@@ -504,17 +503,15 @@ export default class Profile extends React.Component {
             <View style={styles.inputContainer}>
               <TextField
                 label="Name: "
-                value={this.props.name}
                 characterRestriction={30}
-                //clearTextOnFocus={true}
+                clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpName: data })}
               />
 
               <TextField
                 label="Password: "
-                value={this.props.password}
                 characterRestriction={20}
-                //clearTextOnFocus={true}
+                clearTextOnFocus={true}
                 secureTextEntry={this.state.secureTextEntry}
                 renderRightAccessory={this.renderPasswordAccessory()}
                 onChangeText={(data) => this.setState({ tmpPassword: data })}
@@ -522,56 +519,58 @@ export default class Profile extends React.Component {
 
               <TextField
                 label="Year level: "
-                value={this.props.yearLevel}
                 characterRestriction={1}
-                //clearTextOnFocus={true}
+                keyboardType='number-pad'
+                clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpYearLevel: data })}
               />
 
               <TextField
                 label="Sex:"
-                value={this.props.sex}
                 characterRestriction={1}
                 title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
-                //clearTextOnFocus={true}
+                keyboardType='number-pad'
+                clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpSex: data })}
               />
 
               <TextField
                 label="Email: "
-                value={this.props.email}
                 keyboardType="email-address"
                 characterRestriction={50}
-                //clearTextOnFocus={true}
+                clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpEmail: data })}
               />
 
               <TextField
                 label="Courses: "
-                value={this.props.courses}
                 title="Please input in form: 'Course A,Course B,Course C'"
+                clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
                 label="Kindness preference: "
-                value={this.props.kindnessPref}
                 characterRestriction={2}
-                onChangeText={(data) => this.setState({ tmpKindness: data })}
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpKindness: parseInt(data, 10) })}
               />
 
               <TextField
                 label="Patience preference: "
-                value={this.props.patiencePref}
                 characterRestriction={2}
-                onChangeText={(data) => this.setState({ tmpPatience: data })}
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpPatience: parseInt(data, 10) })}
               />
 
               <TextField
                 label="Hardworking preference: "
-                value={this.props.hardWorkingPref}
                 characterRestriction={2}
-                onChangeText={(data) => this.setState({ tmpHardWorking: data })}
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpHardWorking: parseInt(data, 10) })}
               />
             </View>
 

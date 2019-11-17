@@ -6,14 +6,16 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
+  Alert,
 } from "react-native";
 import TabNavigator from "react-native-tab-navigator";
 import Calendar from "./Calendar.js";
 import Profile from "./Profile.js";
 import Login from "./Login.js";
+import NotifService from './NotifService';
 
 /* Suppress warnings for now */
-//console.disableYellowBox = true;
+console.disableYellowBox = true;
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -35,10 +37,17 @@ const styles = StyleSheet.create({
   },
 });
 
+/* For emulator */
 export const baseURL =
   Platform.OS === "android"
     ? "http://10.0.2.2:3000/"
     : "http://localhost:3000/";
+
+/* For physical device */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://127.0.0.1:3000/"
+//     : "http://localhost:3000/";
 
 export default class App extends Component {
   constructor(props) {
@@ -58,11 +67,21 @@ export default class App extends Component {
       email: "",
       name: "",
       scheduleArray: [],
+      eventID: 0,
 
       /* Transition states */
       loggedIn: false,
       selectedTab: "calendar",
     };
+
+    /* Push notification */
+    this.notif = new NotifService(this.onNotif.bind(this));
+  }
+
+  /* Push notification */
+  onNotif(notif) {
+    //console.log(notif);
+    Alert.alert(notif.title, notif.message);
   }
 
   /* Helper functions that modify user info states (called by other classes) */
@@ -126,9 +145,17 @@ export default class App extends Component {
     this.setState({ scheduleArray: [] });
   }
 
+  changeEventID(data) {
+    this.setState({ eventID: data });
+  }
+
   /* Helper functions that change the corresponding views of the app */
   changeLogVisible() {
     this.setState({ loggedIn: !this.state.loggedIn });
+  }
+
+  changeDefaultSelectedTab() {
+    this.setState({ selectedTab: "calendar" });
   }
 
   /* -------------------------------------------------------------------------- */
@@ -152,10 +179,14 @@ export default class App extends Component {
               /* States */
               userID={this.state.userID}
               scheduleArray={this.state.scheduleArray}
+              eventID={this.state.eventID}
               /* Functions */
               scheduleArrayAdd={this.addScheduleArray.bind(this)}
               scheduleArrayClear={this.clearScheduleArray.bind(this)}
               scheduleArrayChange={this.changeScheduleArray.bind(this)}
+              eventIDChange={this.changeEventID.bind(this)}
+              /* Push notification */
+              push_noti={this.notif}
             />
           </TabNavigator.Item>
 
@@ -200,6 +231,9 @@ export default class App extends Component {
               userIDChange={this.changeUserID.bind(this)}
               passwordChange={this.changePassword.bind(this)}
               logVisibleChange={this.changeLogVisible.bind(this)}
+              defaultSelectedTabChange={this.changeDefaultSelectedTab.bind(this)}
+              /* Push notification */
+              push_noti={this.notif}
             />
           </TabNavigator.Item>
         </TabNavigator>
@@ -211,6 +245,7 @@ export default class App extends Component {
           password={this.state.password}
           userID={this.state.userID}
           scheduleArray={this.state.scheduleArray}
+          eventID={this.state.eventID}
           /* Functions */
           yearLevelChange={this.changeYearLevel.bind(this)}
           coursesChange={this.changeCourses.bind(this)}
@@ -228,6 +263,9 @@ export default class App extends Component {
           scheduleArrayClear={this.clearScheduleArray.bind(this)}
           scheduleArrayChange={this.changeScheduleArray.bind(this)}
           logVisibleChange={this.changeLogVisible.bind(this)}
+          eventIDChange={this.changeEventID.bind(this)}
+          /* Push notification */
+          push_noti={this.notif}
         />
       );
     }
