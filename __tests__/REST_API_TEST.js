@@ -150,6 +150,46 @@ describe('insert', () => {
     expect(badPreferencesResponse.status).toBe(400);
     expect(badPreferencesResponse.body.message).toBe('kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻');
 
+    const badPreferencesBody1 = 
+    {
+      yearLevel : "8888888",
+      courses : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
+      sex : "12",
+      numberOfRatings : "15",
+      kindness : "3.4",
+      patience : "7.6",
+      hardWorking : "1.0",
+      authenticationToken : "abcdef123456789",
+      password : "johndoe@123",
+      email : "john.doe@gmail.com",
+      name : "John Doe"
+    };
+
+    const badPreferencesResponse1 = await request.post('/user/0/preferences').send(badPreferencesBody1);
+  
+    expect(badPreferencesResponse1.status).toBe(400);
+    expect(badPreferencesResponse1.body.message).toBe('THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻');
+
+    const userDoesntExist = 
+    {
+      yearLevel : "8888888",
+      courses : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
+      sex : "0",
+      numberOfRatings : "15",
+      kindness : "3.4",
+      patience : "7.6",
+      hardWorking : "1.0",
+      authenticationToken : "abcdef123456789",
+      password : "johndoe@123",
+      email : "john.doe@gmail.com",
+      name : "John Doe"
+    };
+
+    const badPreferencesResponse1 = await request.post('/user/200000999/preferences').send(badPreferencesBody1);
+  
+    expect(badPreferencesResponse1.status).toBe(400);
+    expect(badPreferencesResponse1.body.message).toBe('THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻');
+
     done();
   });
 
@@ -242,7 +282,7 @@ describe('insert', () => {
 
 
 
-  
+
 });
 
 

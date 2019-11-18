@@ -15,9 +15,6 @@ var isAcceptablePreferences = function(a,b,c) {
     return a + b + c === 12;
 };
 
-app.get('/test', async (req, res) => {
-    res.json({message: 'pass!'})
-})
 /*
 * Connect to the mongodb database
 */
@@ -238,7 +235,7 @@ app.post("/user/:userId/preferences", (req,res) => {
         return;
     }
     else if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 2) {
-        res.status(400).send("THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻\n");
+        res.status(400).send({message : "THERE ARE ONLY 3 SEXES (FOR PREFERENCES) (┛ಠ_ಠ)┛彡┻━┻"});
         return;
     }
 
@@ -246,7 +243,7 @@ app.post("/user/:userId/preferences", (req,res) => {
     userDb.collection("infoClt").find(userQuery).toArray((err, user) => {
 
         if (doesntExist(user)){
-            res.status(400).send("You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            res.status(400).send({message : "You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
         /* Add the users preferences */
@@ -259,7 +256,7 @@ app.post("/user/:userId/preferences", (req,res) => {
              "sex"          : parseInt(req.body.sex, 10),
              "yearLevel"   : req.body.yearLevel},(err, result) => {
          if (err) {return err;}
-         res.status(200).send("Preferences have been added. ٩(^ᴗ^)۶\n");
+         res.status(200).send({message : "Preferences have been added. ٩(^ᴗ^)۶"});
         })
     })
 })
@@ -283,7 +280,7 @@ app.get("/user/:userId/preferences", (req,res) => {
 
     userDb.collection("preferencesClt").find(userQuery).toArray((err, user) => {
         if (doesntExist(user)){
-            res.status(400).send("You are trying to GET preferences of a user that doesn't exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
+            res.status(400).send({message : "You are trying to GET preferences of a user that doesn't exist in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         } else {
             res.status(200).send(user);
@@ -310,25 +307,25 @@ app.put("/user/:userId/preferences", (req,res) => {
     /* Check if the user exists in the database */
     userDb.collection("infoClt").find(userQuery).toArray((err, user) => {
 
-        // if (doesntExist(req.body)){
-        //     res.status(400).send("you sent a null body (┛ಠ_ಠ)┛彡┻━┻\n");
-        //     return;
-        // }
+        if (doesntExist(req.body)){
+            res.status(400).send({message:"you sent a null body (┛ಠ_ಠ)┛彡┻━┻"});
+            return;
+        }
 
-        // if (doesntExist(user)){
-        //     res.status(400).send("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻\n");
-        //     return;
-        // }
+        if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
+            res.status(400).send({message:"kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
+            return;
+        }
 
-        // if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
-        //     res.status(400).send("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻\n");
-        //     return;
-        // }
+        if (doesntExist(user)){
+            res.status(400).send({message:"You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻"});
+            return;
+        }
 
         /* No errors, update the user preferences */
         userDb.collection("preferencesClt").updateOne(userQuery, newValues,(err, result) => {
             if (err) {return err;}
-            res.send("Preferences have been updated. ٩(^ᴗ^)۶\n");
+            res.send({message : "Preferences have been updated. ٩(^ᴗ^)۶"});
         })
     })
 })
@@ -389,10 +386,6 @@ app.post("/user/:userId", (req,res) => {
 
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
-        if (doesntExist(req.body)){
-            res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
 
         if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
             res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
@@ -401,6 +394,11 @@ app.post("/user/:userId", (req,res) => {
 
         if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
             res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
+            return;
+        }
+
+        if (doesntExist(req.body)){
+            res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
 
@@ -475,7 +473,7 @@ app.put("/user/:userId/info", (req,res) => {
         }
 
         if (!doesntExist(userInfo)){
-            res.status(400).send({message : "The user with this userId already exists in the database (┛ಠ_ಠ)┛彡┻━┻"});
+            res.status(400).send({message : "The user with this userId doesn't exists in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
 
@@ -498,9 +496,15 @@ app.put("/user/:userId/info", (req,res) => {
  */
 app.delete("/user/:userId/info", (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
+
+    if (parseInt(req.params.userId, 10) < 0) {
+        res.send({message : "Invalid userId"});
+        return;
+    }
+
     scheduleDb.collection("infoClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
-        res.send("deleted the user: ", parseInt(req.params.userId, 10));
+        res.send({message : "deleted the user"});
     })
 })
 
@@ -592,8 +596,6 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
  * { "eventId_a : 0, "eventId_b" : 2}
  * Adam: to test
  */
-
-
 function updateRequestWait(userAMatchDoc, userBMatchDoc){
 
     /* If user_b has already requested to match with user_a and is waiting */
@@ -623,6 +625,17 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
     var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventId_a, 10)};
     var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(req.body.eventId_b, 10)};
 
+    if (parseInt(req.params.userIdA, 10) === parseInt(req.params.userIdB, 10)){
+        res.status(400).send({message : "Cannot match the user with themselves."});
+        return;
+    }
+
+    if (parseInt(req.params.userIdA, 10) < 0 ||  parseInt(req.params.userIdB, 10) < 0){
+        res.status(400).send({message : "Negative userId"});
+        return;
+    }
+
+
     var userAMatchDoc;
     var userBMatchDoc;
 
@@ -630,7 +643,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
     userDb.collection("matchesClt").find(queryUserA).toArray((err, a) => {
         if (err) {return err;}
         if (doesntExist(a)){
-            res.send("User A doesn't exist\n");
+            res.send({message:"User A doesn't exist"});
             return err;
         }
         userAMatchDoc = a[0];
@@ -639,7 +652,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
         userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
             if (err) {return err;}
             if (doesntExist(b)){
-                res.send("User B doesn't exist\n");
+                res.send({message:"User B doesn't exist"});
                 return err;
             }
             userBMatchDoc = b[0];
@@ -654,7 +667,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
                 userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
                     if (err) {return err;}
 
-                    res.send("Successfully added matches.");
+                    res.send({message : "Successfully added matches."});
                 })
             })
         })
@@ -666,14 +679,20 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
  * Adam: To test
  */
 app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
+
+    if (parseInt(req.params.userId, 10) < 0){
+        res.status(400).send({message:"Negative userId"});
+        return;
+    }
+
     var curMatches = [];
     var i;
     /* Find all the match documents for a specified user */
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
-        // if (err) {return err;}
-        // if (doesntExist(matches)){
-        //     res.send("The user with userId doesnt have any matches\n");
-        // }
+        if (err) {return err;}
+        if (doesntExist(matches)){
+            res.status(400).send({message:"The user with userId doesnt have any matches"});
+        }
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
@@ -814,7 +833,7 @@ app.get("/schedule/:userId", (req,res) => {
 /*
  * Add an event the schedule of the user with with userId.\
  */
-app.post("/user/:userId/schedule", (req,res) => {
+app.post("/schedule/:userId", (req,res) => {
 
     if (doesntExist(req.body)){
         res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
