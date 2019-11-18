@@ -1,0 +1,13 @@
+{
+    "scripts": {
+        "test": "jest",
+        "test:watch": "jest --watchAll"
+    },
+    "devDependencies": {
+        "supertest": "^4.0.2"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "mongodb": "^3.3.4"
+    }
+}
