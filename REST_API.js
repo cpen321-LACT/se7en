@@ -524,20 +524,32 @@ app.delete("/user/:userId/info", (req,res) => {
  *
  *  Tung: can you change this so it doesnt require a body to work
  */
-app.get("/user/:userId/matches/potentialMatches", (req,res) => {
+app.get("/user/:userId/matches/potentialMatches/:eventId/:course", (req,res) => {
+    
+    /* Read the preference */
+    var query = {"userId" : req.params.userId};
+    userDb.collection("preferencesClt").find(query).toArray((err,personPre) => {
+        if(err){return err;}
+    thisKindness = personPre[0].kindness;
+    thisHardWorking = personPre[0].hardWorking;
+    thisPatience = personPre[0].hardWorking;
+    thisYearLevel = personPre[0].yearLevel;
+    thisSex = personPre[0].sex;
+    })
+    
     /*_________________________________________________________
      * Get the info array of standard vars from the userId
      *_________________________________________________________ */
-    var query = {"yearLevel" : req.body.yearLevel,
-                 "sex" : req.body.sex};
+    var query = {"yearLevel" : thisYearLevel,
+                 "sex" : thisSex};
     /* Filter all standard criteria to an array */
     userDb.collection("infoClt").find(query).toArray((err,inforArray) => {
         if (err) {return err;}
 
         var info = inforArray;
 
-    var timeDateQuery = {"userId" : parseInt(req.body.userId, 10),
-                           "eventId" : parseInt(req.body.eventId, 10)};
+    var timeDateQuery = {"userId" : parseInt(req.param.userId, 10),
+                           "eventId" : parseInt(req.params.eventId, 10)};
 
     scheduleDb.collection("scheduleClt").find(timeDateQuery).toArray((err, userScheduleEvent) => {
 
@@ -554,7 +566,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
      *_________________________________________________________ */
     var query = {"time" : t,
                  "date" : d,
-                 "course" : req.body.course};
+                 "course" : req.params.course};
 
     /* Filter all standard time to an array */
     scheduleDb.collection("scheduleClt").find(query).toArray((err,scheduleArray) => {
@@ -567,12 +579,12 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
      * Call for the function generateMatch which sort all the matches
      * and return an array "ret" of potential matches and put that into the database
      *_________________________________________________________ */
-    var stdMatchArray = timeFilterMatch(info, schedule, parseInt(req.body.userId, 10));
+    var stdMatchArray = timeFilterMatch(info, schedule, parseInt(req.params.userId, 10));
 
-    var ret = generateMatch(req.body.kindness, req.body.hardWorking, req.body.patience, stdMatchArray);
+    var ret = generateMatch(thisKindness, thisHardWorking, thisPatience, stdMatchArray);
 
-    var query = {"userId" : parseInt(req.body.userId, 10),
-                 "eventId" : parseInt(req.body.eventId, 10)};
+    var query = {"userId" : parseInt(req.params.userId, 10),
+                 "eventId" : parseInt(req.params.eventId, 10)};
     var newValues = {$set:{"potentialMatches" : ret}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
         if(req.body === null){
@@ -582,7 +594,7 @@ app.get("/user/:userId/matches/potentialMatches", (req,res) => {
     userDb.collection("matchesClt").find(query).toArray((err,result) => {
         if (err) {return err;}
         /* return the potential matches */
-        res.send(result);
+        res.status(200).send(result);
     }) }) }) }) })
 })
 
