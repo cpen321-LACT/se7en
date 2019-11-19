@@ -84,10 +84,10 @@ it('Bad POST user preferences', async done => {
       name : "John Doe"
     };
 
-    const badPreferencesResponse1 = await request.post('/user/200000999/preferences').send(userDoesntExist);
+    const badPreferencesResponse2 = await request.post('/user/200000999/preferences').send(userDoesntExist);
   
-    expect(badPreferencesResponse1.status).toBe(400);
-    expect(badPreferencesResponse1.body.message).toBe('You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻');
+    expect(badPreferencesResponse2.status).toBe(400);
+    expect(badPreferencesResponse2.body.message).toBe('You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻');
 
     done();
   });
@@ -115,15 +115,15 @@ it('Good POST user preferences', async done => {
     };
 
     /* You need to post a user to the database before you can POST preferences */
-    const response = await request.post('/user/2000');
+    const response = await request.post('/user/2000').send(goodPreferencesBody);
   
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("The user has been added to the database!");
 
-    const goodBodyResponse = await request.post('/user/2000/preferences').send(goodPreferencesBody);
+    const goodBodyResponseA = await request.post('/user/2000/preferences').send(goodPreferencesBody);
   
-    expect(goodBodyResponse.status).toBe(200)
-    expect(goodBodyResponse.body.message).toBe('Preferences have been added. ٩(^ᴗ^)۶')
+    expect(goodBodyResponseA.status).toBe(200)
+    expect(goodBodyResponseA.body.message).toBe('Preferences have been added. ٩(^ᴗ^)۶')
 
     done();
 });
@@ -171,10 +171,10 @@ it('Good GET user preferences', async done => {
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("The user has been added to the database!");
 
-    const goodBodyResponse = await request.post('/user/2000/preferences').send(goodPreferencesBody);
+    const goodBodyResponseB = await request.post('/user/2000/preferences').send(goodPreferencesBody);
   
-    expect(goodBodyResponse.status).toBe(200)
-    expect(goodBodyResponse.body.message).toBe('Preferences have been added. ٩(^ᴗ^)۶')
+    expect(goodBodyResponseB.status).toBe(200)
+    expect(goodBodyResponseB.body.message).toBe('Preferences have been added. ٩(^ᴗ^)۶')
 
     const goodGet = await request.get('/user/2000/preferences');
     const mostRecentPost = goodGet.body.length - 1;
@@ -223,10 +223,10 @@ it('Good PUT user preferences', async done => {
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("The user has been added to the database!");
 
-    const goodBodyResponse = await request.post('/user/2222/preferences').send(goodPreferencesBody);
+    const goodBodyResponseC = await request.post('/user/2222/preferences').send(goodPreferencesBody);
   
-    expect(goodBodyResponse.status).toBe(200)
-    expect(goodBodyResponse.body.message).toBe('Preferences have been added. ٩(^ᴗ^)۶')
+    expect(goodBodyResponseC.status).toBe(200)
+    expect(goodBodyResponseC.body.message).toBe('Preferences have been added. ٩(^ᴗ^)۶')
 
     const goodGet = await request.get('/user/2222/preferences');
     const mostRecentPost = goodGet.body.length - 1;
@@ -244,7 +244,7 @@ it('Good PUT user preferences', async done => {
     expect(goodGet.body[mostRecentPost].email).toBe(body.email);
     expect(goodGet.body[mostRecentPost].name).toBe(body.name);
 
-    const goodPutPreferencesBody = 
+    const goodPutPreferencesBodyA = 
     {
       yearLevel : "8888888",
       courses : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
@@ -259,10 +259,10 @@ it('Good PUT user preferences', async done => {
       name : "John Doe"
     };
 
-    const goodBodyResponse = await request.put('/user/2222/preferences').send(goodPutPreferencesBody);
+    const goodBodyResponseD = await request.put('/user/2222/preferences').send(goodPutPreferencesBodyA);
 
-    expect(goodBodyResponse.status).toBe(200);
-    expect(goodBodyResponse.body.message).toBe("Preferences have been updated. ٩(^ᴗ^)۶");
+    expect(goodBodyResponseD.status).toBe(200);
+    expect(goodBodyResponseD.body.message).toBe("Preferences have been updated. ٩(^ᴗ^)۶");
 
     done();
 });
@@ -332,10 +332,10 @@ it('Bad PUT user preferences', async done => {
       name : "John Doe"
     };
 
-    const goodPutPreferencesBody = await request.put('/user/22122/preferences').send(badPutPreferencesBody);
+    const r = await request.put('/user/22122/preferences').send(badPutPreferencesBody);
 
-    expect(goodPutPreferencesBody.status).toBe(400);
-    expect(goodPutPreferencesBody.body.message).toBe("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻");
+    expect(r.status).toBe(400);
+    expect(r.body.message).toBe("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻");
 
     done();
 });

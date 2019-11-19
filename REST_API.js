@@ -44,9 +44,9 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
     // console.log("Schedule collection created!");
   });
 
-  app.listen(3000, function() {
-    //   console.log("server is up!");
-  })
+//   app.listen(3000, function() {
+//     //   console.log("server is up!");
+//   })
 
 })
 module.exports = app;
@@ -620,7 +620,7 @@ function updateRequestWait(userAMatchDoc, userBMatchDoc){
     }
     return;
 }
-
+/* Need eventId in body */
 app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
     var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventId_a, 10)};
     var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(req.body.eventId_b, 10)};
@@ -643,7 +643,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
     userDb.collection("matchesClt").find(queryUserA).toArray((err, a) => {
         if (err) {return err;}
         if (doesntExist(a)){
-            res.send({message:"User A doesn't exist"});
+            res.status(400).send({message:"User A doesn't exist"});
             return err;
         }
         userAMatchDoc = a[0];
@@ -652,7 +652,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
         userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
             if (err) {return err;}
             if (doesntExist(b)){
-                res.send({message:"User B doesn't exist"});
+                res.status(400).send({message:"User B doesn't exist"});
                 return err;
             }
             userBMatchDoc = b[0];
@@ -661,13 +661,13 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
 
             /* Update user_a's matches */
             userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
-                if (err) {return err;}
+                if (err) { res.status(400).send({message : "User A Error"}); return err;}
 
                     /* Update user_b's matches */
                 userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
-                    if (err) {return err;}
+                    if (err) { res.status(400).send({message : "User B Error"}); return err;}
 
-                    res.send({message : "Successfully added matches."});
+                    res.status(200).send({message : "Successfully added matches."});
                 })
             })
         })

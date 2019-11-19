@@ -24,11 +24,11 @@ describe('insert', () => {
    * POST : /user/:userIdA/matches/:userIdB
    */
   it('Good match POST', async done => {
+    const event1 = {eventId_a : "0", eventId_b : "0"}
+    const wain = await request.post('/user/1/matches/2').send(event1);
 
-    const response = await request.post('/user/1/matches/2');
-
-    expect(response.status).toBe(200);
-    expect(response.message).toBe("Successfully added matches.");
+    expect(wain.message).toBe("Successfully added matches.");
+    expect(wain.status).toBe(200);
 
     done();
   })
@@ -38,11 +38,16 @@ describe('insert', () => {
    * POST : /user/:userIdA/matches/:userIdB
    */
   it('Bad match themself POST', async done => {
+    const event = 
+    {
+        eventId_a : "0",
+        eventId_b : "0"
+    }; 
+    
+    const matchSelfResponse = await request.post('/user/2/matches/2').send(event);
 
-    const response = await request.post('/user/2/matches/2');
-
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("Cannot match the user with themselves.");
+    expect(matchSelfResponse.status).toBe(400);
+    expect(matchSelfResponse.message).toBe("Cannot match the user with themselves.");
 
     done();
   })
@@ -53,10 +58,10 @@ describe('insert', () => {
    */
   it('Bad match negative POST', async done => {
 
-    const response = await request.post('/user/-1/matches/2');
+    const negativeMatchResponse = await request.post('/user/-1/matches/2');
 
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("Negative userId");
+    expect(negativeMatchResponse.status).toBe(400);
+    expect(negativeMatchResponse.message).toBe("Negative userId");
 
     done();
   })
@@ -67,10 +72,10 @@ describe('insert', () => {
    */
   it('Bad match POST A', async done => {
 
-    const response = await request.post('/user/1111111/matches/2');
+    const userAWrongResponse = await request.post('/user/1111111/matches/2');
 
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("User A doesn't exist");
+    expect(userAWrongResponse.status).toBe(400);
+    expect(userAWrongResponse.message).toBe("User A doesn't exist");
 
     done();
   })
@@ -81,10 +86,10 @@ describe('insert', () => {
    */
   it('Bad match POST B', async done => {
 
-    const response = await request.post('/user/1/matches/2222222');
+    const userBWrongResponse = await request.post('/user/1/matches/2222222');
 
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("User B doesn't exist");
+    expect(userBWrongResponse.status).toBe(400);
+    expect(userBWrongResponse.message).toBe("User B doesn't exist");
 
     done();
   })
@@ -95,10 +100,10 @@ describe('insert', () => {
    */
   it('Bad no matches GET', async done => {
 
-    const response = await request.get('/user/1/matches/currentlyMatchedWith');
+    const badCurMatchResponse = await request.get('/user/1/matches/currentlyMatchedWith');
 
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("The user with userId doesnt have any matches");
+    expect(badCurMatchResponse.status).toBe(400);
+    expect(badCurMatchResponse.message).toBe("The user with userId doesnt have any matches");
 
     done();
   })
@@ -109,10 +114,10 @@ describe('insert', () => {
    */
   it('Bad userId POST', async done => {
 
-    const response = await request.get('/user/-1/matches/currentlyMatchedWith');
+    const negativeMatch = await request.get('/user/-1/matches/currentlyMatchedWith');
 
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("Negative userId");
+    expect(negativeMatch.status).toBe(400);
+    expect(negativeMatch.message).toBe("Negative userId");
 
     done();
   })
@@ -222,6 +227,20 @@ describe('insert', () => {
          "date" : "Oct.11,2019",
          "match" : 41}]
     });
+
+    done();
+  })
+
+  /* 
+   * BAD
+   * GET : /user/:userId/matches/currentlyMatchedWith
+   */
+  it('Bad userId POST', async done => {
+
+    
+
+    expect(response.status).toBe(400);
+    expect(response.message).toBe("Negative userId");
 
     done();
   })
