@@ -793,16 +793,18 @@ app.delete("/delete_all_matches",  (req,res) => {
  *   'course' : 'CPEN 321',
  *   'location' : 'Irving K. Barber'}
  */
-app.get("/schedule/:userId/:eventId", (req,res) => {
-    var query = {eventId : parseInt(req.body.eventId, 10), userId : parseInt(req.params.userId, 10)};
+app.get("/schedule/:userId/:eventId", async (req,res) => {
+    var query = {eventId : parseInt(req.params.eventId, 10),            
+                 userId : parseInt(req.params.userId, 10)};
 
     scheduleDb.collection("scheduleClt").find(query).toArray((err, result) => {
         if (doesntExist(result)){
-            res.send("The study event with eventId for user with userId doesn't exist\n");
+            console.log("HERE");
+            res.status(400).send({message: "The study event with eventId for user with userId doesn't exist"});
             return err;
         }
         if (err) {return err;}
-        res.send(result);
+        res.status(200).send(result);
     })
 })
 
@@ -818,32 +820,32 @@ app.get("/schedule/:userId/:eventId", (req,res) => {
  *   'course' : 'CPEN 321',
  *   'location' : 'Irving K. Barber'}
  */
-app.get("/schedule/:userId", (req,res) => {
+app.get("/schedule/:userId", async (req,res) => {
     var query = {userId : parseInt(req.params.userId, 10)};
     scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
         if (err) {return err;}
         if (doesntExist(schedule)){
-            res.send("The user with userId doesn't have any study events\n");
+            res.send({message:"The user with userId doesn't have any study events"});
             return err;
         }
-        res.send(schedule);
+        res.status(200).send(schedule);
     })
 })
 
 /*
  * Add an event the schedule of the user with with userId.\
  */
-app.post("/schedule/:userId", (req,res) => {
+app.post("/schedule/:userId/", async (req,res) => {
 
     if (doesntExist(req.body)){
-        res.status(400).send("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻\n");
+        res.status(400).send({message: "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
         return;
     }
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
 
         if (doesntExist(userInfo)){
-            res.send("You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻\n");
+            res.status(400).send({message: "You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
 
@@ -856,7 +858,7 @@ app.post("/schedule/:userId", (req,res) => {
              "course" : req.body.course,
              "location" : req.body.location},(err, result) => {
             if (err) {return err;}
-            // console.log('Schedule added')
+             console.log('Schedule added')
         })
         /* Create a match object for that schedule */
         userDb.collection("matchesClt").insertOne(
@@ -870,7 +872,7 @@ app.post("/schedule/:userId", (req,res) => {
              "match" : -1},(err, result) => {
                if (err) {return err;}
             //    console.log('matches document init done')
-               res.send("Schedule has been posted!! :)");
+               res.status(200.).send({message: "Schedule has been posted!! :)"});
         })
     })
 })
@@ -885,7 +887,15 @@ app.post("/schedule/:userId", (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.put("/schedule/:userId/:eventId", (req,res) => {
+app.put("/schedule/:userId/:eventId", async (req,res) => {
+    if (req.body === null) {
+        res.status(400).send({message:"(┛ಠ_ಠ)┛彡┻━┻"});
+        return;
+    }
+    if (doesntExist(req.body)) {
+        res.status(400).send({message:"(┛ಠ_ಠ)┛彡┻━┻"});
+        return;
+    }
     /* First need to delete the current corresponding maches */
     matchesDelete(req.params.userId, req.params.eventId);
     /* Create a new corresponding matches */
@@ -900,19 +910,19 @@ app.put("/schedule/:userId/:eventId", (req,res) => {
          "match" : -1},(err, result) => {
            if (err) {return err;}
         //    console.log('matches document init done')
-           res.send("Schedule has been posted");
+         //  res.send("Schedule has been posted");
     })
 
     /* Actually update the schedule */
     var query = {"userId" : parseInt(req.params.userId, 10), "eventId" : parseInt(req.params.eventId, 10)};
-    var newValues = {$set: req.body};
+    var newValues = {$set: {
+                    "time" : req.body.time,
+                    "date" : req.body.date,
+                    "course" : req.body.course,
+                    "location" : req.body.location}};
     scheduleDb.collection("scheduleClt").updateOne(query, newValues,(err, result) => {
-    if (req.body === null) {
-     res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
-     return err;
-    }
      if (err) {return err;}
-     res.send("Schedules have been updated.\n");
+     res.status(200).send({message:"Schedules have been updated."});
     })
 })
 
@@ -921,7 +931,7 @@ app.put("/schedule/:userId/:eventId", (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.delete("/user/:userId/schedule/:num_events", (req,res) => {
+app.delete("/schedule/:userId/all/:num_events", async (req,res) => {
     /* Delete every single corresponding match */
     var i;
     for(i = 0; i < parseInt(req.params.num_events, 10); i++){
@@ -931,7 +941,7 @@ app.delete("/user/:userId/schedule/:num_events", (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
-        res.send("deleted the schedule\n");
+        res.send({message: "deleted the schedule"});
     })
 })
 
@@ -941,17 +951,17 @@ app.delete("/user/:userId/schedule/:num_events", (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.delete("/user/:userId/schedule/:eventId", (req,res) => {
+app.delete("/schedule/:userId/:eventId", async (req,res) => {
     /*
      *  Before deleting the schedule, we need to delete the matching first
      *  This function is written in the matches sections
      */
-    matchesDelete(parseInt(req.params.userId, 10), parseInt(req.params.eventId, 10));
+   // matchesDelete(parseInt(req.params.userId, 10), parseInt(req.params.eventId, 10));
 
      /* Now actually delete the schedule */
     var query = {"userId" : req.params.userId, "eventId" : parseInt(req.params.eventId, 10)};
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
-        res.send("deleted the specific time\n");
+        res.status(200).send({message: "deleted the specific time"});
         })
     })
