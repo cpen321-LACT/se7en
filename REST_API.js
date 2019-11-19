@@ -28,11 +28,11 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* User Database */
   userDb.createCollection("infoClt", function(err, res) {
     if (err) {throw err;}
-    // console.log("Info collection created!");
+     console.log("Info collection created!");
   });
   userDb.createCollection("preferencesClt", function(err, res) {
     if (err) {throw err;}
-    // console.log("Peferences collection created!");
+     console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
     if (err) {throw err;}
@@ -41,12 +41,12 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* Schedule Database */
   scheduleDb.createCollection("scheduleClt", function(err, res) {
     if (err) {throw err;}
-    // console.log("Schedule collection created!");
+     console.log("Schedule collection created!");
   });
 
-//   app.listen(3000, function() {
+//    app.listen(3000, function() {
 //     //   console.log("server is up!");
-//   })
+//    })
 
 })
 module.exports = app;
@@ -74,8 +74,10 @@ function insertionSort(array, score){
 
 
 /* A helper function used for sorting algorithm */
-function generateMatch(kindness, hardWorking, patience, array){
-
+function generateMatch(personPre, array){
+    var kindness = personPre.kindness;
+    var hardWorking = personPre.hardWorking;
+    var patience = personPre.patience;
     // Create one dimensional array
     var score = new Array(array.length);
     var i;
@@ -524,18 +526,21 @@ app.delete("/user/:userId/info", (req,res) => {
  *
  *  Tung: can you change this so it doesnt require a body to work
  */
+var thisHardWorking;
+var thisPatience; 
+var thisYearLevel; 
+var thisSex;
 app.get("/user/:userId/matches/potentialMatches/:eventId/:course", (req,res) => {
     
     /* Read the preference */
     var query = {"userId" : req.params.userId};
     userDb.collection("preferencesClt").find(query).toArray((err,personPre) => {
         if(err){return err;}
-    thisKindness = personPre[0].kindness;
-    thisHardWorking = personPre[0].hardWorking;
-    thisPatience = personPre[0].hardWorking;
-    thisYearLevel = personPre[0].yearLevel;
-    thisSex = personPre[0].sex;
-    })
+    //var thisKindness = parseFloat(personPre[0].kindness,10);
+    thisHardWorking = parseFloat(personPre.hardWorking, 10);
+    thisPatience = parseFloat(personPre.hardWorking, 10);
+    thisYearLevel = parseInt(personPre.yearLevel, 10);
+    thisSex = parseInt(personPre.sex, 10);
     
     /*_________________________________________________________
      * Get the info array of standard vars from the userId
@@ -558,8 +563,8 @@ app.get("/user/:userId/matches/potentialMatches/:eventId/:course", (req,res) => 
         return;
       }
 
-    var t = userScheduleEvent[0].time;
-    var d = userScheduleEvent[0].date;
+    var t = userScheduleEvent.time;
+    var d = userScheduleEvent.date;
 
     /*_________________________________________________________
      * Get the schedule array of specific time
@@ -581,7 +586,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId/:course", (req,res) => 
      *_________________________________________________________ */
     var stdMatchArray = timeFilterMatch(info, schedule, parseInt(req.params.userId, 10));
 
-    var ret = generateMatch(thisKindness, thisHardWorking, thisPatience, stdMatchArray);
+    var ret = generateMatch(personPre, stdMatchArray);
 
     var query = {"userId" : parseInt(req.params.userId, 10),
                  "eventId" : parseInt(req.params.eventId, 10)};
@@ -595,7 +600,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId/:course", (req,res) => 
         if (err) {return err;}
         /* return the potential matches */
         res.status(200).send(result);
-    }) }) }) }) })
+    }) }) }) }) }) })
 })
 
 
@@ -745,7 +750,7 @@ app.delete("/user/:userId/matches/:matchId", (req,res) => {
 })
 
 
-
+/* ________________________________End points for cleaning and get all database_______________________________ */
  app.get("/get_all_users",  (req,res) => {
      userDb.collection("infoClt").find().toArray((err, a) => {
         //  console.log(a);
@@ -774,6 +779,13 @@ app.get("/get_all_matches",  (req,res) => {
     })
 })
 
+app.get("/get_all_preferences",  (req,res) => {
+    userDb.collection("preferencesClt").find().toArray((err, a) => {
+        // console.log(a);
+        res.send(a);
+    })
+})
+
 
 app.delete("/delete_all_schedules",  (req,res) => {
     scheduleDb.collection("scheduleClt").deleteMany({},(err, a) => {
@@ -789,6 +801,13 @@ app.delete("/delete_all_matches",  (req,res) => {
     })
 })
 
+app.delete("/delete_all_preferences",  (req,res) => {
+    userDb.collection("preferencesClt").deleteMany({},(err, a) => {
+        // console.log(a)
+        res.send(a);
+    })
+})
+/* ________________________________________________________________________________________ */
 
 /*---------------------------- Schedule Collection ---------------------------- */
 
@@ -837,7 +856,7 @@ app.get("/schedule/:userId", async (req,res) => {
     scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
         if (err) {return err;}
         if (doesntExist(schedule)){
-            res.send({message:"The user with userId doesn't have any study events"});
+            res.status(400).send({message: "The user with userId doesn't have any study events"});
             return err;
         }
         res.status(200).send(schedule);
@@ -943,18 +962,25 @@ app.put("/schedule/:userId/:eventId", async (req,res) => {
  *
  * Tung: Can you add error checking here
  */
-app.delete("/schedule/:userId/all/:num_events", async (req,res) => {
+app.delete("/schedule/:userId/all/:numEvents", async (req,res) => {
     /* Delete every single corresponding match */
+    
     var i;
-    for(i = 0; i < parseInt(req.params.num_events, 10); i++){
+    for(i = 0; i < parseInt(req.params.numEvents, 10); i++){
       matchesDelete(req.params.userId, i);
     }
     /* Now actually delete the schedule */
     var query = {"userId" : parseInt(req.params.userId, 10)};
+    scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
+        if (err) {return err;}
+        if (doesntExist(schedule)){
+            res.status(400).send({message:"The user with userId doesn't have any schedules"});
+            return err;
+        }
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.send({message: "deleted the schedule"});
-    })
+    }) })
 })
 
 /*
@@ -972,8 +998,14 @@ app.delete("/schedule/:userId/:eventId", async (req,res) => {
 
      /* Now actually delete the schedule */
     var query = {"userId" : req.params.userId, "eventId" : parseInt(req.params.eventId, 10)};
+    scheduleDb.collection("scheduleClt").find(query).toArray((err, schedule) => {
+        if (err) {return err;}
+        if (doesntExist(schedule)){
+            res.status(400).send({message:"The user with userId doesn't have this schedule"});
+            return err;
+        }
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.status(200).send({message: "deleted the specific time"});
-        })
+        }) })
     })
