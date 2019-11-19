@@ -332,7 +332,7 @@ it('Bad PUT user preferences', async done => {
       name : "John Doe"
     };
 
-    const r = await request.put('/user/22122/preferences').send(badPutPreferencesBody);
+    const r = await request.put('/user/22122/preferences').send(goodPutPreferencesBody);
 
     expect(r.status).toBe(400);
     expect(r.body.message).toBe("You are updating user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻");

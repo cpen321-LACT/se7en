@@ -368,4 +368,59 @@ describe('insert', () => {
 
     done();
   })
+
+
+  /*
+   * INTEGRATION TEST
+   * Adding a schedule event use case...
+   */
+  it('Adding to schedule use case integration test', async done => {
+
+    const userBody = {
+      yearLevel : "8888888",
+      courses : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
+      sex : "200",
+      numberOfRatings : "15",
+      kindness : "3.4",
+      patience : "7.6",
+      hardWorking : "1.0",
+      authenticationToken : "abcdef123456789",
+      password : "johndoe@123",
+      email : "john.doe@gmail.com",
+      name : "John Doe"
+  };
+
+    /* Create a user (sign up) */
+    const user1 = await request.post('/user/1111').send(userBody);
+    expect(user1.status).toBe(200);
+    expect(user1.message).toBe("The user has been added to the database!");
+
+    const schedule1 = 
+    {
+     userId : "40",
+     eventId : "0",
+     time : "11:00-12:00",
+     date : "Oct.11,2019",
+     course : "CPEN321",
+     location : "IKB"
+    };
+
+    /* Add a study event */
+    const postSchedule = await request.post("/schedule/1111").send(schedule1);
+    expect(postSchedule.status).toBe(200);
+    expect(postSchedule.message).toBe("Schedule has been posted!! :)");
+
+    /* Get the schedule to make sure it was POSTed correctly */
+    const checkProperStudyEvent = await request.get("/schedule/1111");
+    expect(checkProperStudyEvent.status).toBe(200);
+    const mRP = response.body.length-1;
+    expect(checkProperStudyEvent.body[mRP].userId).toBe(parseInt(schedule1.userId, 10));
+    expect(checkProperStudyEvent.body[mRP].eventId).toBe(parseInt(schedule1.eventId, 10));
+    expect(checkProperStudyEvent.body[mRP].time).toBe(schedule1.time);
+    expect(checkProperStudyEvent.body[mRP].date).toBe(schedule1.date);
+    expect(checkProperStudyEvent.body[mRP].course).toBe(schedule1.course);
+    expect(checkProperStudyEvent.body[mRP].location).toBe(schedule1.location);
+
+    done();
+  })
 });
