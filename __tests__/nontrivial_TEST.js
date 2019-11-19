@@ -1,7 +1,7 @@
 const app = require('../REST_API') // Link to your server file
 const supertest = require('supertest')
 const request = supertest(app)
-
+jest.setTimeout(10000);
 
 const {MongoClient} = require('mongodb');
 

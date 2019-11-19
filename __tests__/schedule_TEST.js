@@ -1,7 +1,7 @@
 const app = require('../REST_API') // Link to your server file
 const supertest = require('supertest')
 const request = supertest(app)
-
+jest.setTimeout(10000);
 
 const {MongoClient} = require('mongodb');
 
@@ -133,6 +133,22 @@ describe('insert', () => {
         expect(response.body[mostRecentPost].location).toBe("MCLD");
         done()
     })
+    /* Get a schedule  */
+    it('Get a schedule non-exist', async done=> {
+      const response = await request.get('/schedule/765/0');
+      const mostRecentPost = response.body.length-1;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("The study event with eventId for user with userId doesn't exist");
+      done()
+    })
+    /* Get all schedule 100 */
+    it('Get a all schedule of non-exist', async done=> {
+      const response = await request.get('/schedule/766');
+      const mostRecentPost = response.body.length-1;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("The user with userId doesn't have any study events");
+      done()
+    })
 
     /* Get all schedule 100 */
   //   it('Get all schedules of 100', async done=> {
@@ -253,7 +269,7 @@ describe('insert', () => {
       done();
     })
     /* Put a empty body */
-    it('Put empty schedule 101', async done => {
+    it('Put a empty schedule 101', async done => {
       const response = await request.put('/schedule/101/0');
     
       expect(response.status).toBe(400);
@@ -261,24 +277,41 @@ describe('insert', () => {
       done();
     })
     /* Delete a schedule */
-    // it('Delete a schedule', async done => {
-    //   const response = await request.delete('/schedule/101/0');
-    //   expect(response.status).toBe(200);
-    //   expect(response.body.message).toBe("deleted the specific time");
-    // })
-    //  /* Delete all schedules */
-    //  it('Delete a schedule', async done => {
-    //   const response = await request.delete('/schedule/100/all/2');
-    //   expect(response.status).toBe(200);
-    //   expect(response.body.message).toBe("deleted the schedule");
-    //   const response1 = await request.delete('/schedule/101/all/1');
-    //   expect(response1.status).toBe(200);
-    //   expect(response1.body.message).toBe("deleted the schedule");
-    // })
-    it('Delete alls', async done =>{
+    it('Delete a schedule', async done => {
+      const response = await request.delete('/schedule/101/0');
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe("deleted the specific time");
+    })
+    /* Delete a schedule */
+    it('Delete a non-exist schedule', async done => {
+      const response = await request.delete('/schedule/101/4');
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("The user with userId doesn't have this schedule");
+    })
+     /* Delete all schedules */
+     it('Delete a schedule', async done => {
+      const response = await request.delete('/schedule/100/all/2');
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe("deleted the schedule");
+      const response1 = await request.delete('/schedule/101/all/1');
+      expect(response1.status).toBe(200);
+      expect(response1.body.message).toBe("deleted the schedule");
+    })
+    /* Delete non-exist schedules */
+    it('Delete a schedule', async done => {
+      const response = await request.delete('/schedule/670/all/2');
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("The user with userId doesn't have any schedules");
+    })
+    it('Delete and Get alls', async done =>{
+      const res1 = request.get('/get_all_users');
+      const res2 = request.get('/get_all_matches'); 
+      const res3 = request.get('/get_all_schedules');  
+      const res4 = request.get('/get_all_preferences');  
       const response1 =  request.delete('/delete_all_users');
       const response2 =  request.delete('/delete_all_matches');
       const response3 =  request.delete('/delete_all_schedules');
+      const response4 =  request.delete('/delete_all_preferences');
       //expect(response1.status).toBe(null);
       //expect(response2.status).toBe(null);
       //expect(response3.status).toBe(null);

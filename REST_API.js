@@ -224,7 +224,7 @@ function matchesDelete(uid, eid){
  * - the sum of kindness, patience and hardWorking does not equal 12
  * - you send a sex that is not in range
  */
-app.post("/user/:userId/preferences", (req,res) => {
+app.post("/user/:userId/preferences", async (req,res) => {
 
     var userQuery = {userId : parseInt(req.params.userId, 10)};
 
@@ -276,7 +276,7 @@ app.post("/user/:userId/preferences", (req,res) => {
  *  'sex' : 1,
  *  'yearLevel' : [3, 4, ...]}
  */
-app.get("/user/:userId/preferences", (req,res) => {
+app.get("/user/:userId/preferences", async (req,res) => {
 
     var userQuery = {userId : parseInt(req.params.userId, 10)};
 
@@ -302,7 +302,7 @@ app.get("/user/:userId/preferences", (req,res) => {
  *  'sex' : 0,
  *  'yearLevel' : [3, 4, ...]}
  */
-app.put("/user/:userId/preferences", (req,res) => {
+app.put("/user/:userId/preferences", async (req,res) => {
     var userQuery = {"userId" : parseInt(req.params.userId, 10)};
     var newValues = {$set: req.body};
 
@@ -384,7 +384,7 @@ app.get("/user/:userId/info", async (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
-app.post("/user/:userId", (req,res) => {
+app.post("/user/:userId", async (req,res) => {
 
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
@@ -444,7 +444,7 @@ app.post("/user/:userId", (req,res) => {
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
  */
-app.put("/user/:userId/info", (req,res) => {
+app.put("/user/:userId/info", async (req,res) => {
     var query = {userId : parseInt(req.params.userId, 10)};
     var newValues = {$set: {yearLevel           : parseInt(req.body.yearLevel, 10),
                             sex                  : parseInt(req.body.sex, 10),
@@ -496,7 +496,7 @@ app.put("/user/:userId/info", (req,res) => {
  *  - or this request will have to handle all deletes
  *  ----> Use the former one for now
  */
-app.delete("/user/:userId/info", (req,res) => {
+app.delete("/user/:userId/info", async (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
 
     if (parseInt(req.params.userId, 10) < 0) {
@@ -530,7 +530,7 @@ var thisHardWorking;
 var thisPatience; 
 var thisYearLevel; 
 var thisSex;
-app.get("/user/:userId/matches/potentialMatches/:eventId/:course", (req,res) => {
+app.get("/user/:userId/matches/potentialMatches/:eventId/:course", async (req,res) => {
     
     /* Read the preference */
     var query = {"userId" : req.params.userId};
@@ -638,7 +638,7 @@ function updateRequestWait(userAMatchDoc, userBMatchDoc){
     return;
 }
 /* Need eventId in body */
-app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
+app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
     var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventId_a, 10)};
     var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(req.body.eventId_b, 10)};
 
@@ -695,7 +695,7 @@ app.post("/user/:userIdA/matches/:userIdB", (req,res) => {
  * Get who the user is currently matched with.
  * Adam: To test
  */
-app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
+app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
 
     if (parseInt(req.params.userId, 10) < 0){
         res.status(400).send({message:"Negative userId"});
@@ -730,7 +730,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", (req,res) => {
  * Get who the user is waiting to match with
  * Adam: To test
  */
-app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
+app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
         if (err) {return err;}
         res.send(result["wait"]);
@@ -742,44 +742,51 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", (req,res) => {
  * This will call helper function personMatchDelete()
  * Tung: Can you test this
  */
-app.delete("/user/:userId/matches/:matchId", (req,res) => {
+app.delete("/user/:userId/matches/:matchId", async (req,res) => {
+    userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
+        if (err) {return err;}
+        if(parseInt(result["wait"], 10) !== parseInt(req.params.matchId, 10)){
+            res.status(400).send({message: "Two people are not matched, something is wrong here :<"});
+        }
+
     var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
     if(err1 || err2) {return (err1 || err2);} 
-    res.send("Successfully unmatch.");
+    res.send({message: "Successfully unmatch."});
+    })
 })
 
 
 /* ________________________________End points for cleaning and get all database_______________________________ */
- app.get("/get_all_users",  (req,res) => {
+ app.get("/get_all_users",  async (req,res) => {
      userDb.collection("infoClt").find().toArray((err, a) => {
         //  console.log(a);
          res.send(a);
      })
  })
 
- app.delete("/delete_all_users",  (req,res) => {
+ app.delete("/delete_all_users", async (req,res) => {
      userDb.collection("infoClt").deleteMany({},(err, a) => {
         //  console.log(a);
          res.send(a);
      })
  })
 
-app.get("/get_all_schedules",  (req,res) => {
+app.get("/get_all_schedules", async (req,res) => {
     scheduleDb.collection("scheduleClt").find().toArray((err, a) => {
         // console.log(a)
         res.send(a);
     })
 })
 
-app.get("/get_all_matches",  (req,res) => {
+app.get("/get_all_matches", async (req,res) => {
     userDb.collection("matchesClt").find().toArray((err, a) => {
         // console.log(a);
         res.send(a);
     })
 })
 
-app.get("/get_all_preferences",  (req,res) => {
+app.get("/get_all_preferences", async (req,res) => {
     userDb.collection("preferencesClt").find().toArray((err, a) => {
         // console.log(a);
         res.send(a);
@@ -787,21 +794,21 @@ app.get("/get_all_preferences",  (req,res) => {
 })
 
 
-app.delete("/delete_all_schedules",  (req,res) => {
+app.delete("/delete_all_schedules", async (req,res) => {
     scheduleDb.collection("scheduleClt").deleteMany({},(err, a) => {
         // console.log(a)
         res.send(a);
     })
 })
 
-app.delete("/delete_all_matches",  (req,res) => {
+app.delete("/delete_all_matches", async (req,res) => {
     userDb.collection("matchesClt").deleteMany({},(err, a) => {
         // console.log(a)
         res.send(a);
     })
 })
 
-app.delete("/delete_all_preferences",  (req,res) => {
+app.delete("/delete_all_preferences", async (req,res) => {
     userDb.collection("preferencesClt").deleteMany({},(err, a) => {
         // console.log(a)
         res.send(a);
