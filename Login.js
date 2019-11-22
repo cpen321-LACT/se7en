@@ -105,7 +105,7 @@ export default class Login extends Component {
   render() {
     if (!this.state.signUp) {
       return (
-        <SafeAreaView style={styles.safeContainer}>
+        <SafeAreaView testID="loginView" style={styles.safeContainer}>
           <View style={styles.navBar}>
             <Text style={styles.navBarTitle}>SE7EN</Text>
           </View>
@@ -115,6 +115,7 @@ export default class Login extends Component {
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
               <TextField
+                testID="userIDInput"
                 label="User ID: "
                 title="Please enter User ID as an integer!"
                 characterRestriction={10}
@@ -124,6 +125,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="passwordInput"
                 label="Password: "
                 clearTextOnFocus={true}
                 secureTextEntry={this.state.loginSecureTextEntry}
@@ -139,6 +141,7 @@ export default class Login extends Component {
               justifyContent: "center",
             }}>
               <TextButton
+                testID="signInButton"
                 style={{
                   margin: 4,
                 }}
@@ -148,6 +151,7 @@ export default class Login extends Component {
                 onPress={() => this.signIn()}
               />
               <TextButton
+                testID="signUpButton"
                 style={{
                   margin: 4,
                 }}
@@ -187,16 +191,18 @@ export default class Login extends Component {
       );
     } else {
       return (
-        <SafeAreaView style={styles.safeContainer}>
+        <SafeAreaView testID="signUpView" style={styles.safeContainer}>
           <View style={styles.navBar}>
             <Text style={styles.navBarTitle}>Sign up</Text>
           </View>
           <ScrollView
+            testID="signUpScrollView"
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
               <TextField
+                testID="signUpYearLevelInput"
                 label="Year level: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
@@ -205,6 +211,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpCoursesInput"
                 label="Courses: "
                 clearTextOnFocus={true}
                 title="Please input in form: 'Course A,Course B,Course C'"
@@ -212,6 +219,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpSexInput"
                 label="Sex: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
@@ -221,6 +229,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpKindnessPrefInput"
                 label="Kindness preference: "
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -228,6 +237,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpPatiencePrefInput"
                 label="Patience preference: "
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -235,6 +245,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpHardworkingPrefInput"
                 label="Hardworking preference: "
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -242,6 +253,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpUserIDInput"
                 label="User ID: "
                 characterRestriction={10}
                 clearTextOnFocus={true}
@@ -250,6 +262,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpPasswordInput"
                 label="Password: "
                 clearTextOnFocus={true}
                 characterRestriction={20}
@@ -259,6 +272,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpEmailInput"
                 label="Email: "
                 clearTextOnFocus={true}
                 characterRestriction={50}
@@ -266,6 +280,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpNameInput"
                 label="Name: "
                 clearTextOnFocus={true}
                 characterRestriction={30}
@@ -280,6 +295,7 @@ export default class Login extends Component {
               justifyContent: "center",
             }}>
               <TextButton
+                testID="sendSignUpRequestButton"
                 style={{ margin: 4 }}
                 titleColor="white"
                 color="#4286f4"
@@ -287,6 +303,7 @@ export default class Login extends Component {
                 onPress={() => this.signUp()}
               />
               <TextButton
+                testID="signUpGoBackButton"
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"

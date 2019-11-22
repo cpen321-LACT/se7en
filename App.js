@@ -7,6 +7,8 @@ import {
   Dimensions,
   Platform,
   Alert,
+  View,
+  Text,
 } from "react-native";
 import TabNavigator from "react-native-tab-navigator";
 import Calendar from "./Calendar.js";
@@ -165,6 +167,7 @@ export default class App extends Component {
       return (
         <TabNavigator style={styles.container}>
           <TabNavigator.Item
+            testID="calendarTab"
             selected={this.state.selectedTab === "calendar"}
             title="Calendar"
             selectedTitleStyle={{ color: "#3496f0" }}
@@ -185,12 +188,11 @@ export default class App extends Component {
               scheduleArrayClear={this.clearScheduleArray.bind(this)}
               scheduleArrayChange={this.changeScheduleArray.bind(this)}
               eventIDChange={this.changeEventID.bind(this)}
-              /* Push notification */
-              push_noti={this.notif}
             />
           </TabNavigator.Item>
 
           <TabNavigator.Item
+            testID="profileTab"
             selected={this.state.selectedTab === "profile"}
             title="Profile"
             selectedTitleStyle={{ color: "#3496f0" }}

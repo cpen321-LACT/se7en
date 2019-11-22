@@ -313,10 +313,12 @@ export default class Calendar extends React.Component {
       return (
         <View style={{ flex: 1, backgroundColor: "#f3f3f3" }}>
           {
-            <SafeAreaView style={styles.container}>
+            <SafeAreaView testID="calendarView" style={styles.container}>
               <ScrollView
+                testID="calendarScrollView"
                 refreshControl={
                   <RefreshControl
+                    testID="calendarRefresh"
                     refreshing={this.state.calendarRefreshing}
                     onRefresh={this._onRefresh}
                   />
@@ -365,14 +367,16 @@ export default class Calendar extends React.Component {
               </ScrollView>
             </SafeAreaView>
           }
-          <ActionButton buttonColor="crimson">
+          <ActionButton testID="calendarMainButton" buttonColor="crimson">
             <ActionButton.Item
+              testID="calendarNewScheduleButton"
               buttonColor="palegreen"
               title="New Schedule"
               onPress={() => this.renderUserform()}>
               <Icon name="md-create" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
+              testID="calendarGetMatchesButton"
               buttonColor="lemonchiffon"
               title="Get Matches"
               onPress={() => this.getMatches()}>
@@ -386,16 +390,18 @@ export default class Calendar extends React.Component {
       );
     } else {
       return (
-        <SafeAreaView style={styles.safeContainer}>
+        <SafeAreaView testID="calendarAddView" style={styles.safeContainer}>
           <View style={styles.navBar}>
             <Text style={styles.navBarTitle}>Add to Calendar</Text>
           </View>
           <ScrollView
+            testID="calendarAddScrollView"
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
               <TextField
+                testID="calendarDateInput"
                 label="Date: "
                 value={""}
                 title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
@@ -405,6 +411,7 @@ export default class Calendar extends React.Component {
                 onChangeText={(data) => this.setState({ tmpDate: data })}
               />
               <TextField
+                testID="calendarStartTimeInput"
                 label="Start Time: "
                 value={""}
                 title="Enter in form 'hh mm'"
@@ -417,6 +424,7 @@ export default class Calendar extends React.Component {
               />
 
               <TextField
+                testID="calendarEndTimeInput"
                 label="End Time: "
                 value={""}
                 title="Enter in form 'hh mm'"
@@ -426,6 +434,7 @@ export default class Calendar extends React.Component {
                 onChangeText={(data) => this.setState({ tmpEndTimeString: data })}
               />
               <TextField
+                testID="calendarSubjectInput"
                 label="Subject: "
                 value={""}
                 title="This is a required field"
@@ -435,6 +444,7 @@ export default class Calendar extends React.Component {
               />
 
               <TextField
+                testID="calendarLocationInput"
                 label="Location: "
                 value={""}
                 clearTextOnFocus={true}
@@ -443,22 +453,28 @@ export default class Calendar extends React.Component {
               />
             </View>
 
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <View style={{
+              flexDirection: "column",
+              flex: 1,
+              alignItems: "stretch",
+              justifyContent: "center",
+            }}>
               <TextButton
+                testID="calendarAddButton"
+                style={{ margin: 4 }}
+                titleColor="white"
+                color="#4286f4"
+                title="add schedule"
+                onPress={() => this.addSchedule()}
+              />
+              <TextButton
+                testID="calendarGoBackButton"
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="go back"
                 onPress={() => this.unrenderUserform()}
               />
-              <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="add"
-                onPress={() => this.addSchedule()}
-              />
-
               {/* <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"

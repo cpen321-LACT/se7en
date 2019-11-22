@@ -124,7 +124,7 @@ export default class Profile extends React.Component {
       /* User info states */
       tmpYearLevel: this.props.yearLevel,
       tmpCourses: this.props.courses,
-      tmpCoursesString: "",
+      tmpCoursesString: this.props.courses.toString(),
       tmpSex: this.props.sex,
       tmpKindness: this.props.kindnessPref,
       tmpPatience: this.props.patiencePref,
@@ -407,6 +407,7 @@ export default class Profile extends React.Component {
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
+    console.log("Check NULL: data = " + data);
     if (typeof data === "undefined") {
       return true;
     }
@@ -416,6 +417,7 @@ export default class Profile extends React.Component {
   }
 
   checkEmpty(data) {
+    console.log("Check empty: data = " + data);
     if (data === "") {
       return true;
     }
@@ -445,10 +447,12 @@ export default class Profile extends React.Component {
       return (
         <View style={{ flex: 1, backgroundColor: "#f3f3f3" }}>
           {
-            <SafeAreaView style={styles.container}>
+            <SafeAreaView testID="profileView" style={styles.container}>
               <ScrollView
+                testID="profileScrollView"
                 refreshControl={
                   <RefreshControl
+                    testID="profileRefresh"
                     refreshing={this.state.refreshing}
                     onRefresh={this._onRefresh}
                   />
@@ -463,6 +467,7 @@ export default class Profile extends React.Component {
                   </View>
 
                   <SettingsScreen
+                    testID="settingsScreen"
                     data={this.settingsData}
                     globalTextStyle={{ fontFamily }}
                   />
@@ -470,14 +475,16 @@ export default class Profile extends React.Component {
               </ScrollView>
             </SafeAreaView>
           }
-          <ActionButton buttonColor="crimson">
+          <ActionButton testID="profileMainButton" buttonColor="crimson">
             <ActionButton.Item
+              testID="profileChangeProfile"
               buttonColor="mediumspringgreen"
-              title="Modify Profile"
+              title="Change Profile"
               onPress={() => this.renderUserform()}>
               <Icon name="md-create" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
+              testID="profileSignOut"
               buttonColor="red"
               title="Sign Out"
               onPress={() => {
@@ -491,25 +498,30 @@ export default class Profile extends React.Component {
       );
     } else {
       return (
-        <SafeAreaView style={styles.safeContainer}>
+        <SafeAreaView testID="profileChangeProfileView" style={styles.safeContainer}>
           <View style={styles.navBar}>
             <Text style={styles.navBarTitle}>Edit profile</Text>
           </View>
 
           <ScrollView
+            testID="profileChangeProfileScrollView"
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
               <TextField
+                testID="profileNameInput"
                 label="Name: "
+                value={this.props.name}
                 characterRestriction={30}
                 clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpName: data })}
               />
 
               <TextField
+                testID="profilePasswordInput"
                 label="Password: "
+                value={this.props.password}
                 characterRestriction={20}
                 clearTextOnFocus={true}
                 secureTextEntry={this.state.secureTextEntry}
@@ -518,7 +530,9 @@ export default class Profile extends React.Component {
               />
 
               <TextField
+                testID="profileYearLevelInput"
                 label="Year level: "
+                value={this.props.yearLevel}
                 characterRestriction={1}
                 keyboardType='number-pad'
                 clearTextOnFocus={true}
@@ -526,7 +540,9 @@ export default class Profile extends React.Component {
               />
 
               <TextField
+                testID="profileSexInput"
                 label="Sex:"
+                value={this.props.sex}
                 characterRestriction={1}
                 title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
                 keyboardType='number-pad'
@@ -535,7 +551,9 @@ export default class Profile extends React.Component {
               />
 
               <TextField
+                testID="profileEmailInput"
                 label="Email: "
+                value={this.props.email}
                 keyboardType="email-address"
                 characterRestriction={50}
                 clearTextOnFocus={true}
@@ -543,14 +561,18 @@ export default class Profile extends React.Component {
               />
 
               <TextField
+                testID="profileCoursesInput"
                 label="Courses: "
+                value={this.props.courses}
                 title="Please input in form: 'Course A,Course B,Course C'"
                 clearTextOnFocus={true}
                 onChangeText={(data) => this.setState({ tmpCoursesString: data })}
               />
 
               <TextField
+                testID="profileKindnessInput"
                 label="Kindness preference: "
+                value={this.props.kindnessPref}
                 characterRestriction={2}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -558,7 +580,9 @@ export default class Profile extends React.Component {
               />
 
               <TextField
+                testID="profilePatienceInput"
                 label="Patience preference: "
+                value={this.props.patiencePref}
                 characterRestriction={2}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -566,7 +590,9 @@ export default class Profile extends React.Component {
               />
 
               <TextField
+                testID="profileHardworkingInput"
                 label="Hardworking preference: "
+                value={this.props.hardWorkingPref}
                 characterRestriction={2}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -582,6 +608,7 @@ export default class Profile extends React.Component {
             }}>
 
               <TextButton
+                testID="profileChangeButton"
                 style={{ margin: 4 }}
                 titleColor="white"
                 color="#4286f4"
@@ -590,6 +617,7 @@ export default class Profile extends React.Component {
               />
 
               <TextButton
+                testID="profileChangeGoBack"
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
