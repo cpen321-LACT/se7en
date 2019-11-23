@@ -390,39 +390,50 @@ app.post("/user", async (req,res) => {
 
 
     userDb.collection("infoClt").find({ userId : parseInt(req.body.userId, 10)}).toArray((err, userInfo) => {
-
+        if(err){return err;}
+        if (!doesntExist(userInfo)){
+            res.status(400).send({message : "The user with this userId already exists in the database (┛ಠ_ಠ)┛彡┻━┻"});
+            return;
+        }
+        userDb.collection("infoClt").find({ authenticationToken : parseInt(req.body.authenticationToken, 10)}).toArray((err, userInfo) => {
+            if(err){return err;}
+            if (!doesntExist(userInfo)){
+                res.status(400).send({message : "The user with this authentication Token already exists in the database (┛ಠ_ಠ)┛彡┻━┻"});
+                return;
+            }
         // if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
         //     res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
         //     return;
         // }
 
-        // if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
-        //     res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
-        //     return;
-        // }
+            if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
+                res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
+                return;
+            }
 
-        // if (doesntExist(req.body)){
-        //     res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
-        //     return;
-        // }
+            if (doesntExist(req.body)){
+                res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
+                return;
+            }
 
-        userDb.collection("infoClt").insertOne(
-            {"yearLevel"           : req.body.yearLevel,
-             "sex"                  : parseInt(req.body.sex, 10),
-             "courses"              : req.body.courses,
-             "numberOfRatings"      : parseInt(req.body.numberOfRatings, 10),
-             "kindness"             : parseFloat(req.body.kindness),
-             "patience"             : parseFloat(req.body.patience),
-             "hardWorking"         : parseFloat(req.body.hardWorking),
-             "authenticationToken" : req.body.authenticationToken,
-             "password"             : req.body.password,
-             "userId"              : parseInt(req.body.userId, 10),
-             "email"                : req.body.email,
-             "name"                 : req.body.name},(err, result) => {
+            userDb.collection("infoClt").insertOne(
+                {"yearLevel"           : req.body.yearLevel,
+                "sex"                  : parseInt(req.body.sex, 10),
+                "courses"              : req.body.courses,
+                "numberOfRatings"      : parseInt(req.body.numberOfRatings, 10),
+                "kindness"             : parseFloat(req.body.kindness),
+                "patience"             : parseFloat(req.body.patience),
+                "hardWorking"         : parseFloat(req.body.hardWorking),
+                "authenticationToken" : req.body.authenticationToken,
+                "password"             : req.body.password,
+                "userId"              : parseInt(req.body.userId, 10),
+                "email"                : req.body.email,
+                "name"                 : req.body.name},(err, result) => {
 
 
-         if (err) {return err;}
-            res.send({message : "The user has been added to the database!"}).status(200);
+            if (err) {return err;}
+                res.send({message : "The user has been added to the database!"}).status(200);
+            })
         })
     })
 })
