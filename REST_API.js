@@ -353,11 +353,26 @@ app.put("/user/:userId/preferences", async (req,res) => {
  *  'name' : 'John Doe'}
  */
 app.get("/user/:userId/info", async (req,res) => {
-    if(parseInt(req.params.userId, 10) < 0){
-        res.status(400).json({message: 'The user id is less tahn 0 (┛ಠ_ಠ)┛彡┻━┻'});
+        if(parseInt(req.params.userId, 10) < 0){
+            res.status(400).json({message: 'The user id is less tahn 0 (┛ಠ_ಠ)┛彡┻━┻'});
+            return;
+        }
+        userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
+            if (doesntExist(userInfo)){
+                res.status(400).json({message:"You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻"});
+                return err;
+            }
+            if (err) {return err;}
+                res.send(userInfo);
+        })
+})
+/* Get user infor with authentication Token */
+app.get("/user/:authenticationToken/authentication/info", async (req,res) => {
+    if(req.params.authenticationToken === null){
+        res.status(400).json({message: 'The Token is null (┛ಠ_ಠ)┛彡┻━┻'});
         return;
     }
-    userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
+    userDb.collection("infoClt").find({ userId : parseInt(req.params.authenticationToken, 10)}).toArray((err, userInfo) => {
         if (doesntExist(userInfo)){
             res.status(400).json({message:"You are trying to get user info for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return err;
@@ -386,7 +401,7 @@ app.get("/user/:userId/info", async (req,res) => {
  * 
  * UPDATE: This now handle both kinds of signing up for users
  */
-app.post("/user", async (req,res) => {
+app.post("/user/info", async (req,res) => {
 
 
     userDb.collection("infoClt").find({ userId : parseInt(req.body.userId, 10)}).toArray((err, userInfo) => {
@@ -415,6 +430,9 @@ app.post("/user", async (req,res) => {
                 res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
                 return;
             }
+            var id;
+            if(req.body.userId !== null){id = parseInt(req.body.userId, 10);}
+            else{id = parseInt(req.body.authenticationToken, 10);}
 
             userDb.collection("infoClt").insertOne(
                 {"yearLevel"           : req.body.yearLevel,
@@ -426,7 +444,7 @@ app.post("/user", async (req,res) => {
                 "hardWorking"         : parseFloat(req.body.hardWorking),
                 "authenticationToken" : req.body.authenticationToken,
                 "password"             : req.body.password,
-                "userId"              : parseInt(req.body.userId, 10),
+                "userId"              : id,
                 "email"                : req.body.email,
                 "name"                 : req.body.name},(err, result) => {
 
