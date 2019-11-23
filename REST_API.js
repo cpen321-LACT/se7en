@@ -413,7 +413,7 @@ app.post("/user/:userId", async (req,res) => {
              "kindness"             : parseFloat(req.body.kindness),
              "patience"             : parseFloat(req.body.patience),
              "hardWorking"         : parseFloat(req.body.hardWorking),
-             "authenticationToken" : req.body.authenticationToken,
+             "authenticationToken" : null,
              "password"             : req.body.password,
              "userId"              : id,
              "email"                : req.body.email,
@@ -425,6 +425,31 @@ app.post("/user/:userId", async (req,res) => {
         })
     })
 })
+
+
+/*
+ * Sign up a new user with authentication
+ */
+app.post("/user/:authenticationToken", async (req,res) => {
+
+        userDb.collection("infoClt").insertOne(
+            {"yearLevel"           : null,
+             "sex"                  : null,
+             "courses"              : null,
+             "numberOfRatings"      : null,
+             "kindness"             : null,
+             "patience"             : null,
+             "hardWorking"         : null,
+             "authenticationToken" : req.params.authenticationToken,
+             "password"             : null,
+             "userId"              : null,
+             "email"                : null,
+             "name"                 : null},(err, result) => {
+         if (err) {return err;}
+            res.send({message : "The user has been added to the database!"}).status(200);
+        })
+})
+
 
 /*
  * Update the information of user with userId's information.
