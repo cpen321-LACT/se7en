@@ -383,11 +383,13 @@ app.get("/user/:userId/info", async (req,res) => {
  *  'password' : ‘johndoe@123’,
  *  'email' : ‘john.doe@gmail.com’,
  *  'name' : 'John Doe'}
+ * 
+ * UPDATE: This now handle both kinds of signing up for users
  */
-app.post("/user/:userId", async (req,res) => {
+app.post("/user", async (req,res) => {
 
 
-    userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
+    userDb.collection("infoClt").find({ userId : parseInt(req.body.userId, 10)}).toArray((err, userInfo) => {
 
         // if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
         //     res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
@@ -412,9 +414,9 @@ app.post("/user/:userId", async (req,res) => {
              "kindness"             : parseFloat(req.body.kindness),
              "patience"             : parseFloat(req.body.patience),
              "hardWorking"         : parseFloat(req.body.hardWorking),
-             "authenticationToken" : null,
+             "authenticationToken" : req.body.authenticationToken,
              "password"             : req.body.password,
-             "userId"              : parseInt(req.params.userId, 10),
+             "userId"              : parseInt(req.body.userId, 10),
              "email"                : req.body.email,
              "name"                 : req.body.name},(err, result) => {
 
@@ -429,25 +431,25 @@ app.post("/user/:userId", async (req,res) => {
 /*
  * Sign up a new user with authentication
  */
-app.post("/user/authentication/:authenticationToken", async (req,res) => {
+// app.post("/user/authentication/:authenticationToken", async (req,res) => {
 
-        userDb.collection("infoClt").insertOne(
-            {"yearLevel"           : null,
-             "sex"                  : null,
-             "courses"              : null,
-             "numberOfRatings"      : null,
-             "kindness"             : null,
-             "patience"             : null,
-             "hardWorking"         : null,
-             "authenticationToken" : req.params.authenticationToken,
-             "password"             : null,
-             "userId"              : null,
-             "email"                : null,
-             "name"                 : null},(err, result) => {
-         if (err) {return err;}
-            res.send({message : "The user with authentication has been added to the database!"}).status(200);
-        })
-})
+//         userDb.collection("infoClt").insertOne(
+//             {"yearLevel"           : null,
+//              "sex"                  : null,
+//              "courses"              : null,
+//              "numberOfRatings"      : null,
+//              "kindness"             : null,
+//              "patience"             : null,
+//              "hardWorking"         : null,
+//              "authenticationToken" : req.params.authenticationToken,
+//              "password"             : null,
+//              "userId"              : null,
+//              "email"                : null,
+//              "name"                 : null},(err, result) => {
+//          if (err) {return err;}
+//             res.send({message : "The user with authentication has been added to the database!"}).status(200);
+//         })
+// })
 
 
 /*
