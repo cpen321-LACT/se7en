@@ -389,22 +389,21 @@ app.post("/user/:userId", async (req,res) => {
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
 
-        if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
-            res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
+        // if (!isAcceptablePreferences(parseFloat(req.body.kindness), parseFloat(req.body.patience), parseFloat(req.body.hardWorking)) ){
+        //     res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
+        //     return;
+        // }
 
-        if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
-            res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
+        // if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
+        //     res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
+        //     return;
+        // }
 
-        if (doesntExist(req.body)){
-            res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
+        // if (doesntExist(req.body)){
+        //     res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
+        //     return;
+        // }
 
-        var id = parseInt(req.params.userId, 10);
         userDb.collection("infoClt").insertOne(
             {"yearLevel"           : req.body.yearLevel,
              "sex"                  : parseInt(req.body.sex, 10),
@@ -415,7 +414,7 @@ app.post("/user/:userId", async (req,res) => {
              "hardWorking"         : parseFloat(req.body.hardWorking),
              "authenticationToken" : null,
              "password"             : req.body.password,
-             "userId"              : id,
+             "userId"              : parseInt(req.params.userId, 10),
              "email"                : req.body.email,
              "name"                 : req.body.name},(err, result) => {
 
@@ -430,7 +429,7 @@ app.post("/user/:userId", async (req,res) => {
 /*
  * Sign up a new user with authentication
  */
-app.post("/user/:authenticationToken", async (req,res) => {
+app.post("/user/authentication/:authenticationToken", async (req,res) => {
 
         userDb.collection("infoClt").insertOne(
             {"yearLevel"           : null,
@@ -446,7 +445,7 @@ app.post("/user/:authenticationToken", async (req,res) => {
              "email"                : null,
              "name"                 : null},(err, result) => {
          if (err) {return err;}
-            res.send({message : "The user has been added to the database!"}).status(200);
+            res.send({message : "The user with authentication has been added to the database!"}).status(200);
         })
 })
 
