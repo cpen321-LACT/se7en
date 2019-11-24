@@ -16,7 +16,7 @@ import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import BackgroundTimer from "react-native-background-timer";
-import { LoginButton, AccessToken } from "react-native-fbsdk";
+import { LoginManager, AccessToken } from "react-native-fbsdk";
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -172,33 +172,16 @@ export default class Login extends Component {
                 title="Sign Up"
                 onPress={() => this.renderSignUpForm()}
               />
-              <LoginButton
-                scope={'public_profile email'}
+              <TextButton
+                testID="signUpFbButton"
                 style={{
-                  padding: 15,
-                  margin: 4
+                  margin: 4,
                 }}
-                onLoginFinished={
-                  (error, result) => {
-                    if (error) {
-                      console.log("login has error: " + result.error);
-                      Alert.alert("Facebook login ran into an error\nPlease try again later.");
-                    } else if (result.isCancelled) {
-                      console.log("login is cancelled.");
-                      Alert.alert("Facebook login got cancelled.")
-                    } else {
-                      AccessToken.getCurrentAccessToken().then(
-                        (data) => {
-                          console.log(data.accessToken.toString())
-                          this.setState({ tmpAuthenticationToken: data.accessToken.toString() });
-                          this.signInAuthToken();
-                          /* TODO: handle login with authentication token */
-                        }
-                      )
-                    }
-                  }
-                }
-                onLogoutFinished={() => console.log("logout.")} />
+                titleColor="white"
+                color="#3B5998"
+                title="Continue with Facebook"
+                onPress={() => this.signInFb()}
+              />
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -431,7 +414,7 @@ export default class Login extends Component {
               /* Then check if the data got from database matches the password typed */
               if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
                 && responseJson[0].password === this.props.password) {
-                Alert.alert("Signed in successfully!");
+                Alert.alert("Signed in successfully!", "If you are signing in via Facebook, please remember to update your information and preferences in Profile -> Modify Profile for matching uses");
                 /* Do the Initialize sequence after signing in successfully */
                 this.initSequence();
                 this.props.logVisibleChange();
@@ -549,8 +532,32 @@ export default class Login extends Component {
       });
   }
 
+  signInFb() {
+    // Attempt a login using the Facebook login dialog asking for default permissions.
+    LoginManager.logInWithPermissions(["public_profile"]).then((result) => {
+      if (result.isCancelled) {
+        console.log("Login cancelled");
+      }
+      else {
+        AccessToken.getCurrentAccessToken().then((accessToken) => {
+          //console.log(accessToken);
+          //console.log(accessToken.accessToken);
+          this.setState({ tmpAuthenticationToken: accessToken.accessToken });
+          this.setState({ tmpUserID: accessToken.userID })
+          this.setState({ tmpPassword: accessToken.userID })
+          this.props.userIDChange(accessToken.userID);
+          this.props.passwordChange(accessToken.userID);
+          //console.log(this.state.tmpAuthenticationToken);
+          this.signInAuthToken();
+        });
+        console.log("Login success with permissions: " + result.grantedPermissions.toString());
+      }
+    });
+  }
+
   signInAuthToken() {
-    let fetchURL = baseURL + "user/" + this.state.tmpAuthenticationToken + "/info";
+    let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+    console.log("[signUpAuthToken]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -562,9 +569,11 @@ export default class Login extends Component {
       .then((response) => response.text())
       .then((responseJson) => {
         if (responseJson.includes("does not exist")) {
+          console.log("going to signUpAuthToken");
           this.signUpAuthToken();
         } else {
           /* If user ID does exist, we do the actual call */
+          console.log("signInAuthToken ok")
           fetch(fetchURL, {
             method: "GET",
             headers: {
@@ -575,8 +584,9 @@ export default class Login extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
               /* Then check if the data got from database matches the password typed */
-              if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-                Alert.alert("Signed in successfully!");
+              if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
+                && responseJson[0].password === this.props.password) {
+                Alert.alert("Signed in successfully!", "If you are signing in via Facebook, please remember to update your information and preferences in Profile -> Modify Profile for matching uses");
                 /* Do the Initialize sequence after signing in successfully */
                 this.initSequence();
                 this.props.logVisibleChange();
@@ -589,8 +599,94 @@ export default class Login extends Component {
       });
   }
 
-  signUpAuthToken(authToken) {
+  signUpAuthToken() {
+    fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + this.state.tmpAuthenticationToken)
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log("[signUpAuthToken]: " + responseJson);
+        this.setState({ tmpName: responseJson.name })
+        this.setState({ tmpEmail: responseJson.email })
+      })
+      .catch(() => {
+        reject('ERROR GETTING DATA FROM FACEBOOK')
+      })
 
+    this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
+    let fetchURL = baseURL + "user/info";
+    console.log("[signUpAuthToken] url request: " + fetchURL);
+    fetch(fetchURL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        yearLevel: this.state.tmpYearLevel,
+        courses: this.state.tmpCourses,
+        sex: this.state.tmpSex,
+        numberOfRatings: "0",
+        kindness: 4,
+        patience: 4,
+        hardWorking: 4,
+        authenticationToken: this.state.tmpAuthenticationToken,
+        userId: this.state.tmpUserID,
+        password: this.state.tmpPassword,
+        email: this.state.tmpEmail,
+        name: this.state.tmpName,
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson);
+        /* Check if user ID already exists or not */
+        if (responseJson.includes("already exists")) {
+          Alert.alert("User ID already exists!");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot sign up, please try again");
+        }
+        else {
+          this.signUpPreferencesAuthToken();
+        }
+      });
+  }
+
+  signUpPreferencesAuthToken() {
+    /* Split course string -> array first */
+    this.setState({ tmpCoursesPref: this.state.tmpCoursesPrefString.split(",") });
+    let fetchURL = baseURL + "user/" + this.state.tmpUserID + "/preferences";
+    console.log("[signUpPreferences] url request: " + fetchURL);
+    fetch(fetchURL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        kindness: 4,
+        patience: 4,
+        hardWorking: 4,
+        courses: this.state.tmpCoursesPref,
+        sex: this.state.tmpSexPref,
+        yearLevel: this.state.tmpYearLevelPref
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson);
+        /* Check if user ID already exists or not */
+        if (responseJson.includes("does not exists")) {
+          Alert.alert("User ID already exists!");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot sign up, please try again");
+        }
+        else {
+          this.props.userIDChange(this.state.tmpUserID);
+          this.props.passwordChange(this.state.tmpPassword);
+          this.signIn();
+        }
+      });
   }
 
   /* Helper functions that check whether or not any fields are NULL/empty */
@@ -627,8 +723,8 @@ export default class Login extends Component {
    * Assumes that user must be created before calling this function 
    */
   initUserInfo() {
-    //console.log("[initUserInfo]")
     let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+    console.log("[initUserInfo]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -638,7 +734,7 @@ export default class Login extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        //console.log("[initUserInfo] " + responseJson)
+        console.log("[initUserInfo] " + responseJson)
         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
           this.props.yearLevelChange(responseJson[0].yearLevel);
           this.props.coursesChange(responseJson[0].courses);
@@ -664,8 +760,8 @@ export default class Login extends Component {
 
   /* Helper function that populates data of user"s preferences on Init Sequence */
   initUserPreferences() {
-    //console.log("[initUserPreferences]")
     let fetchURL = baseURL + "user/" + this.props.userID + "/preferences";
+    console.log("[initUserPreferences]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -675,7 +771,7 @@ export default class Login extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        //console.log("[initUserPreferences] " + responseJson[0].kindness);
+        console.log("[initUserPreferences] " + responseJson[0]);
         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
           this.props.kindnessPrefChange(responseJson[0].kindness);
           this.props.patiencePrefChange(responseJson[0].patience);
@@ -694,7 +790,7 @@ export default class Login extends Component {
   initUserSchedule() {
     //console.log("[initUserSchedule]")
     let fetchURL = baseURL + "schedule/" + this.props.userID;
-    //console.log("[initUserSchedule] fetchURL: " + fetchURL);
+    console.log("[initUserSchedule] fetchURL: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -705,7 +801,7 @@ export default class Login extends Component {
       /* First check if user, especially newly created ones have any schedules to initialize */
       .then((response) => response.text())
       .then((responseJson) => {
-        //console.log(responseJson);
+        console.log("[initUserSchedule]: " + responseJson);
         if (responseJson.includes("doesn't have any")) {
           return;
         }
