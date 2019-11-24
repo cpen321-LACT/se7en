@@ -74,10 +74,7 @@ function insertionSort(array, score){
 
 
 /* A helper function used for sorting algorithm */
-function generateMatch(personPre, array){
-    var kindness = personPre.kindness;
-    var hardWorking = personPre.hardWorking;
-    var patience = personPre.patience;
+function generateMatch(kindness, hardWorking, patience, array){
     // Create one dimensional array
     var score = new Array(array.length);
     var i;
@@ -101,16 +98,17 @@ function generateMatch(personPre, array){
 
     return ret;
 }
-function accept(infor, userId, otherUserId){
-    return ((infor === userId) && (infor !== otherUserId));
+function accept(id1, id2, id){
+    return ((id1 === id2) && (id1 !== id));
 }
 /* A helper function that filters the array by the time, date */
 function timeFilterMatch(inforArray, scheduleArray, userId){
     var filteredMatches = [];
     for(var i = 0; i < inforArray.length; i++){
-        var infor = parseInt(inforArray[parseInt(i, 10)].userId, 10);
+        var inforId = parseInt(inforArray[parseInt(i, 10)].userId, 10);
         for(var j = 0; j < scheduleArray.length; j++){
-            if (accept(infor, parseInt(scheduleArray[parseInt(j, 10)].userId, 10), userId)){
+            var scheduleId =  parseInt(scheduleArray[parseInt(j, 10)].userId, 10);
+            if (accept(inforId, scheduleId, userId)){
                 filteredMatches.push(inforArray[parseInt(i, 10)]);
             }
         }
@@ -435,7 +433,7 @@ app.post("/user/info", async (req,res) => {
             else{id = parseInt(req.body.authenticationToken, 10);}
 
             userDb.collection("infoClt").insertOne(
-                {"yearLevel"           : req.body.yearLevel,
+                {"yearLevel"           : parseInt(req.body.yearLevel, 10),
                 "sex"                  : parseInt(req.body.sex, 10),
                 "courses"              : req.body.courses,
                 "numberOfRatings"      : parseInt(req.body.numberOfRatings, 10),
@@ -559,32 +557,29 @@ app.delete("/user/:userId/info", async (req,res) => {
 app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
     
     /* Read the preference */
-    var query = {"userId": req.params.userId, "eventId": req.params.eventId};
-    scheduleDb.collection("scheduleClt").find(query).toArray((err, personSch) => {
-        if(err){return err;}
-    var thisCourse = personSch.course;
-    var query = {"userId" : req.params.userId};
+    var query = {userId : parseInt(req.params.userId,10)};
     userDb.collection("preferencesClt").find(query).toArray((err,personPre) => {
         if(err){return err;}
-    //var thisKindness = parseFloat(personPre[0].kindness,10);
-    var thisHardWorking = parseFloat(personPre.hardWorking, 10);
-    var thisPatience = parseFloat(personPre.hardWorking, 10);
-    var thisYearLevel = parseInt(personPre.yearLevel, 10);
-    var thisSex = parseInt(personPre.sex, 10);
+    var thisKindness = parseFloat(personPre[0].kindness,10);
+    var thisHardWorking = parseFloat(personPre[0].hardWorking, 10);
+    var thisPatience = parseFloat(personPre[0].patience, 10);
+    var thisYearLevel = parseInt(personPre[0].yearLevel, 10);
+    var thisSex = parseInt(personPre[0].sex, 10);
     
     /*_________________________________________________________
      * Get the info array of standard vars from the userId
      *_________________________________________________________ */
-    var query = {"yearLevel" : thisYearLevel,
-                 "sex" : thisSex};
+    var stdQuery = {"yearLevel" : thisYearLevel,
+                    "sex" : thisSex};
     /* Filter all standard criteria to an array */
-    userDb.collection("infoClt").find(query).toArray((err,inforArray) => {
+    userDb.collection("infoClt").find(stdQuery).toArray((err,inforArray) => {
         if (err) {return err;}
-
+        console.log(inforArray);
         var info = inforArray;
+        console.log(info);
 
-    var timeDateQuery = {"userId" : parseInt(req.param.userId, 10),
-                           "eventId" : parseInt(req.params.eventId, 10)};
+    var timeDateQuery = {userId : parseInt(req.params.userId, 10),
+                           eventId : parseInt(req.params.eventId, 10)};
 
     scheduleDb.collection("scheduleClt").find(timeDateQuery).toArray((err, userScheduleEvent) => {
 
@@ -592,9 +587,9 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
         res.send("There are no users in the database\n");
         return;
       }
-
-    var t = userScheduleEvent.time;
-    var d = userScheduleEvent.date;
+    var t = userScheduleEvent[0].time;
+    var d = userScheduleEvent[0].date;
+    var thisCourse = userScheduleEvent[0].course;
 
     /*_________________________________________________________
      * Get the schedule array of specific time
@@ -616,7 +611,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
      *_________________________________________________________ */
     var stdMatchArray = timeFilterMatch(info, schedule, parseInt(req.params.userId, 10));
 
-    var ret = generateMatch(personPre, stdMatchArray);
+    var ret = generateMatch(thisKindness, thisHardWorking, thisPatience, stdMatchArray);
 
     var query = {"userId" : parseInt(req.params.userId, 10),
                  "eventId" : parseInt(req.params.eventId, 10)};
@@ -630,7 +625,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
         if (err) {return err;}
         /* return the potential matches */
         res.status(200).send(result);
-    }) }) }) }) }) }) })
+    }) }) }) }) }) })
 })
 
 
