@@ -716,7 +716,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
-            if (matches[parseInt(i, 10)]["match"] != null) {
+            if (matches[parseInt(i, 10)]["match"] != -1) {
                 /* Add the match to the list */
                 curMatches.push(
                     {"time" : matches[parseInt(i, 10)]["time"],
@@ -726,6 +726,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
         }
         /* Return JSON object*/
         res.send({"current_matches" : curMatches}).status(200);
+        return 0;
     })
 })
 
@@ -735,8 +736,8 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
  */
 app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
-        if (err) {return err;}
-        res.send(result["wait"]);
+        if (err) {res.status(400).send({message : "Error getting waiting to match with"}); return err;}
+        res.status(200).send(result["wait"]); return 0;
     })
 })
 
@@ -747,15 +748,18 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
  */
 app.delete("/user/:userId/matches/:matchId", async (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
-        if (err) {return err;}
+        if (err) {res.status(400).send({message: "An error has occured."}); return err;}
         if(parseInt(result["wait"], 10) !== parseInt(req.params.matchId, 10)){
             res.status(400).send({message: "Two people are not matched, something is wrong here :<"});
+            return 0;
         }
 
     var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
-    if(err1 || err2) {return (err1 || err2);} 
-    res.send({message: "Successfully unmatch."});
+
+    if(err1 || err2) {res.status(400).send({message: "An error has occured."}); return (err1 || err2);} 
+        res.send.status(200).send({message: "Successfully unmatch."});
+        return 0;
     })
 })
 
