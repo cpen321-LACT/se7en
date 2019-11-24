@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(25,110,227,0.7)",
     height: 44 + statusBarHeight,
     alignSelf: "stretch",
-    
+
     justifyContent: "center",
     alignItems: "center",
   },
@@ -69,6 +69,10 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: "white",
+  },
+  safeContainer2: {
+    flex: 1,
+    backgroundColor: "rgba(211,211,211,1)",
   },
 });
 
@@ -127,7 +131,8 @@ export default class Calendar extends React.Component {
       }
     }
 
-    let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
+    let fetchURL = baseURL + "schedule/" + this.props.userID;
+     console.log("[addSchedule] fetchURL: " + fetchURL);
 
     /* Start time */
     var eventStart = new Date();
@@ -162,7 +167,7 @@ export default class Calendar extends React.Component {
     };
 
     /* Add it to the local scheduleArray for rendering */
-    this.props.scheduleArrayAdd(tmp);
+
 
     /* Post the schedle obj to the database */
     fetch(fetchURL, {
@@ -186,9 +191,21 @@ export default class Calendar extends React.Component {
         location: this.state.tmpLocation,
       }),
     })
-      .then(() => {
-        Alert.alert("Added schedule successfully!");
-        this.setState({ userEdit: false });
+    .then((response) => response.text())
+   .then((responseJson) => {
+     console.log(responseJson)
+     if (responseJson.includes("doesn't exist")) {
+       Alert.alert("Cannot upload schedule, please try again");
+     }
+     else if (responseJson.includes("Cannot POST")) {
+       Alert.alert("Cannot upload schedule, please try again");
+     }
+     else {
+       /* Add it to the local scheduleArray for rendering */
+       this.props.scheduleArrayAdd(tmp);
+       Alert.alert("Added schedule successfully!");
+       this.unrenderUserform();
+     }
       });
   }
 
@@ -317,7 +334,7 @@ export default class Calendar extends React.Component {
                 refreshControl={
                   <RefreshControl
                     refreshing={this.state.calendarRefreshing}
-                    
+
                   />
                 }>
                 <View style={styles.containerCalendar}>
@@ -366,13 +383,13 @@ export default class Calendar extends React.Component {
           }
           <ActionButton buttonColor="crimson">
             <ActionButton.Item
-              buttonColor="palegreen"
+              buttonColor="#9999FF"
               title="New Schedule"
               onPress={() => this.renderUserform()}>
               <Icon name="md-create" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
-              buttonColor="lemonchiffon"
+              buttonColor="#99004C"
               title="Get Matches"
               onPress={() => this.getMatches()}>
               <Icon
@@ -385,14 +402,14 @@ export default class Calendar extends React.Component {
       );
     } else {
       return (
-        <SafeAreaView style={styles.safeContainer}>
-          
+        <SafeAreaView style={styles.safeContainer2}>
+
           <ScrollView
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
-	<Text style={{margin: 4, color: '#1962dd', textAlign: 'center'}}>
+	<Text style={{margin: 4, color: "black", textAlign: 'center'}}>
   		Date:{this.state.tmpDate}</Text>
             <Picker
             style={{ flex: 1 }}
@@ -403,7 +420,7 @@ export default class Calendar extends React.Component {
             pickerData={[1, 2, 3, 4, 5, 6, 7]}
             onValueChange={value => this.setState({ tmpDate:value })}
             />
-	<Text style={{margin: 4, color: '#1962dd', textAlign: 'center'}}>
+	<Text style={{margin: 4, color: "black", textAlign: 'center'}}>
   		Start time:{this.state.tmpStartTime.getHours()}:{this.state.tmpStartTime.getMinutes()}</Text>
           <DatePicker
                 date={this.state.tmpStartTime}
@@ -413,7 +430,7 @@ export default class Calendar extends React.Component {
 		style={{width: '100%', height: 100}}
                 onDateChange={time => this.setState({ tmpStartTime:time })}
               />
-	    <Text style={{margin: 4, color: '#1962dd', textAlign: 'center'}}>
+	    <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
   		End time:{this.state.tmpEndTime.getHours()}:{this.state.tmpEndTime.getMinutes()}</Text>
 
               <DatePicker
@@ -424,13 +441,14 @@ export default class Calendar extends React.Component {
 	      style={{width: '100%', height: 100}}
               onDateChange={time => this.setState({ tmpEndTime: time })}
             />
- 
+
 
 
               <TextField
                 label="Subject: "
                 value={""}
-                title="This is a required field"
+		textColor="black"
+		baseColor="black"
                 clearTextOnFocus={true}
                 characterRestriction={10}
                 onChangeText={(data) => this.setState({ tmpSubject: data })}
@@ -439,6 +457,8 @@ export default class Calendar extends React.Component {
               <TextField
                 label="Location: "
                 value={""}
+		textColor="black"
+		baseColor="black"
                 clearTextOnFocus={true}
                 characterRestriction={20}
                 onChangeText={(data) => this.setState({ tmpLocation: data })}
@@ -448,15 +468,15 @@ export default class Calendar extends React.Component {
             <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TextButton
                 style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
+                titleColor="white"
+                color="black"
                 title="go back"
                 onPress={() => this.unrenderUserform()}
               />
               <TextButton
                 style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
+                titleColor="white"
+                color="black"
                 title="add"
                 onPress={() => this.addSchedule()}
               />
