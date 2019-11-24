@@ -702,11 +702,11 @@ app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
 
             updateRequestWait(userAMatchDoc, userBMatchDoc);
 
-            /* Update user_a's matches */
+            /* Update userA's matches */
             userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
                 if (err) { res.status(400).send({message : "User A Error"}); return err;}
 
-                    /* Update user_b's matches */
+                    /* Update userB's matches */
                 userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
                     if (err) { res.status(400).send({message : "User B Error"}); return err;}
 
