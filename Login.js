@@ -106,9 +106,7 @@ export default class Login extends Component {
     if (!this.state.signUp) {
       return (
         <SafeAreaView testID="loginView" style={styles.safeContainer}>
-          <View style={styles.navBar}>
-            <Text style={styles.navBarTitle}>SE7EN</Text>
-          </View>
+          
           <ScrollView
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}

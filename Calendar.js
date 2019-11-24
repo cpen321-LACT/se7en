@@ -17,7 +17,7 @@ import ActionButton from "react-native-action-button";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
-//import { Picker, DatePicker } from 'react-native-wheelDatePicker-datepicker';
+import { Picker, DatePicker } from 'react-native-wheel-datepicker';
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -32,13 +32,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
   },
   headerCalendar: {
-    backgroundColor: "#4286f4",
+    backgroundColor: "rgba(25,110,227,0.5)",
   },
   navBar: {
-    backgroundColor: "#4286f4",
+    backgroundColor: "rgba(25,110,227,0.7)",
     height: 44 + statusBarHeight,
     alignSelf: "stretch",
-    paddingTop: statusBarHeight,
+    
     justifyContent: "center",
     alignItems: "center",
   },
@@ -106,7 +106,6 @@ export default class Calendar extends React.Component {
       tmpId: this.props.eventID,
       tmpColor: "rgba(66,134,244,1)",
       tmpDate: "",
-      dateList: ['Today', 'Tommorow', '3', '4', '5', '6', '7'],
       tmpStartTime: new Date(),
       tmpEndTime: new Date(),
       tmpSubject: "",
@@ -318,13 +317,13 @@ export default class Calendar extends React.Component {
                 refreshControl={
                   <RefreshControl
                     refreshing={this.state.calendarRefreshing}
-                    onRefresh={this._onRefresh}
+                    
                   />
                 }>
                 <View style={styles.containerCalendar}>
                   <StatusBar
                     barStyle="light-content"
-                    backgroundColor="#4286f4"
+                    backgroundColor="rgba(25,110,227,1)"
                   />
                   <View style={styles.navBar}>
                     <Text style={styles.navBarTitle}>Calendar</Text>
@@ -387,31 +386,46 @@ export default class Calendar extends React.Component {
     } else {
       return (
         <SafeAreaView style={styles.safeContainer}>
-          <View style={styles.navBar}>
-            <Text style={styles.navBarTitle}>Add to Calendar</Text>
-          </View>
+          
           <ScrollView
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
-     /*       <DatePicker
+	<Text style={{margin: 4, color: '#1962dd', textAlign: 'center'}}>
+  		Date:{this.state.tmpDate}</Text>
+            <Picker
+            style={{ flex: 1 }}
+            selectedValue={this.state.tmpDate}
+	    textSize={16}
+	    backgroundColor="white"
+	    style={{width: '100%', height: 100}}
+            pickerData={[1, 2, 3, 4, 5, 6, 7]}
+            onValueChange={value => this.setState({ tmpDate:value })}
+            />
+	<Text style={{margin: 4, color: '#1962dd', textAlign: 'center'}}>
+  		Start time:{this.state.tmpStartTime.getHours()}:{this.state.tmpStartTime.getMinutes()}</Text>
+          <DatePicker
                 date={this.state.tmpStartTime}
                 mode="time"
-                onDateChange={time => this.setState({ time })}
+	        backgroundColor="white"
+		textSize={16}
+		style={{width: '100%', height: 100}}
+                onDateChange={time => this.setState({ tmpStartTime:time })}
               />
+	    <Text style={{margin: 4, color: '#1962dd', textAlign: 'center'}}>
+  		End time:{this.state.tmpEndTime.getHours()}:{this.state.tmpEndTime.getMinutes()}</Text>
+
               <DatePicker
               date={this.state.tmpEndTime}
               mode="time"
-              onDateChange={time => this.setState({ time })}
+	      backgroundColor="white"
+	      textSize={16}
+	      style={{width: '100%', height: 100}}
+              onDateChange={time => this.setState({ tmpEndTime: time })}
             />
-            <Picker
-            style={{ flex: 1 }}
-            selectedValue={1}
-            pickerData={[1, 2, 3, 4, 5, 6]}
-            onValueChange={value => this.setState({ value })}
-            />
-*/
+ 
+
 
               <TextField
                 label="Subject: "

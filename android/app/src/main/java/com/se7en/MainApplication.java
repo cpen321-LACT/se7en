@@ -2,7 +2,8 @@ package com.se7en;
 
 import android.app.Application;
 import android.content.Context;
-
+import com.zyu.ReactNativeWheelPickerPackage;
+import com.facebook.react.ReactApplication;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
@@ -37,7 +38,8 @@ public class MainApplication extends Application implements ReactApplication {
 	  return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
 	  new ReactNativePushNotificationPackage(),
-          new FBSDKPackage()
+          new FBSDKPackage(),
+	  new ReactNativeWheelPickerPackage()
           );
         }
 
