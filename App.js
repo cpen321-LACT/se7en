@@ -80,27 +80,27 @@ export default class App extends Component {
       eventID: 0,
 
       currentMatches: [{
-        name: 'Pog',
+        name: 'Current Match A',
         avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: 'Some dude'
-      },],
+        subtitle: "User ID: " + 111 + " in event ID: " + 123,
+      }],
 
       incomingMatches: [{
-        name: 'Pog',
+        name: 'Incoming Match A',
         avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: 'Some dude'
+        subtitle: "User ID: " + 222 + " in event ID: " + 234,
       },],
 
       potentialMatches: [{
-        name: 'Pog',
+        name: 'Potential Match A',
         avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: 'Some dude'
+        subtitle: "User ID: " + 333 + " in event ID: " + 345,
       },],
 
       waitingMatches: [{
-        name: 'Pog',
+        name: 'Waiting Match A',
         avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: 'Some dude'
+        subtitle: "User ID: " + 444 + " in event ID: " + 456,
       },],
 
       /* Transition states */
@@ -207,6 +207,27 @@ export default class App extends Component {
     this.setState({ eventID: data });
   }
 
+  deleteCurrentMatchesElement(idx, length) {
+    tmp = this.state.currentMatches;
+    tmp.splice(idx, length);
+    this.setState({ currentMatches: [] });
+    this.setState({ currentMatches: tmp });
+  }
+
+  deleteIncomingMatchesElement(idx, length) {
+    tmp = this.state.incomingMatches;
+    tmp.splice(idx, length);
+    this.setState({ incomingMatches: [] });
+    this.setState({ incomingMatches: tmp });
+  }
+
+  deletePotentialMatchesElement(idx, length) {
+    tmp = this.state.potentialMatches;
+    tmp.splice(idx, length);
+    this.setState({ potentialMatches: [] });
+    this.setState({ potentialMatches: tmp });
+  }
+
   clearCurrentMatches() {
     this.setState({ currentMatches: [] });
   }
@@ -297,13 +318,19 @@ export default class App extends Component {
               currentMatches={this.state.currentMatches}
               incomingMatches={this.state.incomingMatches}
               potentialMatches={this.state.potentialMatches}
+              waitingMatches={this.state.waitingMatches}
               /* Functions */
+              deleteCurrentMatchesElement={this.deleteCurrentMatchesElement.bind(this)}
+              deleteIncomingMatchesElement={this.deleteIncomingMatchesElement.bind(this)}
+              deletePotentialMatchesElement={this.deletePotentialMatchesElement.bind(this)}
               currentMatchesClear={this.clearCurrentMatches.bind(this)}
               incomingMatchesClear={this.clearIncomingMatches.bind(this)}
               potentialMatchesClear={this.clearPotentialMatches.bind(this)}
+              waitingMatchesClear={this.clearPotentialMatches.bind(this)}
               currentMatchesAdd={this.addCurrentMatches.bind(this)}
               incomingMatchesAdd={this.addIncomingMatches.bind(this)}
               potentialMatchesAdd={this.addPotentialMatches.bind(this)}
+              waitingMatchesAdd={this.addWaitingMatches.bind(this)}
             />
           </TabNavigator.Item>
 

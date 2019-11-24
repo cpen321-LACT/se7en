@@ -762,54 +762,54 @@ export default class Login extends Component {
 
   /* Helper function that populates data of user's matches on Init Sequence */
   initUserMatches() {
-    var i;
-    for (i = 0; i < this.state.tmpScheduleArray.length; i++) {
-      let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.state.tmpScheduleArray[i].id;
-      //console.log("[initUserMatches] fetchURL: " + fetchURL);
-      fetch(fetchURL, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-        /* First check if user, especially newly created ones have any schedules to initialize */
-        .then((response) => response.text())
-        .then((responseJson) => {
-          //console.log("[initUserMatches] responseJson: " + responseJson);
-          if (responseJson.includes("doesn't have any")) {
-            return;
-          }
-          else {
-            /* Otw, we do the actual fetch */
-            fetch(fetchURL, {
-              method: "GET",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-            })
-              .then((response) => response.json())
-              .then((responseJson) => {
-                if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-                  this.props.currentMatchesClear();
-                  /* Traverse through each  */
-                  // if (responseJson[0].match === -1) {
-                  //   console.log("No current match for event");
-                  // }
-                  // else {
-                  var tmpMatch = {
-                    name: "User " + "A",
-                    avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                    subtitle: "User ID: " + 10101 + " in event ID: " + 99999,
-                  };
-                  this.props.currentMatchesAdd(tmpMatch);
-                  // }
-                }
-              });
-          }
-        });
-    }
+    // var i;
+    // for (i = 0; i < this.state.tmpScheduleArray.length; i++) {
+    //   let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.state.tmpScheduleArray[i].id;
+    //   //console.log("[initUserMatches] fetchURL: " + fetchURL);
+    //   fetch(fetchURL, {
+    //     method: "GET",
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //     },
+    //   })
+    //     /* First check if user, especially newly created ones have any schedules to initialize */
+    //     .then((response) => response.text())
+    //     .then((responseJson) => {
+    //       //console.log("[initUserMatches] responseJson: " + responseJson);
+    //       if (responseJson.includes("doesn't have any")) {
+    //         return;
+    //       }
+    //       else {
+    //         /* Otw, we do the actual fetch */
+    //         fetch(fetchURL, {
+    //           method: "GET",
+    //           headers: {
+    //             Accept: "application/json",
+    //             "Content-Type": "application/json",
+    //           },
+    //         })
+    //           .then((response) => response.json())
+    //           .then((responseJson) => {
+    //             if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+    //               this.props.currentMatchesClear();
+    //               /* Traverse through each  */
+    //               if (responseJson[0].match === -1) {
+    //                 console.log("No current match for event");
+    //               }
+    //               else {
+    //                 var tmpMatch = {
+    //                   name: "User " + "A",
+    //                   avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+    //                   subtitle: "User ID: " + 10101 + " in event ID: " + 99999,
+    //                 };
+    //                 this.props.currentMatchesAdd(tmpMatch);
+    //               }
+    //             }
+    //           });
+    //       }
+    //     });
+    // }
   }
 
   /* Init Sequence after successully signing in */
