@@ -1,0 +1,44 @@
+PREFERENCE
+app.post("/user/:userId/preferences")
+app.get("/user/:userId/preferences")
+app.put("/user/:userId/preferences")
+
+Info
+app.get("/user/:userId/info"
+app.get("/user/:authenticationToken/authentication/info"
+app.post("/user/info"
+app.put("/user/:userId/info"
+app.delete("/user/:userId/info"
+
+MATCH
+app.get("/user/:userId/matches/potentialMatches/:eventId"
+
+
+app.post("/user/:userIdA/matches/:userIdB"
+(body: {eventIdA: "1", 
+        eventIdB: "2"})
+
+
+app.get("/user/:userId/matches/currentlyMatchedWith"
+app.get("/user/:userId/matches/userIsWaitingToMatchWith"
+app.delete("/user/:userId/matches/:matchId"
+
+SCHEDULE
+app.get("/schedule/:userId/:eventId"
+app.get("/schedule/:userId
+app.post("/schedule/:userId
+app.put("/schedule/:userId/:eventId
+app.delete("/schedule/:userId/all/:numEvents
+app.delete("/schedule/:userId/:eventId
+
+
+
+Delete or get all
+app.get("/get_all_users")
+app.get("/get_all_schedules")
+app.get("/get_all_matches")
+app.get("/get_all_preferences")
+app.delete("/delete_all_users")
+app.delete("/delete_all_schedules")
+app.delete("/delete_all_matches")
+app.delete("/delete_all_preferences")

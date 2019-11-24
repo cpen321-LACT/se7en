@@ -116,56 +116,56 @@ function timeFilterMatch(inforArray, scheduleArray, userId){
     return filteredMatches;
 }
 /* Delete the all the requests that the given userId sent */
-// function allRequestDelete(userId, wait, t, d){
-//     for(var i = 0; i < wait.length; i++){
-//         var requestedId = wait[parseInt(i, 10)];
-//         var query = {"userId" : parseInt(requestedId, 10),
-//                      "time" : t,
-//                      "date" : d};
-//         userDb.collection("match_clt").find(query).toArray((err,result) => {
-//             if (err) {return err;}
-//             result = JSON.stringify(result);
-//             var request = result.request;
-//             /* Find the id and delete it */
-//             for(var j = 0; j < request.length; j++){
-//                 if(parseInt(request[parseInt(j, 10)], 10) === parseInt(userId, 10)){
-//                     request.splice(j,1);
-//                     break;
-//                 }
-//             }
-//             userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
-//                 if (err) {
-//                     return err; 
-//                 }
-//             })
-//         })
-//     }
-// }
-// function allWaitDelete(userId, request, t, d){
-//     for(var i = 0; i < request.length; i++){
-//         var waitedId = request[parseInt(i, 10)];
-//         var query = {"userId" : parseInt(waitedId, 10),
-//                      "time" : t,
-//                      "date" : d};
-//         userDb.collection("match_clt").find(query).toArray((err,result) => {
-//             if (err) {return err;}
-//             result = JSON.stringify(result);
-//             var wait = result.wait;
-//             /* Find the id and delete it */
-//             for(var j = 0; j < wait.length; j++){
-//                 if(parseInt(wait[parseInt(j, 10)], 10) === parseInt(userId, 10)){
-//                     wait.splice(j,1);
-//                     break;
-//                 }
-//             }
-//             userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
-//                 if (err) {
-//                     return err;
-//                 } 
-//             })
-//         })
-//     }
-// }
+function allRequestDelete(userId, wait, t, d){
+    for(var i = 0; i < wait.length; i++){
+        var requestedId = wait[parseInt(i, 10)];
+        var query = {"userId" : parseInt(requestedId, 10),
+                     "time" : t,
+                     "date" : d};
+        userDb.collection("match_clt").find(query).toArray((err,result) => {
+            if (err) {return err;}
+            result = JSON.stringify(result);
+            var request = result.request;
+            /* Find the id and delete it */
+            for(var j = 0; j < request.length; j++){
+                if(parseInt(request[parseInt(j, 10)], 10) === parseInt(userId, 10)){
+                    request.splice(j,1);
+                    break;
+                }
+            }
+            userDb.collection("matchs_clt").updateOne(query, request,(err, result) => {
+                if (err) {
+                    return err; 
+                }
+            })
+        })
+    }
+}
+function allWaitDelete(userId, request, t, d){
+    for(var i = 0; i < request.length; i++){
+        var waitedId = request[parseInt(i, 10)];
+        var query = {"userId" : parseInt(waitedId, 10),
+                     "time" : t,
+                     "date" : d};
+        userDb.collection("match_clt").find(query).toArray((err,result) => {
+            if (err) {return err;}
+            result = JSON.stringify(result);
+            var wait = result.wait;
+            /* Find the id and delete it */
+            for(var j = 0; j < wait.length; j++){
+                if(parseInt(wait[parseInt(j, 10)], 10) === parseInt(userId, 10)){
+                    wait.splice(j,1);
+                    break;
+                }
+            }
+            userDb.collection("matchesClt").updateOne(query, wait,(err, result) => {
+                if (err) {
+                    return err;
+                } 
+            })
+        })
+    }
+}
 /* Delete the matching of 2 people */
 function personMatchDelete(userId, t, d){
     var query = {"userId" : parseInt(userId, 10),
@@ -635,7 +635,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
  * Update currentlyMatchedWith array for user_a and user_b
  *
  * Sample JSON input:
- * { "eventId_a : 0, "eventId_b" : 2}
+ * { "userIdA : 0, "userIdB" : 2}
  * Adam: to test
  */
 function updateRequestWait(userAMatchDoc, userBMatchDoc){
@@ -649,7 +649,8 @@ function updateRequestWait(userAMatchDoc, userBMatchDoc){
         userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
 
         userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
-        userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
+        //Adam: I don't think we need the next line since "request" never have userIdB before
+        //userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
 
     }
     else {
@@ -664,8 +665,8 @@ function updateRequestWait(userAMatchDoc, userBMatchDoc){
 }
 /* Need eventId in body */
 app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
-    var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventId_a, 10)};
-    var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(req.body.eventId_b, 10)};
+    var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventIdA, 10)};
+    var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(req.body.eventIdB, 10)};
 
     if (parseInt(req.params.userIdA, 10) === parseInt(req.params.userIdB, 10)){
         res.status(400).send({message : "Cannot match the user with themselves."});
@@ -898,7 +899,7 @@ app.get("/schedule/:userId", async (req,res) => {
 /*
  * Add an event the schedule of the user with with userId.\
  */
-app.post("/schedule/:userId/", async (req,res) => {
+app.post("/schedule/:userId", async (req,res) => {
 
     if (doesntExist(req.body)){
         res.status(400).send({message: "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
