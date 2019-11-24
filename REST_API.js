@@ -436,7 +436,7 @@ app.post("/user/info", async (req,res) => {
                 {"yearLevel"           : parseInt(req.body.yearLevel, 10),
                 "sex"                  : parseInt(req.body.sex, 10),
                 "courses"              : req.body.courses,
-                "numberOfRatings"      : parseInt(req.body.numberOfRatings, 10),
+                "numberOfRatings"      : 0,
                 "kindness"             : parseFloat(req.body.kindness),
                 "patience"             : parseFloat(req.body.patience),
                 "hardWorking"         : parseFloat(req.body.hardWorking),
