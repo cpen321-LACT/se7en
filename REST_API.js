@@ -504,7 +504,7 @@ app.put("/user/:userId/info", async (req,res) => {
             return;
         }
         userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
-        if (!doesntExist(userInfo)){
+        if (doesntExist(userInfo)){
             res.status(400).send({message : "The user with this userId doesn't exists in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
