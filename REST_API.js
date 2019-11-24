@@ -585,7 +585,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
 
     scheduleDb.collection("scheduleClt").find(timeDateQuery).toArray((err, userScheduleEvent) => {
 
-      if (doesntExist(userScheduleEvent[0])){
+      if (doesntExist(userScheduleEvent)){
         res.send("There are no users in the database\n");
         return;
       }
