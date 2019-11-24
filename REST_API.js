@@ -623,11 +623,31 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
             res.status(400).send("(┛ಠ_ಠ)┛彡┻━┻\n");
             return;}
     /* Return the potential match array */
-    userDb.collection("matchesClt").find(query).toArray((err,result) => {
+    userDb.collection("matchesClt").find(query).toArray((err,Matches) => {
         if (err) {return err;}
         /* return the potential matches */
-        res.status(200).send(result);
-    }) }) }) }) }) })
+        // var retMatches = Matches;
+        // var ret = addNametoMatch(retMatches)
+        var ret = [];
+        userDb.collection("infoClt").find({userId : parseInt(Matches[0].match, 10)}).toArray((err, matchUser) => {
+            if(parseInt(Matches[0].match,10) !== -1){
+                    ret.push(      {"name" : matchUser[0].name,
+                                    "match" : Matches[0].match,
+                                    "wait" : Matches[0].wait,
+                                    "potentialMatches" : Matches[0]["potentialMatches"],
+                                    "request" : Matches[0]["request"],
+                                    "eventId" : Matches[0]["eventId"] });
+            }
+            else{
+                ret.push(      {"name" : null,
+                                "match" : Matches[0].match,
+                                "wait" : Matches[0].wait,
+                                "potentialMatches" : Matches[0]["potentialMatches"],
+                                "request" : Matches[0]["request"],
+                                "eventId" : Matches[0]["eventId"] });
+            }
+        res.status(200).send(ret);
+    }) }) }) }) }) }) })
 })
 
 
@@ -640,31 +660,6 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
  * { "userIdA : 0, "userIdB" : 2}
  * Adam: to test
  */
-// function updateRequestWait(userAMatchDoc, userBMatchDoc){
-
-//     /* If user_b has already requested to match with user_a and is waiting */
-//     if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
-
-//         /* user_b is user_a's match */
-//         userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
-//         /* user_a to user_b's match */
-//         userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
-
-//         userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
-//         //Adam: I don't think we need the next line since "request" never have userIdB before
-//         //userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
-
-//     }
-//     else {
-//         /* user_a has requested to match with user_b*/
-//         userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
-
-//         /* user_a is waiting to match with user_b */
-//         userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
-
-//     }
-//     return;
-// }
 /* Need eventId in body */
 app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
     var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventIdA, 10)};
@@ -755,7 +750,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
     /* Find all the match documents for a specified user */
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
         if (err) {return err;}
-        if (doesntExist(matches)){
+        if (parseInt(matches[0].match, 10) === -1){
             res.status(400).send({message:"The user with userId doesnt have any matches"});
             return
         }
@@ -791,10 +786,10 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
  * This will call helper function personMatchDelete()
  * Tung: Can you test this
  */
-app.delete("/user/:userId/matches/:matchId", async (req,res) => {
-    userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
+app.delete("/user/:userId/matches/:matchId/:eventId", async (req,res) => {
+    userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10), eventId: parseInt(req.params.eventId, 10)}).toArray((err, result) => {
         if (err) {return err;}
-        if(parseInt(result["wait"], 10) !== parseInt(req.params.matchId, 10)){
+        if(parseInt(result[0]["wait"], 10) !== parseInt(req.params.matchId, 10)){
             res.status(400).send({message: "Two people are not matched, something is wrong here :<"});
         }
 
