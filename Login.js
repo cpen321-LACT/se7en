@@ -16,7 +16,7 @@ import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import BackgroundTimer from "react-native-background-timer";
-import { LoginButton, AccessToken } from "react-native-fbsdk";
+import { LoginManager, LoginButton, AccessToken } from "react-native-fbsdk";
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -105,7 +105,7 @@ export default class Login extends Component {
   render() {
     if (!this.state.signUp) {
       return (
-        <SafeAreaView style={styles.safeContainer}>
+        <SafeAreaView testID="loginView" style={styles.safeContainer}>
           <View style={styles.navBar}>
             <Text style={styles.navBarTitle}>SE7EN</Text>
           </View>
@@ -115,6 +115,7 @@ export default class Login extends Component {
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
               <TextField
+                testID="userIDInput"
                 label="User ID: "
                 title="Please enter User ID as an integer!"
                 characterRestriction={10}
@@ -124,6 +125,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="passwordInput"
                 label="Password: "
                 clearTextOnFocus={true}
                 secureTextEntry={this.state.loginSecureTextEntry}
@@ -139,6 +141,7 @@ export default class Login extends Component {
               justifyContent: "center",
             }}>
               <TextButton
+                testID="signInButton"
                 style={{
                   margin: 4,
                 }}
@@ -148,6 +151,7 @@ export default class Login extends Component {
                 onPress={() => this.signIn()}
               />
               <TextButton
+                testID="signUpButton"
                 style={{
                   margin: 4,
                 }}
@@ -156,47 +160,34 @@ export default class Login extends Component {
                 title="Sign Up"
                 onPress={() => this.renderSignUpForm()}
               />
-              <LoginButton
-                scope={'public_profile email'}
+              <TextButton
+                testID="signInFB"
                 style={{
-                  padding: 15,
-                  margin: 4
+                  margin: 4,
                 }}
-                onLoginFinished={
-                  (error, result) => {
-                    if (error) {
-                      console.log("login has error: " + result.error);
-                      Alert.alert("Facebook login ran into an error\nPlease try again later.");
-                    } else if (result.isCancelled) {
-                      console.log("login is cancelled.");
-                      Alert.alert("Facebook login got cancelled.")
-                    } else {
-                      AccessToken.getCurrentAccessToken().then(
-                        (data) => {
-                          console.log(data.accessToken.toString())
-                          /* TODO: handle login with authentication token */
-                        }
-                      )
-                    }
-                  }
-                }
-                onLogoutFinished={() => console.log("logout.")} />
+                titleColor="white"
+                color="#4286f4"
+                title="Sign In FB"
+                onPress={() => this.signFacebook()}
+              />
             </View>
           </ScrollView>
         </SafeAreaView>
       );
     } else {
       return (
-        <SafeAreaView style={styles.safeContainer}>
+        <SafeAreaView testID="signUpView" style={styles.safeContainer}>
           <View style={styles.navBar}>
             <Text style={styles.navBarTitle}>Sign up</Text>
           </View>
           <ScrollView
+            testID="signUpScrollView"
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
               <TextField
+                testID="signUpYearLevelInput"
                 label="Year level: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
@@ -205,6 +196,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpCoursesInput"
                 label="Courses: "
                 clearTextOnFocus={true}
                 title="Please input in form: 'Course A,Course B,Course C'"
@@ -212,6 +204,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpSexInput"
                 label="Sex: "
                 clearTextOnFocus={true}
                 characterRestriction={1}
@@ -221,6 +214,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpKindnessPrefInput"
                 label="Kindness preference: "
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -228,6 +222,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpPatiencePrefInput"
                 label="Patience preference: "
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -235,6 +230,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpHardworkingPrefInput"
                 label="Hardworking preference: "
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -242,6 +238,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpUserIDInput"
                 label="User ID: "
                 characterRestriction={10}
                 clearTextOnFocus={true}
@@ -250,6 +247,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpPasswordInput"
                 label="Password: "
                 clearTextOnFocus={true}
                 characterRestriction={20}
@@ -259,6 +257,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpEmailInput"
                 label="Email: "
                 clearTextOnFocus={true}
                 characterRestriction={50}
@@ -266,6 +265,7 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpNameInput"
                 label="Name: "
                 clearTextOnFocus={true}
                 characterRestriction={30}
@@ -280,6 +280,7 @@ export default class Login extends Component {
               justifyContent: "center",
             }}>
               <TextButton
+                testID="sendSignUpRequestButton"
                 style={{ margin: 4 }}
                 titleColor="white"
                 color="#4286f4"
@@ -287,6 +288,7 @@ export default class Login extends Component {
                 onPress={() => this.signUp()}
               />
               <TextButton
+                testID="signUpGoBackButton"
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
@@ -354,6 +356,50 @@ export default class Login extends Component {
         }
       });
   }
+
+    signFacebook(){
+        LoginManager.logInWithPermissions(['public_profile']).then(
+        function (result) {
+          if (result.isCancelled) {
+            console.log('Login cancelled')
+          } else {
+          //  AccessToken.getCurrentAccessToken().then((data) => {
+          //  const { accessToken } = data;
+
+          //  fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + accessToken)
+          //  .then((response) => response.json())
+        //    .then((json) => {
+
+        //      this.props.nameChange( json.name);
+              this.props.userIDChange( "7783204195");
+
+              this.props.yearLevelChange("1");
+              this.props.coursesChange("CPEN321");
+              this.props.sexChange("1");
+              this.props.numberOfRatingsChange(
+                "0"
+              );
+              this.props.kindnessPrefChange("4");
+              this.props.patiencePrefChange("4");
+              this.props.hardWorkingPrefChange("4");
+
+              this.props.passwordChange("12345678");
+              this.props.emailChange("regurgamz@gmail.com");
+              this.props.nameChange("hi");
+            //  this.signUp();
+            this.initSequence();
+            this.props.logVisibleChange();
+
+
+            }
+        /*    .catch(() => {
+              reject('ERROR GETTING DATA FROM FACEBOOK')
+            });
+          })*/
+
+      }.bind(this))
+    }
+
 
   /* Helper function that executes the Sign Up sequence */
   signUp() {
@@ -442,7 +488,7 @@ export default class Login extends Component {
   /* -------------------------------------------------------------------------- */
 
   /* Helper function that populates data of user"s info on Init Sequence
-   * Assumes that user must be created before calling this function 
+   * Assumes that user must be created before calling this function
    */
   initUserInfo() {
     let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
@@ -539,7 +585,7 @@ export default class Login extends Component {
   /* Init Sequence after successully signing in */
   async initSequence() {
     this.initUserSchedule();
-    this.initUserInfo();
+  //  this.initUserInfo();
     /* Start a timer for checking potential matches notify user using Push Notification */
     BackgroundTimer.runBackgroundTimer(() => {
       let url =

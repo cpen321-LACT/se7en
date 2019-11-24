@@ -17,6 +17,7 @@ import ActionButton from "react-native-action-button";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
+//import { Picker, DatePicker } from 'react-native-wheelDatePicker-datepicker';
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -105,9 +106,8 @@ export default class Calendar extends React.Component {
       tmpId: this.props.eventID,
       tmpColor: "rgba(66,134,244,1)",
       tmpDate: "",
-      tmpStartTimeString: "",
+      dateList: ['Today', 'Tommorow', '3', '4', '5', '6', '7'],
       tmpStartTime: new Date(),
-      tmpEndTimeString: "",
       tmpEndTime: new Date(),
       tmpSubject: "",
       tmpLocation: "",
@@ -120,7 +120,7 @@ export default class Calendar extends React.Component {
   /* Add a schedule object to the backend */
   addSchedule() {
     /* First check for errors (NULL/empty) */
-    var toCheck = [this.state.tmpDate, this.state.tmpStartTimeString, this.state.tmpEndTimeString, this.state.tmpSubject, this.state.tmpLocation];
+    var toCheck = [this.state.tmpDate, this.state.tmpStartTime, this.state.tmpEndTime, this.state.tmpSubject, this.state.tmpLocation];
     for (var i = 0; i < toCheck.length; i++) {
       if (this.checkNULL(toCheck[i]) || this.checkEmpty(toCheck[i])) {
         Alert.alert("One of the fields must not be NULL or empty");
@@ -133,14 +133,14 @@ export default class Calendar extends React.Component {
     /* Start time */
     var eventStart = new Date();
     eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
-    var tempTime = this.state.tmpStartTimeString.split(" ");
-    eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
+    eventStart.setUTCHours(tmpStartTime.getUTCHours(), tmpStartTime.getUTCMinutes());
+
+
 
     /* End time */
     var eventEnd = new Date();
     eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
-    var tempTime2 = this.state.tmpEndTimeString.split(" ");
-    eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
+    eventEnd.setUTCHours(tmpEndTime.getUTCHours(), tmpEndTime.getUTCMinutes());
 
     /* Setting the temporary states */
     this.setState({ tmpStartTime: eventStart });
@@ -175,7 +175,7 @@ export default class Calendar extends React.Component {
       body: JSON.stringify({
         userId: this.props.userID,
         eventId: this.state.tmpId,
-        time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
+        time: this.state.tmpStartTime.getUTCHours()+" "+ this.state.tmpStartTime.getUTCMinutes()+ "-" +this.state.tmpEndTime.getUTCHours()+" "+ this.state.tmpEndTime.getUTCMinutes(),
         date:
           this.state.tmpStartTime.getUTCMonth() +
           1 +
@@ -395,36 +395,24 @@ export default class Calendar extends React.Component {
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
-              <TextField
-                label="Date: "
-                value={""}
-                title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
-                characterRestriction={1}
-                keyboardType='number-pad'
-                clearTextOnFocus={true}
-                onChangeText={(data) => this.setState({ tmpDate: data })}
+     /*       <DatePicker
+                date={this.state.tmpStartTime}
+                mode="time"
+                onDateChange={time => this.setState({ time })}
               />
-              <TextField
-                label="Start Time: "
-                value={""}
-                title="Enter in form 'hh mm'"
-                keyboardType='number-pad'
-                characterRestriction={5}
-                clearTextOnFocus={true}
-                onChangeText={(data) =>
-                  this.setState({ tmpStartTimeString: data })
-                }
-              />
+              <DatePicker
+              date={this.state.tmpEndTime}
+              mode="time"
+              onDateChange={time => this.setState({ time })}
+            />
+            <Picker
+            style={{ flex: 1 }}
+            selectedValue={1}
+            pickerData={[1, 2, 3, 4, 5, 6]}
+            onValueChange={value => this.setState({ value })}
+            />
+*/
 
-              <TextField
-                label="End Time: "
-                value={""}
-                title="Enter in form 'hh mm'"
-                keyboardType='number-pad'
-                characterRestriction={5}
-                clearTextOnFocus={true}
-                onChangeText={(data) => this.setState({ tmpEndTimeString: data })}
-              />
               <TextField
                 label="Subject: "
                 value={""}
@@ -459,13 +447,7 @@ export default class Calendar extends React.Component {
                 onPress={() => this.addSchedule()}
               />
 
-              {/* <TextButton
-                style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
-                title="log event id"
-                onPress={() => console.log(this.props.eventID)}
-              /> */}
+
             </View>
           </ScrollView>
         </SafeAreaView>
