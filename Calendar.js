@@ -128,17 +128,18 @@ export default class Calendar extends React.Component {
       }
     }
 
-    let fetchURL = baseURL + "user/:" + this.props.userID + "/schedule";
+    let fetchURL = baseURL + "schedule/" + this.props.userID;
+    console.log("[addSchedule] fetchURL: " + fetchURL);
 
     /* Start time */
     var eventStart = new Date();
-    eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+    eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10));
     var tempTime = this.state.tmpStartTimeString.split(" ");
     eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
 
     /* End time */
     var eventEnd = new Date();
-    eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+    eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10));
     var tempTime2 = this.state.tmpEndTimeString.split(" ");
     eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
 
@@ -162,9 +163,6 @@ export default class Calendar extends React.Component {
       location: this.state.tmpLocation,
     };
 
-    /* Add it to the local scheduleArray for rendering */
-    this.props.scheduleArrayAdd(tmp);
-
     /* Post the schedle obj to the database */
     fetch(fetchURL, {
       method: "POST",
@@ -187,9 +185,21 @@ export default class Calendar extends React.Component {
         location: this.state.tmpLocation,
       }),
     })
-      .then(() => {
-        Alert.alert("Added schedule successfully!");
-        this.setState({ userEdit: false });
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson)
+        if (responseJson.includes("doesn't exist")) {
+          Alert.alert("Cannot upload schedule, please try again");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot upload schedule, please try again");
+        }
+        else {
+          /* Add it to the local scheduleArray for rendering */
+          this.props.scheduleArrayAdd(tmp);
+          Alert.alert("Added schedule successfully!");
+          this.unrenderUserform();
+        }
       });
   }
 
@@ -241,7 +251,8 @@ export default class Calendar extends React.Component {
 
   refreshSchedule() {
     this.setState({ calendarRefreshing: true });
-    let fetchURL = baseURL + "schedule/:" + this.props.userID;
+    let fetchURL = baseURL + "schedule/" + this.props.userID;
+    console.log("[refreshSchedule] fetchURL: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -251,6 +262,7 @@ export default class Calendar extends React.Component {
     })
       .then((response) => response.text())
       .then((responseJson) => {
+        console.log(responseJson);
         /* First check if user has any schedule to fetch or not */
         if (responseJson.includes("doesn't have any")) {
           return;
@@ -475,13 +487,13 @@ export default class Calendar extends React.Component {
                 title="go back"
                 onPress={() => this.unrenderUserform()}
               />
-              {/* <TextButton
+              <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
-                title="log event id"
-                onPress={() => console.log(this.props.eventID)}
-              /> */}
+                title="log"
+                onPress={() => console.log(this.props.scheduleArray.length)}
+              />
             </View>
           </ScrollView>
         </SafeAreaView>

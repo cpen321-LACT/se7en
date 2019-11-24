@@ -7,14 +7,14 @@ import {
   Dimensions,
   Platform,
   Alert,
-  View,
   Text,
 } from "react-native";
 import TabNavigator from "react-native-tab-navigator";
 import Calendar from "./Calendar.js";
 import Profile from "./Profile.js";
 import Login from "./Login.js";
-import NotifService from './NotifService';
+import Matches from "./Matches.js"
+import NotifService from "./NotifService";
 
 /* Suppress warnings for now */
 console.disableYellowBox = true;
@@ -60,16 +60,48 @@ export default class App extends Component {
       courses: [],
       sex: "0",
       numberOfRatings: "0.0",
-      kindnessPref: "0.0",
-      patiencePref: "0.0",
-      hardWorkingPref: "0.0",
+      kindnessSelfRate: "0.0",
+      patienceSelfRate: "0.0",
+      hardWorkingSelfRate: "0.0",
       authenticationToken: "",
       password: "",
       userID: "",
       email: "",
       name: "",
+
+      sexPref: "0",
+      yearLevelPref: "",
+      coursesPref: [],
+      kindnessPref: "0.0",
+      patiencePref: "0.0",
+      hardWorkingPref: "0.0",
+
       scheduleArray: [],
       eventID: 0,
+
+      currentMatches: [{
+        name: 'Pog',
+        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
+        subtitle: 'Some dude'
+      },],
+
+      incomingMatches: [{
+        name: 'Pog',
+        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
+        subtitle: 'Some dude'
+      },],
+
+      potentialMatches: [{
+        name: 'Pog',
+        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
+        subtitle: 'Some dude'
+      },],
+
+      waitingMatches: [{
+        name: 'Pog',
+        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
+        subtitle: 'Some dude'
+      },],
 
       /* Transition states */
       loggedIn: false,
@@ -111,16 +143,16 @@ export default class App extends Component {
     this.setState({ numberOfRatings: data });
   }
 
-  changeKindnessPref(data) {
-    this.setState({ kindnessPref: data });
+  changeKindnessSelfRate(data) {
+    this.setState({ kindnessSelfRate: data });
   }
 
-  changePatiencePref(data) {
-    this.setState({ patiencePref: data });
+  changePatienceSelfRate(data) {
+    this.setState({ patienceSelfRate: data });
   }
 
-  changeHardWorkingPref(data) {
-    this.setState({ hardWorkingPref: data });
+  changeHardWorkingSelfRate(data) {
+    this.setState({ hardWorkingSelfRate: data });
   }
 
   changeAuthenticationToken(data) {
@@ -133,6 +165,30 @@ export default class App extends Component {
 
   changeName(data) {
     this.setState({ name: data });
+  }
+
+  changeKindnessPref(data) {
+    this.setState({ kindnessPref: data });
+  }
+
+  changePatiencePref(data) {
+    this.setState({ patiencePref: data });
+  }
+
+  changeHardWorkingPref(data) {
+    this.setState({ hardWorkingPref: data });
+  }
+
+  changeSexPref(data) {
+    this.setState({ sexPref: data });
+  }
+
+  changeYearLevelPref(data) {
+    this.setState({ yearLevelPref: data });
+  }
+
+  changeCoursesPref(data) {
+    this.setState({ coursesPref: data });
   }
 
   changeScheduleArray(data) {
@@ -151,6 +207,38 @@ export default class App extends Component {
     this.setState({ eventID: data });
   }
 
+  clearCurrentMatches() {
+    this.setState({ currentMatches: [] });
+  }
+
+  clearIncomingMatches() {
+    this.setState({ incomingMatches: [] });
+  }
+
+  clearPotentialMatches() {
+    this.setState({ potentialMatches: [] });
+  }
+
+  clearWaitingMatches() {
+    this.setState({ waitingMatches: [] });
+  }
+
+  addCurrentMatches(data) {
+    this.setState({ currentMatches: this.state.currentMatches.concat(data) })
+  }
+
+  addIncomingMatches(data) {
+    this.setState({ incomingMatches: this.state.incomingMatches.concat(data) })
+  }
+
+  addPotentialMatches(data) {
+    this.setState({ potentialMatches: this.state.potentialMatches.concat(data) })
+  }
+
+  addWaitingMatches(data) {
+    this.setState({ waitingMatches: this.state.waitingMatches.concat(data) })
+  }
+
   /* Helper functions that change the corresponding views of the app */
   changeLogVisible() {
     this.setState({ loggedIn: !this.state.loggedIn });
@@ -159,6 +247,7 @@ export default class App extends Component {
   changeDefaultSelectedTab() {
     this.setState({ selectedTab: "calendar" });
   }
+
 
   /* -------------------------------------------------------------------------- */
 
@@ -192,6 +281,33 @@ export default class App extends Component {
           </TabNavigator.Item>
 
           <TabNavigator.Item
+            testID="matchesTab"
+            selected={this.state.selectedTab === "matches"}
+            title="Matches"
+            selectedTitleStyle={{ color: "#3496f0" }}
+            renderIcon={() => (
+              <Icon name="handshake-o" size={px2dp(22)} color="#666" />
+            )}
+            renderSelectedIcon={() => (
+              <Icon name="handshake-o" size={px2dp(22)} color="#3496f0" />
+            )}
+            onPress={() => this.setState({ selectedTab: "matches" })}>
+            <Matches
+              /* States */
+              currentMatches={this.state.currentMatches}
+              incomingMatches={this.state.incomingMatches}
+              potentialMatches={this.state.potentialMatches}
+              /* Functions */
+              currentMatchesClear={this.clearCurrentMatches.bind(this)}
+              incomingMatchesClear={this.clearIncomingMatches.bind(this)}
+              potentialMatchesClear={this.clearPotentialMatches.bind(this)}
+              currentMatchesAdd={this.addCurrentMatches.bind(this)}
+              incomingMatchesAdd={this.addIncomingMatches.bind(this)}
+              potentialMatchesAdd={this.addPotentialMatches.bind(this)}
+            />
+          </TabNavigator.Item>
+
+          <TabNavigator.Item
             testID="profileTab"
             selected={this.state.selectedTab === "profile"}
             title="Profile"
@@ -209,22 +325,30 @@ export default class App extends Component {
               courses={this.state.courses}
               sex={this.state.sex}
               numberOfRatings={this.state.numberOfRatings}
-              kindnessPref={this.state.kindnessPref}
-              patiencePref={this.state.patiencePref}
-              hardWorkingPref={this.state.hardWorkingPref}
+              kindnessSelfRate={this.state.kindnessSelfRate}
+              patienceSelfRate={this.state.patienceSelfRate}
+              hardWorkingSelfRate={this.state.hardWorkingSelfRate}
               authenticationToken={this.state.authenticationToken}
               password={this.state.password}
               userID={this.state.userID}
               email={this.state.email}
               name={this.state.name}
+
+              sexPref={this.state.sexPref}
+              yearLevelPref={this.state.yearLevelPref}
+              coursesPref={this.state.coursesPref}
+              kindnessPref={this.state.kindnessPref}
+              patiencePref={this.state.patiencePref}
+              hardWorkingPref={this.state.hardWorkingPref}
+
               /* Functions */
               yearLevelChange={this.changeYearLevel.bind(this)}
               coursesChange={this.changeCourses.bind(this)}
               sexChange={this.changeSex.bind(this)}
               numberOfRatingsChange={this.changeNumberOfRatings.bind(this)}
-              kindnessPrefChange={this.changeKindnessPref.bind(this)}
-              patiencePrefChange={this.changePatiencePref.bind(this)}
-              hardWorkingPrefChange={this.changeHardWorkingPref.bind(this)}
+              kindnessSelfRateChange={this.changeKindnessSelfRate.bind(this)}
+              patienceSelfRateChange={this.changePatienceSelfRate.bind(this)}
+              hardWorkingSelfRateChange={this.changeHardWorkingSelfRate.bind(this)}
               authenticationTokenChange={this.changeAuthenticationToken.bind(
                 this
               )}
@@ -232,6 +356,14 @@ export default class App extends Component {
               nameChange={this.changeName.bind(this)}
               userIDChange={this.changeUserID.bind(this)}
               passwordChange={this.changePassword.bind(this)}
+
+              kindnessPrefChange={this.changeKindnessPref.bind(this)}
+              patiencePrefChange={this.changePatiencePref.bind(this)}
+              hardWorkingPrefChange={this.changeHardWorkingPref.bind(this)}
+              sexPrefChange={this.changeSexPref.bind(this)}
+              yearLevelPrefChange={this.changeYearLevelPref.bind(this)}
+              coursesPrefChange={this.changeCoursesPref.bind(this)}
+
               logVisibleChange={this.changeLogVisible.bind(this)}
               defaultSelectedTabChange={this.changeDefaultSelectedTab.bind(this)}
               /* Push notification */
@@ -248,14 +380,18 @@ export default class App extends Component {
           userID={this.state.userID}
           scheduleArray={this.state.scheduleArray}
           eventID={this.state.eventID}
+          currentMatches={this.state.currentMatches}
+          incomingMatches={this.state.incomingMatches}
+          potentialMatches={this.state.potentialMatches}
+          waitingMathces={this.state.waitingMatches}
           /* Functions */
           yearLevelChange={this.changeYearLevel.bind(this)}
           coursesChange={this.changeCourses.bind(this)}
           sexChange={this.changeSex.bind(this)}
           numberOfRatingsChange={this.changeNumberOfRatings.bind(this)}
-          kindnessPrefChange={this.changeKindnessPref.bind(this)}
-          patiencePrefChange={this.changePatiencePref.bind(this)}
-          hardWorkingPrefChange={this.changeHardWorkingPref.bind(this)}
+          kindnessSelfRateChange={this.changeKindnessSelfRate.bind(this)}
+          patienceSelfRateChange={this.changePatienceSelfRate.bind(this)}
+          hardWorkingSelfRateChange={this.changeHardWorkingSelfRate.bind(this)}
           authenticationTokenChange={this.changeAuthenticationToken.bind(this)}
           emailChange={this.changeEmail.bind(this)}
           nameChange={this.changeName.bind(this)}
@@ -266,6 +402,22 @@ export default class App extends Component {
           scheduleArrayChange={this.changeScheduleArray.bind(this)}
           logVisibleChange={this.changeLogVisible.bind(this)}
           eventIDChange={this.changeEventID.bind(this)}
+          currentMatchesClear={this.clearCurrentMatches.bind(this)}
+          incomingMatchesClear={this.clearIncomingMatches.bind(this)}
+          potentialMatchesClear={this.clearPotentialMatches.bind(this)}
+          waitingMatchesClear={this.clearPotentialMatches.bind(this)}
+          currentMatchesAdd={this.addCurrentMatches.bind(this)}
+          incomingMatchesAdd={this.addIncomingMatches.bind(this)}
+          potentialMatchesAdd={this.addPotentialMatches.bind(this)}
+          waitingMatchesAdd={this.addWaitingMatches.bind(this)}
+
+          kindnessPrefChange={this.changeKindnessPref.bind(this)}
+          patiencePrefChange={this.changePatiencePref.bind(this)}
+          hardWorkingPrefChange={this.changeHardWorkingPref.bind(this)}
+          sexPrefChange={this.changeSexPref.bind(this)}
+          yearLevelPrefChange={this.changeYearLevelPref.bind(this)}
+          coursesPrefChange={this.changeCoursesPref.bind(this)}
+
           /* Push notification */
           push_noti={this.notif}
         />

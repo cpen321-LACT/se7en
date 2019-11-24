@@ -126,12 +126,21 @@ export default class Profile extends React.Component {
       tmpCourses: this.props.courses,
       tmpCoursesString: this.props.courses.toString(),
       tmpSex: this.props.sex,
-      tmpKindness: this.props.kindnessPref,
-      tmpPatience: this.props.patiencePref,
-      tmpHardWorking: this.props.hardWorkingPref,
+      tmpKindnessSelfRate: this.props.kindnessSelfRate,
+      tmpPatienceSelfRate: this.props.patienceSelfRate,
+      tmpHardWorkingSelfRate: this.props.hardWorkingSelfRate,
       tmpPassword: this.props.password,
       tmpEmail: this.props.email,
       tmpName: this.props.name,
+
+      tmpSexPref: this.props.sexPref,
+      tmpYearLevelPref: this.props.yearLevelPref,
+      tmpCoursesPref: this.props.coursesPref,
+      tmpCoursesPrefString: this.props.coursesPref.toString(),
+      tmpKindnessPref: this.props.kindnessPref,
+      tmpPatiencePref: this.props.patiencePref,
+      tmpHardWorkingPref: this.props.hardWorkingPref,
+
       /* Transition states */
       userEdit: false,
       secureTextEntry: true,
@@ -163,8 +172,6 @@ export default class Profile extends React.Component {
     {
       type: "SECTION",
       header: "My info".toUpperCase(),
-      footer:
-        "( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ             ~ヾ(・ω・) ~ヾ(・ω・) ~ヾ(・ω・) ~ヾ(・ω・)",
       rows: [
         {
           title: "Name",
@@ -218,6 +225,62 @@ export default class Profile extends React.Component {
           title: "Kindness",
           renderAccessory: () => (
             <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.kindnessSelfRate}
+            </Text>
+          ),
+        },
+        {
+          title: "Patience",
+          renderAccessory: () => (
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.patienceSelfRate}
+            </Text>
+          ),
+        },
+        {
+          title: "Hardworking",
+          renderAccessory: () => (
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.hardWorkingSelfRate}
+            </Text>
+          ),
+        },
+      ],
+    },
+    {
+      type: "SECTION",
+      header: "My preferences".toUpperCase(),
+      footer:
+        "( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ ( ´ ω ` )ノﾞ             ~ヾ(・ω・) ~ヾ(・ω・) ~ヾ(・ω・) ~ヾ(・ω・)",
+      rows: [
+        {
+          title: "Sex",
+          renderAccessory: () => (
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.sexPref}
+            </Text>
+          ),
+        },
+        {
+          title: "Year level",
+          renderAccessory: () => (
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.yearLevelPref}
+            </Text>
+          ),
+        },
+        {
+          title: "Courses",
+          renderAccessory: () => (
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
+              {this.props.coursesPref}
+            </Text>
+          ),
+        },
+        {
+          title: "Kindness",
+          renderAccessory: () => (
+            <Text style={{ color: "#999", marginRight: 6, fontSize: 18 }}>
               {this.props.kindnessPref}
             </Text>
           ),
@@ -262,12 +325,13 @@ export default class Profile extends React.Component {
   _onRefresh = () => {
     this.setState({ refreshing: true });
     this.getUserInfo();
+    this.getUserReferences();
     this.setState({ refreshing: false });
   };
 
   /* Function that gets user"s info (for refreshing) */
   getUserInfo() {
-    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
+    let fetchURL = baseURL + "user/" + this.props.userID + "/info";
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -282,7 +346,7 @@ export default class Profile extends React.Component {
           this.props.coursesChange(responseJson[0].courses);
           this.props.sexChange(responseJson[0].sex);
           this.props.numberOfRatingsChange(
-            responseJson.numberOfRatings
+            responseJson[0].numberOfRatings
           );
           this.props.kindnessPrefChange(responseJson[0].kindness);
           this.props.patiencePrefChange(responseJson[0].patience);
@@ -297,11 +361,35 @@ export default class Profile extends React.Component {
       });
   }
 
+  /* Function that gets user"s references (for refreshing) */
+  getUserReferences() {
+    //console.log("[getUserReferences]: " + this.props.kindnessPref);
+    let fetchURL = baseURL + "user/" + this.props.userID + "/preferences";
+    fetch(fetchURL, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if (typeof responseJson !== "undefined") {
+          this.props.kindnessPrefChange(responseJson[0].kindness);
+          this.props.patiencePrefChange(responseJson[0].patience);
+          this.props.hardWorkingPrefChange(responseJson[0].hardWorking);
+          this.props.coursesPrefChange(responseJson[0].courses);
+          this.props.sexPrefChange(responseJson[0].sex);
+          this.props.yearLevelPrefChange(responseJson[0].yearLevel);
+        }
+      });
+  }
+
   /* Function that pushes all the changes of user"s info to the database */
   pushUserInfo() {
     /* First check for error */
     console.log("here");
-    var toCheck = [this.state.tmpName, this.state.tmpPassword, this.state.tmpYearLevel, this.state.tmpSex, this.state.tmpEmail, this.state.tmpCoursesString, this.state.tmpKindness, this.state.tmpPatience, this.state.tmpHardWorking];
+    var toCheck = [this.state.tmpYearLevel, this.state.tmpCoursesString, this.state.tmpSex, this.state.tmpPassword, this.state.tmpEmail, this.state.tmpName, this.state.tmpKindnessSelfRate, this.state.tmpPatienceSelfRate, this.state.tmpHardWorkingSelfRate, this.state.tmpSexPref, this.state.tmpYearLevelPref, this.state.tmpCoursesPrefString, this.state.tmpKindnessPref, this.state.tmpPatiencePref, this.state.tmpHardWorkingPref];
     for (var i = 0; i < toCheck.length; i++) {
       if (this.checkNULL(toCheck[i]) || this.checkEmpty(toCheck[i])) {
         Alert.alert("One of the fields must not be NULL or empty");
@@ -310,9 +398,16 @@ export default class Profile extends React.Component {
     }
 
     /* Check for sum of prefs */
-    if (this.checkSumPrefs()) {
+    if (this.checkSumPrefs(this.state.tmpKindnessSelfRate, this.state.tmpPatienceSelfRate, this.state.tmpHardWorkingSelfRate)) {
       Alert.alert(
-        "The sum of Kindness, Patience and Hardworking must be at least 12"
+        "The sum of Kindness, Patience and Hardworking Self-ratings must be exactly 12"
+      );
+      return;
+    }
+
+    if (this.checkSumPrefs(this.state.tmpKindnessPref, this.state.tmpPatiencePref, this.state.tmpHardWorkingPref)) {
+      Alert.alert(
+        "The sum of Kindness, Patience and Hardworking Preferences must be exactly 12"
       );
       return;
     }
@@ -320,7 +415,8 @@ export default class Profile extends React.Component {
     /* If there"s no error, we do the call */
     /* Split course string -> array first */
     this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
-    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
+    let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+    console.log("[pushUserInfo] url request: " + fetchURL);
     fetch(fetchURL, {
       method: "PUT",
       headers: {
@@ -332,9 +428,9 @@ export default class Profile extends React.Component {
         courses: this.state.tmpCourses,
         sex: this.state.tmpSex,
         numberOfRatings: this.props.numberOfRatings,
-        kindness: this.props.kindnessPref,
-        patience: this.props.patiencePref,
-        hardWorking: this.props.hardWorkingPref,
+        kindness: this.state.tmpKindnessSelfRate,
+        patience: this.state.tmpPatienceSelfRate,
+        hardWorking: this.state.tmpHardWorkingSelfRate,
         authenticationToken: this.props.authenticationToken,
         password: this.state.tmpPassword,
         email: this.state.tmpEmail,
@@ -344,26 +440,71 @@ export default class Profile extends React.Component {
       .then((response) => response.text())
       /* Then we apply to the local variables for rendering */
       .then((responseJson) => {
-        if (responseJson.includes("already exists")) {
+        console.log(responseJson);
+        if (responseJson.includes("doesn't exists")) {
           Alert.alert("Failed to update information, please try again!");
           return;
         }
         //console.log(responseJson);
-        this.props.yearLevelChange(this.state.tmpYearLevel);
-        this.props.coursesChange(this.state.tmpCourses);
-        this.props.sexChange(this.state.tmpSex);
-        // Number of ratings unchanged
-        this.props.kindnessPrefChange(this.state.tmpKindness);
-        this.props.patiencePrefChange(this.state.tmpPatience);
-        this.props.hardWorkingPrefChange(this.state.tmpHardWorking);
-        // Authentication token unchanged
-        this.props.passwordChange(this.state.tmpPassword);
-        // User ID unchanged
-        this.props.emailChange(this.state.tmpEmail);
-        this.props.nameChange(this.state.tmpName);
-        Alert.alert("Updated successfully!");
-        /* Render the Profile view again */
-        this.setState({ userEdit: false });
+        else if (responseJson.includes("Cannot PUT")) {
+          Alert.alert("Cannot change profile, please try again");
+        }
+        else {
+          this.props.yearLevelChange(this.state.tmpYearLevel);
+          this.props.coursesChange(this.state.tmpCourses);
+          this.props.sexChange(this.state.tmpSex);
+          // Number of ratings unchanged
+          this.props.kindnessSelfRateChange(this.state.tmpKindnessSelfRate);
+          this.props.patienceSelfRateChange(this.state.tmpPatienceSelfRate);
+          this.props.hardWorkingSelfRateChange(this.state.tmpHardWorkingSelfRate);
+          // Authentication token unchanged
+          this.props.passwordChange(this.state.tmpPassword);
+          // User ID unchanged
+          this.props.emailChange(this.state.tmpEmail);
+          this.props.nameChange(this.state.tmpName);
+
+          this.pushUserPreferences();
+        }
+      });
+  }
+
+  /* Function that pushes all the changes of user"s preferences to the database */
+  pushUserPreferences() {
+    /* Split course string -> array first */
+    this.setState({ tmpCoursesPref: this.state.tmpCoursesPrefString.split(",") });
+    let fetchURL = baseURL + "user/" + this.props.userID + "/preferences";
+    //console.log("[pushUserPreferences] url request: " + fetchURL);
+    fetch(fetchURL, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        kindness: this.state.tmpKindnessPref,
+        patience: this.state.tmpPatiencePref,
+        hardWorking: this.state.tmpHardWorkingPref,
+        courses: this.state.tmpCoursesPref,
+        sex: this.state.tmpSexPref,
+        yearLevel: this.state.tmpYearLevelPref
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        //console.log(responseJson);
+        if (responseJson.includes("does not exists")) {
+          Alert.alert("Failed to update preferences, please try again!");
+          return;
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot change profile, please try again");
+          return;
+        }
+        else {
+          Alert.alert("Updated successfully!");
+          /* Render the Profile view again */
+          this.unrenderUserform();
+        }
       });
   }
 
@@ -407,7 +548,7 @@ export default class Profile extends React.Component {
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
-    console.log("Check NULL: data = " + data);
+    //console.log("Check NULL: data = " + data);
     if (typeof data === "undefined") {
       return true;
     }
@@ -426,13 +567,8 @@ export default class Profile extends React.Component {
     }
   }
 
-  checkSumPrefs() {
-    if (
-      this.state.tmpKindness +
-      this.state.tmpPatience +
-      this.state.tmpHardWorking <
-      12
-    ) {
+  checkSumPrefs(pref1, pref2, pref3) {
+    if (pref1 + pref2 + pref3 !== 12) {
       return true;
     }
     else {
@@ -447,7 +583,7 @@ export default class Profile extends React.Component {
       return (
         <View style={{ flex: 1, backgroundColor: "#f3f3f3" }}>
           {
-            <SafeAreaView testID="profileView" style={styles.container}>
+            <SafeAreaView testID="profileView">
               <ScrollView
                 testID="profileScrollView"
                 refreshControl={
@@ -508,6 +644,9 @@ export default class Profile extends React.Component {
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
+            <View style={styles.safeContainer}>
+              <Text style={{ fontSize: 18, flex: 1, margin: 8, textDecorationLine: "underline" }}>Basic info:</Text>
+            </View>
             <View style={styles.inputContainer}>
               <TextField
                 testID="profileNameInput"
@@ -570,33 +709,95 @@ export default class Profile extends React.Component {
               />
 
               <TextField
-                testID="profileKindnessInput"
+                testID="profileKindnessSelfRateInput"
+                label="Kindness self-rating: "
+                value={this.props.kindnessSelfRate}
+                characterRestriction={2}
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpKindnessSelfRate: parseInt(data, 10) })}
+              />
+
+              <TextField
+                testID="profilePatienceSelfRateInput"
+                label="Patience self-rating: "
+                value={this.props.patienceSelfRate}
+                characterRestriction={2}
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpPatienceSelfRate: parseInt(data, 10) })}
+              />
+
+              <TextField
+                testID="profileHardworkingSelfRateInput"
+                label="Hardworking self-rating: "
+                value={this.props.hardWorkingSelfRate}
+                characterRestriction={2}
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpHardWorkingSelfRate: parseInt(data, 10) })}
+              />
+            </View>
+
+            <View style={styles.safeContainer}>
+              <Text style={{ fontSize: 18, flex: 1, margin: 8, textDecorationLine: "underline" }}>Preferences:</Text>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextField
+                testID="signUpSexInput"
+                label="Sex: "
+                value={this.props.sexPref}
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                keyboardType='number-pad'
+                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
+                onChangeText={(data) => this.setState({ tmpSexPref: data })}
+              />
+
+              <TextField
+                testID="signUpYearLevelInput"
+                label="Year level: "
+                value={this.props.yearLevelPref}
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpYearLevelPref: data })}
+              />
+
+              <TextField
+                testID="signUpCoursesInput"
+                label="Courses: "
+                value={this.props.coursesPref}
+                clearTextOnFocus={true}
+                title="Please input in form: 'Course A,Course B,Course C'"
+                onChangeText={(data) => this.setState({ tmpCoursesPrefString: data })}
+              />
+
+              <TextField
+                testID="signUpKindnessSelfRateInput"
                 label="Kindness preference: "
                 value={this.props.kindnessPref}
-                characterRestriction={2}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
-                onChangeText={(data) => this.setState({ tmpKindness: parseInt(data, 10) })}
+                onChangeText={data => this.setState({ tmpKindnessPref: parseInt(data, 10) })}
               />
 
               <TextField
-                testID="profilePatienceInput"
+                testID="signUpPatienceSelfRateInput"
                 label="Patience preference: "
                 value={this.props.patiencePref}
-                characterRestriction={2}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
-                onChangeText={(data) => this.setState({ tmpPatience: parseInt(data, 10) })}
+                onChangeText={data => this.setState({ tmpPatiencePref: parseInt(data, 10) })}
               />
 
               <TextField
-                testID="profileHardworkingInput"
+                testID="signUpHardworkingSelfRateInput"
                 label="Hardworking preference: "
                 value={this.props.hardWorkingPref}
-                characterRestriction={2}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
-                onChangeText={(data) => this.setState({ tmpHardWorking: parseInt(data, 10) })}
+                onChangeText={data => this.setState({ tmpHardWorkingPref: parseInt(data, 10) })}
               />
             </View>
 
