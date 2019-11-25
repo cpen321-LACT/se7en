@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
+  ImageBackground
 } from "react-native";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
@@ -26,6 +27,11 @@ const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
 const styles = StyleSheet.create({
   scroll: {
     backgroundColor: "transparent",
+  },
+ inputContainer2: {
+      margin: 60,
+      marginTop: Platform.select({ ios: 2, android: 210 }),
+      flex: 1,
   },
 
   inputContainer: {
@@ -117,7 +123,7 @@ export default class Login extends Component {
 
       /* Transition states */
       loginSecureTextEntry: true,
-      signUp: false,
+      signUp: false
     };
   }
 
@@ -125,18 +131,17 @@ export default class Login extends Component {
     if (!this.state.signUp) {
       return (
         <SafeAreaView testID="loginView" style={styles.safeContainer}>
-          <View style={styles.navBar}>
-            <Text style={styles.navBarTitle}>SE7EN</Text>
-          </View>
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.contentContainer}
-            keyboardShouldPersistTaps="handled">
-            <View style={styles.inputContainer}>
-              <TextField
-                testID="userIDInput"
-                label="User ID: "
-                title="Please enter User ID as an integer!"
+        <ImageBackground source={require('./pic/app.jpg')} style={{width: '100%', height: '100%'}}>
+        	<ScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={styles.contentContainer}
+                    keyboardShouldPersistTaps="handled">
+                    <View style={styles.inputContainer2}>
+                      <TextField
+                        testID="userIDInput"
+        		textColor="white"
+                        label="User ID: "
+        		baseColor="rgba(255,255,255,0.5)"
                 characterRestriction={10}
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
@@ -146,7 +151,9 @@ export default class Login extends Component {
               <TextField
                 testID="passwordInput"
                 label="Password: "
+                textColor="white"
                 clearTextOnFocus={true}
+		            baseColor="rgba(255,255,255,0.5)"
                 secureTextEntry={this.state.loginSecureTextEntry}
                 renderRightAccessory={this.loginRenderPasswordAccessory()}
                 onChangeText={(data) => this.props.passwordChange(data)}
@@ -162,35 +169,43 @@ export default class Login extends Component {
               <TextButton
                 testID="signInButton"
                 style={{
-                  margin: 4,
-                }}
-                titleColor="white"
-                color="#4286f4"
-                title="Sign In"
-                onPress={() => this.signIn()}
-              />
-              <TextButton
-                testID="signUpButton"
-                style={{
-                  margin: 4,
-                }}
-                titleColor="white"
-                color="cadetblue"
-                title="Sign Up"
-                onPress={() => this.renderSignUpForm()}
-              />
-              <TextButton
-                testID="signUpFbButton"
-                style={{
-                  margin: 4,
-                }}
-                titleColor="white"
-                color="#3B5998"
-                title="Continue with Facebook"
-                onPress={() => this.signInFb()}
-              />
-            </View>
-          </ScrollView>
+                  marginVertical: 10,
+                  marginHorizontal: 50,
+                  borderRadius: 20,
+               }}
+               titleColor="rgb(19,69,205)"
+               color="rgba(255,255,255,0.6)"
+               title="Sign In"
+               onPress={() => this.signIn()}
+             />
+             <TextButton
+               testID="signUpButton"
+               style={{
+                 marginVertical: 10,
+                 marginHorizontal: 50,
+                 paddingVertical:5,
+                 borderRadius: 20,
+               }}
+               titleColor="rgb(19,69,205)"
+               color="rgba(255,255,255,0.6)"
+               title="Sign Up"
+               onPress={() => this.renderSignUpForm()}
+             />
+             <TextButton
+               testID="signUpFbButton"
+               style={{
+                 marginVertical: 10,
+                 marginHorizontal: 50,
+                 borderRadius: 20,
+               }}
+               titleColor="white"
+               color="rgba(255,255,255,0.3)"
+               title="Facebook login"
+               onPress={() => this.signInFb()}
+             />
+             </View>
+             </ScrollView>
+             </ImageBackground>
         </SafeAreaView>
       );
     } else {
@@ -729,7 +744,7 @@ export default class Login extends Component {
   /* -------------------------------------------------------------------------- */
 
   /* Helper function that populates data of user"s info on Init Sequence
-   * Assumes that user must be created before calling this function 
+   * Assumes that user must be created before calling this function
    */
   initUserInfo() {
     let fetchURL = baseURL + "user/" + this.props.userID + "/info";
