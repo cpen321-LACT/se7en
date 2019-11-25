@@ -16,7 +16,7 @@ import {
 import ActionButton from "react-native-action-button";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
-import { Picker, DatePicker } from 'react-native-wheel-datepicker';
+import { Picker, DatePicker } from "react-native-wheel-datepicker";
 /* -------------------------------------------------------------------------- */
 /* Styles */
 const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
@@ -84,7 +84,7 @@ addLocale("en", {
   weekdays: "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
     "_"
   ),
-  weekdaysShort: "Sun_Mon_Tue_Wed_Thur_Fri_Sat".split("_"),
+  weekdaysShort: "Sun_Mon_Tue_Wed_Thur_Fri_Sat".split("_")
 });
 
 /* For server uses */
@@ -118,7 +118,7 @@ export default class Calendar extends React.Component {
       tmpLocation: "",
       /* Transition states */
       userEdit: false,
-      calendarRefreshing: false,
+      calendarRefreshing: false
     };
   }
 
@@ -163,7 +163,7 @@ export default class Calendar extends React.Component {
       color: this.state.tmpColor,
       description: this.state.tmpSubject,
       subject: this.state.tmpSubject,
-      location: this.state.tmpLocation,
+      location: this.state.tmpLocation
     };
 
     /* Post the schedle obj to the database */
@@ -209,7 +209,10 @@ export default class Calendar extends React.Component {
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
     console.log("checkNULL typeof data: " + typeof data);
-    return (typeof data === "undefined")? true : false;
+    if (typeof data === "undefined"){
+      return true;
+    }
+    return false;
   }
 
   checkEmpty(data) {
@@ -217,10 +220,7 @@ export default class Calendar extends React.Component {
       //console.log("data is empty");
       return true;
     }
-    else {
-      //console.log("data is not empty");
-      return false;
-    }
+    return false;
   }
 
   /* -------------------------------------------------------------------------- */
@@ -275,7 +275,7 @@ export default class Calendar extends React.Component {
                     color: "rgba(66,134,244,1)",
                     description: item.course,
                     subject: item.course,
-                    location: item.location,
+                    location: item.location
                   };
                   this.props.scheduleArrayAdd(tmpSchedule);
                 });
@@ -392,7 +392,7 @@ export default class Calendar extends React.Component {
               onValueChange={value => this.setState({ tmpDate:value })}
             />
             <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
-              Start time:{this.state.tmpStartTime.getHours()}:{this.state.tmpStartTime.getMinutes()}
+              Start time:{this.state.tmpStartTime.getHours()}  {this.state.tmpStartTime.getMinutes()}
             </Text>
             <DatePicker
               date={this.state.tmpStartTime}
@@ -403,7 +403,7 @@ export default class Calendar extends React.Component {
               onDateChange={time => this.setState({ tmpStartTime:time })}
             />
             <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
-              End time:{this.state.tmpEndTime.getHours()}:{this.state.tmpEndTime.getMinutes()}
+              End time:{this.state.tmpEndTime.getHours()}  {this.state.tmpEndTime.getMinutes()}
             </Text>
             <DatePicker
               date={this.state.tmpEndTime}

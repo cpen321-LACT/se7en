@@ -92,7 +92,7 @@ export default class Matches extends React.Component {
         super(props);
         this.state = {
             /* User info states */
-            matchesRefreshing: false,
+            matchesRefreshing: false
         };
     }
 
@@ -345,7 +345,7 @@ export default class Matches extends React.Component {
                                             var tmpMatch = {
                                                 name: responseJson[0].wait[i].toString(),
                                                 avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                                                subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                                subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                                             }
                                             this.props.waitingMatchesAdd(tmpMatch);
                                         }
