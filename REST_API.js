@@ -44,7 +44,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
      console.log("Schedule collection created!");
   });
 
-   app.listen(3000, function() {
+   app.listen(8081, function() {
     //   console.log("server is up!");
    })
 
@@ -245,17 +245,25 @@ app.post("/user/:userId/preferences", async (req,res) => {
             res.status(400).send({message : "You are posting user preferences for a user that does not exist in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
-        /* Add the users preferences */
-        userDb.collection("preferencesClt").insertOne(
-            {"userId"      : parseInt(req.params.userId, 10),
-             "kindness"     : parseFloat(req.body.kindness),
-             "patience"     : parseFloat(req.body.patience),
-             "hardWorking" : parseFloat(req.body.hardWorking),
-             "courses"      : req.body.courses,
-             "sex"          : parseInt(req.body.sex, 10),
-             "yearLevel"   : req.body.yearLevel},(err, result) => {
-         if (err) {return err;}
-         res.status(200).send({message : "Preferences have been added. ٩(^ᴗ^)۶"});
+        userDb.collection("preferencesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userPre) => {
+
+            if (!doesntExist(userPre)){
+                res.status(400).send({message: "You are trying to post to a preference that already exists (┛ಠ_ಠ)┛彡┻━┻, try to use a put instead"});
+                return;
+            }
+
+            /* Add the users preferences */
+            userDb.collection("preferencesClt").insertOne(
+                {"userId"      : parseInt(req.params.userId, 10),
+                "kindness"     : parseFloat(req.body.kindness),
+                "patience"     : parseFloat(req.body.patience),
+                "hardWorking" : parseFloat(req.body.hardWorking),
+                "courses"      : req.body.courses,
+                "sex"          : parseInt(req.body.sex, 10),
+                "yearLevel"   : req.body.yearLevel},(err, result) => {
+            if (err) {return err;}
+            res.status(200).send({message : "Preferences have been added. ٩(^ᴗ^)۶"});
+            })
         })
     })
 })
@@ -665,71 +673,89 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
  * { "userIdA : 0, "userIdB" : 2}
  * Adam: to test
  */
-/* Need eventId in body */
-app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
-    var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(req.body.eventIdA, 10)};
-    var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(req.body.eventIdB, 10)};
-
-    if (parseInt(req.params.userIdA, 10) === parseInt(req.params.userIdB, 10)){
-        res.status(400).send({message : "Cannot match the user with themselves."});
-        return;
-    }
-
-    if (parseInt(req.params.userIdA, 10) < 0 ||  parseInt(req.params.userIdB, 10) < 0){
-        res.status(400).send({message : "Negative userId"});
-        return;
-    }
-
-
-    var userAMatchDoc;
-    var userBMatchDoc;
-
-    /* Get user_a's match document for a specific time and date */
-    userDb.collection("matchesClt").find(queryUserA).toArray((err, a) => {
+/* Need eventId in body 
+ * UPDATE: try not to use body.
+ */
+app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
+    var queryA = {userId: parseInt(req.params.userIdA, 10),
+                 eventId: parseInt(req.params.eventIdA, 10)};
+    userDb.collection("matchesClt").find(queryA).toArray((err, timedate) => {
         if (err) {return err;}
-        if (doesntExist(a)){
-            res.status(400).send({message:"User A doesn't exist"});
-            return err;
-        }
-        userAMatchDoc = a[0];
-
-        /* Get user_b's match document for a specific time and date */
-        userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
+        var thisTime = timedate[0].time;
+        var thisDate = timedate[0].date;
+        var queryB = {time : thisTime,
+                      date : thisDate,
+                      userId: parseInt(req.params.userIdB, 10)};
+        userDb.collection("matchesClt").find(queryB).toArray((err, event) => {
             if (err) {return err;}
-            if (doesntExist(b)){
-                res.status(400).send({message:"User B doesn't exist"});
-                return err;
+
+            var eventIdA = parseInt(req.params.eventIdA, 10);
+            var eventIdB = parseInt(event[0].eventId, 10);
+
+            var queryUserA = { userId : parseInt(req.params.userIdA, 10), "eventId" : parseInt(eventIdA, 10)};
+            var queryUserB = { userId : parseInt(req.params.userIdB, 10), "eventId" : parseInt(eventIdB, 10)};
+
+            if (parseInt(req.params.userIdA, 10) === parseInt(req.params.userIdB, 10)){
+                res.status(400).send({message : "Cannot match the user with themselves."});
+                return;
             }
-            userBMatchDoc = b[0];
 
-                 /* If user_b has already requested to match with user_a and is waiting */
-                if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
-                    userAMatchDoc["eventMatch"] = parseInt(req.body.eventIdB);
-                    userBMatchDoc["eventMatch"] = parseInt(req.body.eventIdA);
-                    /* user_b is user_a's match */
-                    userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
-                    /* user_a to user_b's match */
-                    userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
+            if (parseInt(req.params.userIdA, 10) < 0 ||  parseInt(req.params.userIdB, 10) < 0){
+                res.status(400).send({message : "Negative userId"});
+                return;
+            }
 
-                    userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
-                    
-                    userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
+            var userAMatchDoc;
+            var userBMatchDoc;
+
+            /* Get user_a's match document for a specific time and date */
+            userDb.collection("matchesClt").find(queryUserA).toArray((err, a) => {
+                if (err) {return err;}
+                if (doesntExist(a)){
+                    res.status(400).send({message:"User A doesn't exist"});
+                    return err;
                 }
-                else {
-                    /* user_a has requested to match with user_b*/
-                    userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
-                    /* user_a is waiting to match with user_b */
-                    userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
-                }
-            /* Update userA's matches */
-            userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
-                if (err) { res.status(400).send({message : "User A Error"}); return err;}
+                userAMatchDoc = a[0];
 
-                    /* Update userB's matches */
-                userDb.collection("matchesClt").updateOne(queryUserB, {$set: {eventMatch: userBMatchDoc.eventMatch, match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
-                    if (err) { res.status(400).send({message : "User B Error"}); return err;}
+                /* Get user_b's match document for a specific time and date */
+                userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
+                    if (err) {return err;}
+                    if (doesntExist(b)){
+                        res.status(400).send({message:"User B doesn't exist"});
+                        return err;
+                    }
+                    userBMatchDoc = b[0];
 
-                    res.status(200).send({message : "Successfully added matches."});
+                        /* If user_b has already requested to match with user_a and is waiting */
+                        if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
+                            userAMatchDoc["eventMatch"] = parseInt(eventIdB);
+                            userBMatchDoc["eventMatch"] = parseInt(eventIdA);
+                            /* user_b is user_a's match */
+                            userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
+                            /* user_a to user_b's match */
+                            userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
+
+                            userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
+                            
+                            userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
+                        }
+                        else {
+                            /* user_a has requested to match with user_b*/
+                            userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
+                            /* user_a is waiting to match with user_b */
+                            userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
+                        }
+                    /* Update userA's matches */
+                    userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
+                        if (err) { res.status(400).send({message : "User A Error"}); return err;}
+
+                            /* Update userB's matches */
+                        userDb.collection("matchesClt").updateOne(queryUserB, {$set: {eventMatch: userBMatchDoc.eventMatch, match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
+                            if (err) { res.status(400).send({message : "User B Error"}); return err;}
+
+                            res.status(200).send({message : "Successfully added matches."});
+                        })
+                    })
                 })
             })
         })
@@ -934,6 +960,12 @@ app.post("/schedule/:userId", async (req,res) => {
             res.status(400).send({message: "You are trying to post a schedule to a user that doesnt exist (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
+        scheduleDb.collection("scheduleClt").find({ userId : parseInt(req.params.userId, 10), eventId : parseInt(req.body.eventId, 10)}).toArray((err, userSch) => {
+
+            if (!doesntExist(userSch)){
+                res.status(400).send({message: "You are trying to post to an event that already exists (┛ಠ_ಠ)┛彡┻━┻, try to use a put instead"});
+                return;
+            }
 
         /* Create schedule object */
         scheduleDb.collection("scheduleClt").insertOne(
@@ -959,6 +991,7 @@ app.post("/schedule/:userId", async (req,res) => {
                if (err) {return err;}
             //    console.log('matches document init done')
                res.status(200.).send({message: "Schedule has been posted!! :)"});
+             })
         })
     })
 })
