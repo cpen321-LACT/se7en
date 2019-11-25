@@ -98,7 +98,7 @@ export default class Matches extends React.Component {
 
     /* -------------------------------------------------------------------------- */
     /* ListItem related methods */
-  /*  renderCurrentMatchesItem = ({ item }) => (
+    renderCurrentMatchesItem = ({ item }) => (
         <ListItem
             title={item.name}
             subtitle={item.subtitle}
@@ -111,8 +111,7 @@ export default class Matches extends React.Component {
                     { text: "No", type: "cancel" }
                 ])}
         />
-    )*/
-    
+    )
 
     renderIncomingMatchesItem = ({ item }) => (
         <ListItem
@@ -158,16 +157,16 @@ export default class Matches extends React.Component {
     /* -------------------------------------------------------------------------- */
 
     deleteCurrentMatch(inputString) {
-        //console.log("Input: " + inputString);
+        console.log("Input: " + inputString);
         var partnerID = inputString.substring(inputString.indexOf("User ID") + 9, inputString.indexOf("in") - 1);
-        //console.log("partnerID: " + partnerID);
+        console.log("partnerID: " + partnerID);
         var partnerEventID = inputString.substring(inputString.indexOf("Current") + 8, inputString.indexOf("]"));
-        //console.log("partnerEventID: " + partnerEventID);
+        console.log("partnerEventID: " + partnerEventID);
         var myEventID = inputString.substring(inputString.indexOf("event ID:") + 10, inputString.indexOf("at") - 1);
-        //console.log("myEventID: " + myEventID);
+        console.log("myEventID: " + myEventID);
 
         let fetchURL = baseURL + "user/" + this.props.userID + "/matches/" + partnerID + "/" + myEventID + "/" + partnerEventID;
-        //console.log(fetchURL);
+        console.log(fetchURL);
         fetch(fetchURL, {
             method: "DELETE",
             headers: {
@@ -178,8 +177,7 @@ export default class Matches extends React.Component {
             .then((response) => response.text())
             .then((responseJson) => {
                 console.log("[deleteMatch] " + responseJson)
-            }
-         );
+            });
 
         var i;
         for (i = 0; i < this.props.currentMatches.length; i++) {
@@ -387,31 +385,11 @@ export default class Matches extends React.Component {
                             <View style={styles.safeContainer, { backgroundColor: "#4286f4" }}>
                                 <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Current matches:</Text>
                             </View>
-                          /*  <FlatList
+                            <FlatList
                                 keyExtractor={this.keyExtractor}
                                 data={this.props.currentMatches}
                                 renderItem={this.renderCurrentMatchesItem}
-                            /> */
-
-                            <View>
-                            {
-                                 this.props.currentMatches.map((l, i) => (
-                                  <ListItem
-                                       key={i}
-                                       title={l.name}
-                                       subtitle={l.subtitle}
-                                       leftAvatar={{ source: { uri: l.avatar_url } }}
-                                       bottomDivider
-                                       chevron
-                                       onPress={() => Alert.alert(l.name, "Do you want to accept this match?",
-                                       [
-                                       { text: "Yes", onPress: () => this.deleteIncomingMatch(l.name, l.subtitle) },
-                                       { text: "No", type: "cancel" }
-                                       ])}
-                                    />
-                                 ))
-                            }
-                            </View>
+                            />
 
                             <View style={styles.safeContainer, { backgroundColor: "#4286f4" }}>
                                 <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Incoming matches:</Text>

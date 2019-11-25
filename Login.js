@@ -976,9 +976,31 @@ export default class Login extends Component {
     this.initUserSchedule();
     this.initUserInfo();
     this.initUserPreferences();
+    this.initPushNoti();
+  }
+
+  initPushNoti() {
     /* Start a timer for checking potential matches notify user using Push Notification */
     BackgroundTimer.runBackgroundTimer(() => {
-      /* Something goes here */
+      let fetchURL =
+        baseURL + 'user/' + this.props.userID + '/matchesNotification';
+      console.log("[push noti]: fetchURL: " + fetchURL);
+      fetch(fetchURL, {
+        method: 'GET',
+      })
+        .then(response => response.json())
+        .then(responseJson => {
+          console.log("[push noti] " + responseJson.flag.toString());
+          /* Gotta check if the potential matches change or not */
+          if (responseJson.flag.toString() === "0") {
+            console.log("[push noti] no new changes");
+            return;
+          }
+          else {
+            console.log("[push noti] changes coming");
+            this.props.push_noti.localNotif("You have new incoming matches!\nGo to Matches and refresh to see them now");
+          }
+        })
     }, 10000); /* This is in miliseconds. We repeat this for every 10 seconds. Can be a smaller time interval as well */
   }
 

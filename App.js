@@ -315,7 +315,7 @@ export default class App extends Component {
               currentMatchesClear={this.clearCurrentMatches.bind(this)}
               incomingMatchesClear={this.clearIncomingMatches.bind(this)}
               potentialMatchesClear={this.clearPotentialMatches.bind(this)}
-              waitingMatchesClear={this.clearPotentialMatches.bind(this)}
+              waitingMatchesClear={this.clearWaitingMatches.bind(this)}
               currentMatchesAdd={this.addCurrentMatches.bind(this)}
               incomingMatchesAdd={this.addIncomingMatches.bind(this)}
               potentialMatchesAdd={this.addPotentialMatches.bind(this)}
