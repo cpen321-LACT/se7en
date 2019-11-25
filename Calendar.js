@@ -123,7 +123,8 @@ export default class Calendar extends React.Component {
   }
 
   /* Add a schedule object to the backend */
-  addSchedulePrepare(){
+
+  addSchedule() {
     /* First check for errors (NULL/empty) */
     var toCheck = [this.state.tmpDate, this.state.tmpStartTime, this.state.tmpEndTime, this.state.tmpSubject, this.state.tmpLocation];
     for (var i = 0; i < toCheck.length; i += 1) {
@@ -133,8 +134,6 @@ export default class Calendar extends React.Component {
       }
     }
 
-    let fetchURL = baseURL + "schedule/" + this.props.userID;
-    console.log("[addSchedule] fetchURL: " + fetchURL);
 
     /* Start time */
     var eventStart = new Date();
@@ -155,23 +154,8 @@ export default class Calendar extends React.Component {
     this.props.eventIDChange(this.props.eventID + 1);
 
 
-
-
-  }
-  addSchedule() {
-    this.addSchedulePrepare();
-    /* Create a temporary schedule obj */
-    var tmp = {
-      id: this.props.eventID,
-      startDate: this.state.tmpStartTime,
-      endDate: this.state.tmpEndTime,
-      color: this.state.tmpColor,
-      description: this.state.tmpSubject,
-      subject: this.state.tmpSubject,
-      location: this.state.tmpLocation
-    };
-
     /* Post the schedle obj to the database */
+    let fetchURL = baseURL + "schedule/" + this.props.userID;
     fetch(fetchURL, {
       method: "POST",
       headers: {
@@ -204,6 +188,16 @@ export default class Calendar extends React.Component {
         }
         else {
           /* Add it to the local scheduleArray for rendering */
+          /* Create a temporary schedule obj */
+          var tmp = {
+            id: this.props.eventID,
+            startDate: this.state.tmpStartTime,
+            endDate: this.state.tmpEndTime,
+            color: this.state.tmpColor,
+            description: this.state.tmpSubject,
+            subject: this.state.tmpSubject,
+            location: this.state.tmpLocation
+          };
           this.props.scheduleArrayAdd(tmp);
           Alert.alert("Added schedule successfully!");
           this.unrenderUserform();
@@ -248,13 +242,12 @@ export default class Calendar extends React.Component {
     })
       .then((response) => response.text())
       .then((responseJson) => {
-        console.log(responseJson);
+        //console.log(responseJson);
         /* First check if user has any schedule to fetch or not */
         if (responseJson.includes("doesn't have any")) {
           return;
         }
-        else {
-          /* If not, we do the actual fetch */
+                  /* If not, we do the actual fetch */
           fetch(fetchURL, {
             method: "GET",
             headers: {
@@ -268,11 +261,9 @@ export default class Calendar extends React.Component {
                 this.props.scheduleArrayClear();
                 responseJson.forEach((item) => {
                   var startTimeToAdd = new Date(item.date);
-                  startTimeToAdd.setHours(item.time.substring(0, 2));
-                  startTimeToAdd.setMinutes(item.time.substring(3, 5));
+                  startTimeToAdd.setHours(item.time.substring(0, 2), item.time.substring(3, 5));
                   var endTimeToAdd = new Date(item.date);
-                  endTimeToAdd.setHours(item.time.substring(6, 8));
-                  endTimeToAdd.setMinutes(item.time.substring(9, 11));
+                  endTimeToAdd.setHours(item.time.substring(6, 8), item.time.substring(9, 11));
                   var tmpSchedule = {
                     id: item.eventId,
                     startDate: startTimeToAdd,
@@ -289,7 +280,7 @@ export default class Calendar extends React.Component {
                 console.log("Updated event ID: " + this.props.eventID);
               }
             });
-        }
+        
       });
     this.setState({ calendarRefreshing: false });
   }
