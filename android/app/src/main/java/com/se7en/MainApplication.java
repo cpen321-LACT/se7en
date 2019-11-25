@@ -12,8 +12,11 @@ import java.util.List;
 
 /**
  * project: se7en
-*/
+ */
 public class MainApplication extends Application implements ReactApplication {
+  MainApplication(){
+
+  }
 
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHost(this) {
