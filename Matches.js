@@ -78,7 +78,7 @@ export const baseURL =
 // export const baseURL =
 //   Platform.OS === "android"
 //     ? "http://127.0.0.1:3000/"
-//     : "http://localhost:3000/";
+//     : "http://localhost:3000/"; 
 
 
 export default class Matches extends React.Component {
@@ -86,12 +86,8 @@ export default class Matches extends React.Component {
         super(props);
         this.state = {
             /* User info states */
-            confirmDelete: false,
-
         };
     }
-
-
 
     /* -------------------------------------------------------------------------- */
     /* ListItem related methods */
@@ -104,9 +100,50 @@ export default class Matches extends React.Component {
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to cancel this match?",
                 [
-                    { text: "Yes", onPress: () => this.deleteMatch(item.subtitle) },
+                    { text: "Yes", onPress: () => this.deleteCurrentMatch(item.subtitle) },
                     { text: "No", type: "cancel" }
                 ])}
+        />
+    )
+
+    renderIncomingMatchesItem = ({ item }) => (
+        <ListItem
+            title={item.name}
+            subtitle={item.subtitle}
+            leftAvatar={{ source: { uri: item.avatar_url } }}
+            bottomDivider
+            chevron
+            onPress={() => Alert.alert(item.name, "Do you want to accept this match?",
+                [
+                    { text: "Yes", onPress: () => this.deleteIncomingMatch(item.subtitle) },
+                    { text: "No", type: "cancel" }
+                ])}
+        />
+    )
+
+    renderPotentialMatchesItem = ({ item }) => (
+        <ListItem
+            title={item.name}
+            subtitle={item.subtitle}
+            leftAvatar={{ source: { uri: item.avatar_url } }}
+            bottomDivider
+            chevron
+            onPress={() => Alert.alert(item.name, "Do you want to request for this match?",
+                [
+                    { text: "Yes", onPress: () => this.deletePotentialMatch(item.subtitle) },
+                    { text: "No", type: "cancel" }
+                ])}
+        />
+    )
+
+    renderWaitingMatchesItem = ({ item }) => (
+        <ListItem
+            title={item.name}
+            subtitle={item.subtitle}
+            leftAvatar={{ source: { uri: item.avatar_url } }}
+            bottomDivider
+        //chevron
+        //onPress={}
         />
     )
 
@@ -114,7 +151,7 @@ export default class Matches extends React.Component {
 
     /* -------------------------------------------------------------------------- */
 
-    deleteMatch(inputString) {
+    deleteCurrentMatch(inputString) {
         console.log("Input: " + inputString);
         var partnerID = inputString.substring(9, inputString.indexOf("in") - 1);
         console.log("partnerID: " + partnerID);
@@ -154,8 +191,119 @@ export default class Matches extends React.Component {
         //             Alert.alert("Could not initialize user's info");
         //         }
         //     });
+
+        //this.props.currentMatchesClear();
+        var i;
+        for (i = 0; i < this.props.currentMatches.length; i++) {
+            if (this.props.currentMatches[i].subtitle === inputString) {
+                this.props.deleteCurrentMatchesElement(i, 1);
+                return;
+            }
+        }
     }
 
+    deleteIncomingMatch(inputString) {
+        console.log("Input: " + inputString);
+        var partnerID = inputString.substring(9, inputString.indexOf("in") - 1);
+        console.log("partnerID: " + partnerID);
+        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.length);
+        console.log("eventID: " + eventID);
+
+        let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+        console.log(fetchURL);
+        // fetch(fetchURL, {
+        //     method: "DELETE",
+        //     headers: {
+        //         Accept: "application/json",
+        //         "Content-Type": "application/json",
+        //     },
+        // })
+        //     .then((response) => response.test())
+        //     .then((responseJson) => {
+        //         console.log("[deleteMatch] " + responseJson)
+        //         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+        //             this.props.yearLevelChange(responseJson[0].yearLevel);
+        //             this.props.coursesChange(responseJson[0].courses);
+        //             this.props.sexChange(responseJson[0].sex);
+        //             this.props.numberOfRatingsChange(
+        //                 responseJson[0].numberOfRatings
+        //             );
+        //             this.props.kindnessSelfRateChange(responseJson[0].kindness);
+        //             this.props.patienceSelfRateChange(responseJson[0].patience);
+        //             this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
+        //             this.props.authenticationTokenChange(
+        //                 responseJson[0].authenticationToken
+        //             );
+        //             this.props.passwordChange(responseJson[0].password);
+        //             this.props.emailChange(responseJson[0].email);
+        //             this.props.nameChange(responseJson[0].name);
+        //         }
+        //         else {
+        //             Alert.alert("Could not initialize user's info");
+        //         }
+        //     });
+
+        var i;
+        for (i = 0; i < this.props.incomingMatches.length; i++) {
+            if (this.props.incomingMatches[i].subtitle === inputString) {
+                this.props.currentMatchesAdd(this.props.incomingMatches[i]);
+                this.props.deleteIncomingMatchesElement(i, 1);
+                return;
+            }
+        }
+    }
+
+    deletePotentialMatch(inputString) {
+        console.log("Input: " + inputString);
+        var partnerID = inputString.substring(9, inputString.indexOf("in") - 1);
+        console.log("partnerID: " + partnerID);
+        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.length);
+        console.log("eventID: " + eventID);
+
+        let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+        console.log(fetchURL);
+        // fetch(fetchURL, {
+        //     method: "DELETE",
+        //     headers: {
+        //         Accept: "application/json",
+        //         "Content-Type": "application/json",
+        //     },
+        // })
+        //     .then((response) => response.test())
+        //     .then((responseJson) => {
+        //         console.log("[deleteMatch] " + responseJson)
+        //         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+        //             this.props.yearLevelChange(responseJson[0].yearLevel);
+        //             this.props.coursesChange(responseJson[0].courses);
+        //             this.props.sexChange(responseJson[0].sex);
+        //             this.props.numberOfRatingsChange(
+        //                 responseJson[0].numberOfRatings
+        //             );
+        //             this.props.kindnessSelfRateChange(responseJson[0].kindness);
+        //             this.props.patienceSelfRateChange(responseJson[0].patience);
+        //             this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
+        //             this.props.authenticationTokenChange(
+        //                 responseJson[0].authenticationToken
+        //             );
+        //             this.props.passwordChange(responseJson[0].password);
+        //             this.props.emailChange(responseJson[0].email);
+        //             this.props.nameChange(responseJson[0].name);
+        //         }
+        //         else {
+        //             Alert.alert("Could not initialize user's info");
+        //         }
+        //     });
+
+        var i;
+        for (i = 0; i < this.props.potentialMatches.length; i++) {
+            if (this.props.potentialMatches[i].subtitle === inputString) {
+                console.log("here at: " + i);
+                this.props.waitingMatchesAdd(this.props.potentialMatches[i]);
+                this.props.deletePotentialMatchesElement(i, 1);
+                return;
+            }
+        }
+    }
 
     render() {
         return (
@@ -196,7 +344,7 @@ export default class Matches extends React.Component {
                             <FlatList
                                 keyExtractor={this.keyExtractor}
                                 data={this.props.incomingMatches}
-                                renderItem={this.renderItem}
+                                renderItem={this.renderIncomingMatchesItem}
                             />
 
                             <View style={styles.safeContainer}>
@@ -205,7 +353,16 @@ export default class Matches extends React.Component {
                             <FlatList
                                 keyExtractor={this.keyExtractor}
                                 data={this.props.potentialMatches}
-                                renderItem={this.renderItem}
+                                renderItem={this.renderPotentialMatchesItem}
+                            />
+
+                            <View style={styles.safeContainer}>
+                                <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Waiting matches:</Text>
+                            </View>
+                            <FlatList
+                                keyExtractor={this.keyExtractor}
+                                data={this.props.waitingMatches}
+                                renderItem={this.renderWaitingMatchesItem}
                             />
                         </ScrollView>
                     </SafeAreaView>
