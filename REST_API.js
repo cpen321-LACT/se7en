@@ -783,12 +783,16 @@ app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
                         }
                         else {
                             /* user_a has requested to match with user_b*/
-                            userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
+                            if (!userBMatchDoc["request"].includes(parseInt(req.params.userIdA, 10))) {
+                                userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
+                            }
                             /* user_a is waiting to match with user_b */
-                            userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
+                            if (!userBMatchDoc["wait"].includes(parseInt(req.params.userIdB, 10))) {
+                                userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
+                            }
                         }
                     /* Update userA's matches */
-                    userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait, flag : 1}}, (err, updateResultA) => {
+                    userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait, flag : 0}}, (err, updateResultA) => {
                         if (err) { res.status(400).send({message : "User A Error"}); return err;}
 
                             /* Update userB's matches */
@@ -1030,6 +1034,7 @@ app.post("/schedule/:userId", async (req,res) => {
              "request" : [],
              "potentialMatches" : [],
              "match" : -1,
+             "eventMatch" : -1,
              "flag" : 0},(err, result) => {
                if (err) {return err;}
             //    console.log('matches document init done')
