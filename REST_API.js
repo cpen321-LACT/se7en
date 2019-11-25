@@ -628,20 +628,28 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
         var ret = [];
         userDb.collection("infoClt").find({userId : parseInt(Matches[0].match, 10)}).toArray((err, matchUser) => {
             if(parseInt(Matches[0].match,10) !== -1){
-                    ret.push(      {"name" : matchUser[0].name,
-                                    "match" : Matches[0].match,
-                                    "wait" : Matches[0].wait,
+                    ret.push(      {"userId" : Matches[0]["userId"],
+                                    "eventId" : Matches[0]["eventId"],
+                                    "time" : Matches[0]["time"],
+                                    "date" : Matches[0]["date"],
                                     "potentialMatches" : Matches[0]["potentialMatches"],
+                                    "wait" : Matches[0].wait,
                                     "request" : Matches[0]["request"],
-                                    "eventId" : Matches[0]["eventId"] });
+                                    "matchName" : matchUser[0].name,
+                                    "match" : Matches[0]["match"],
+                                    "eventMatch" : Matches[0]["eventMatch"]});
             }
             else{
-                ret.push(      {"name" : null,
-                                "match" : Matches[0].match,
-                                "wait" : Matches[0].wait,
+                ret.push(      {"userId" : Matches[0]["userId"],
+                                "eventId" : Matches[0]["eventId"],
+                                "time" : Matches[0]["time"],
+                                "date" : Matches[0]["date"],
                                 "potentialMatches" : Matches[0]["potentialMatches"],
+                                "wait" : Matches[0].wait,
                                 "request" : Matches[0]["request"],
-                                "eventId" : Matches[0]["eventId"] });
+                                "matchName" : null,
+                                "match" : null,
+                                "eventMatch" : null});
             }
         res.status(200).send(ret);
     }) }) }) }) }) }) })
@@ -696,7 +704,8 @@ app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
 
                  /* If user_b has already requested to match with user_a and is waiting */
                 if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
-
+                    userAMatchDoc["eventMatch"] = parseInt(req.body.eventIdB);
+                    userBMatchDoc["eventMatch"] = parseInt(req.body.eventIdA);
                     /* user_b is user_a's match */
                     userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
                     /* user_a to user_b's match */
@@ -705,23 +714,19 @@ app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
                     userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
                     
                     userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
-
                 }
                 else {
                     /* user_a has requested to match with user_b*/
                     userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
-
                     /* user_a is waiting to match with user_b */
                     userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
-
                 }
-
             /* Update userA's matches */
-            userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
+            userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
                 if (err) { res.status(400).send({message : "User A Error"}); return err;}
 
                     /* Update userB's matches */
-                userDb.collection("matchesClt").updateOne(queryUserB, {$set: {match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
+                userDb.collection("matchesClt").updateOne(queryUserB, {$set: {eventMatch: userBMatchDoc.eventMatch, match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
                     if (err) { res.status(400).send({message : "User B Error"}); return err;}
 
                     res.status(200).send({message : "Successfully added matches."});
@@ -783,7 +788,7 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
  * This will call helper function personMatchDelete()
  * Tung: Can you test this
  */
-app.delete("/user/:userId/matches/:matchId/:eventId", async (req,res) => {
+app.delete("/user/:userId/matches/:matchId/:eventId/:eventMatchId", async (req,res) => {
     var query = { userId : parseInt(req.params.userId, 10), 
                   eventId: parseInt(req.params.eventId, 10)}
     userDb.collection("matchesClt").find(query).toArray((err, result) => {
@@ -794,7 +799,7 @@ app.delete("/user/:userId/matches/:matchId/:eventId", async (req,res) => {
         }
 
     var err1 = personMatchDelete(req.params.userId, req.params.eventId);
-    var err2 = 0; // personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
+    var err2 = personMatchDelete(req.params.matchId, req.params.eventMatchId);
     if(err1 || err2) {return (err1 || err2);} 
     res.send({message: "Successfully unmatch."});
     })
@@ -988,7 +993,8 @@ app.put("/schedule/:userId/:eventId", async (req,res) => {
          "wait" : [],
          "request" : [],
          "potentialMatches" : [],
-         "match" : -1},(err, result) => {
+         "match" : -1,
+         "eventMatch": -1},(err, result) => {
            if (err) {return err;}
         //    console.log('matches document init done')
          //  res.send("Schedule has been posted");
