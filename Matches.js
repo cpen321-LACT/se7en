@@ -157,16 +157,16 @@ export default class Matches extends React.Component {
     /* -------------------------------------------------------------------------- */
 
     deleteCurrentMatch(inputString) {
-        console.log("Input: " + inputString);
+        //console.log("Input: " + inputString);
         var partnerID = inputString.substring(inputString.indexOf("User ID") + 9, inputString.indexOf("in") - 1);
-        console.log("partnerID: " + partnerID);
+        //console.log("partnerID: " + partnerID);
         var partnerEventID = inputString.substring(inputString.indexOf("Current") + 8, inputString.indexOf("]"));
-        console.log("partnerEventID: " + partnerEventID);
+        //console.log("partnerEventID: " + partnerEventID);
         var myEventID = inputString.substring(inputString.indexOf("event ID:") + 10, inputString.indexOf("at") - 1);
-        console.log("myEventID: " + myEventID);
+        //console.log("myEventID: " + myEventID);
 
         let fetchURL = baseURL + "user/" + this.props.userID + "/matches/" + partnerID + "/" + myEventID + "/" + partnerEventID;
-        console.log(fetchURL);
+        //console.log(fetchURL);
         fetch(fetchURL, {
             method: "DELETE",
             headers: {
@@ -177,7 +177,8 @@ export default class Matches extends React.Component {
             .then((response) => response.text())
             .then((responseJson) => {
                 console.log("[deleteMatch] " + responseJson)
-            });
+            }
+         );
 
         var i;
         for (i = 0; i < this.props.currentMatches.length; i++) {
