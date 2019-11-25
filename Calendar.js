@@ -126,7 +126,7 @@ export default class Calendar extends React.Component {
   addSchedule() {
     /* First check for errors (NULL/empty) */
     var toCheck = [this.state.tmpDate, this.state.tmpStartTime, this.state.tmpEndTime, this.state.tmpSubject, this.state.tmpLocation];
-    for (var i = 0; i < toCheck.length; i++) {
+    for (var i = 0; i < toCheck.length; i += 1) {
       if (this.checkNULL(toCheck[i]) || this.checkEmpty(toCheck[i])) {
         Alert.alert("One of the fields must not be NULL or empty");
         return;
