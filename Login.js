@@ -896,7 +896,7 @@ export default class Login extends Component {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-        },
+        }
       })
         /* First check if user, especially newly created ones have any schedules to initialize */
         .then((response) => response.text())
