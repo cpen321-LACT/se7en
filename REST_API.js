@@ -28,11 +28,11 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* User Database */
   userDb.createCollection("infoClt", function(err, res) {
     if (err) {throw err;}
-     console.log("Info collection created!");
+     //console.log("Info collection created!");
   });
   userDb.createCollection("preferencesClt", function(err, res) {
     if (err) {throw err;}
-     console.log("Peferences collection created!");
+     //console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
     if (err) {throw err;}
@@ -41,7 +41,7 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* Schedule Database */
   scheduleDb.createCollection("scheduleClt", function(err, res) {
     if (err) {throw err;}
-     console.log("Schedule collection created!");
+     //console.log("Schedule collection created!");
   });
 
    app.listen(8081, function() {
@@ -865,7 +865,6 @@ app.delete("/user/:userId/matches/:matchId/:eventId/:eventMatchId", async (req,r
                   eventId: parseInt(req.params.eventId, 10)}
     userDb.collection("matchesClt").find(query).toArray((err, result) => {
         if (err) {return err;}
-        console.log(result);
         if(parseInt(result[0]["match"], 10) !== parseInt(req.params.matchId, 10)){
             res.status(400).send({message: "Two people are not matched, something is wrong here :<"});
         }
@@ -1022,7 +1021,7 @@ app.post("/schedule/:userId", async (req,res) => {
              "course" : req.body.course,
              "location" : req.body.location},(err, result) => {
             if (err) {return err;}
-             console.log('Schedule added')
+             //console.log('Schedule added')
         })
         /* Create a match object for that schedule */
         userDb.collection("matchesClt").insertOne(
