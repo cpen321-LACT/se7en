@@ -123,7 +123,7 @@ export default class Calendar extends React.Component {
   }
 
   /* Add a schedule object to the backend */
-  addSchedule() {
+  addSchedulePrepare(){
     /* First check for errors (NULL/empty) */
     var toCheck = [this.state.tmpDate, this.state.tmpStartTime, this.state.tmpEndTime, this.state.tmpSubject, this.state.tmpLocation];
     for (var i = 0; i < toCheck.length; i += 1) {
@@ -155,6 +155,11 @@ export default class Calendar extends React.Component {
     this.props.eventIDChange(this.props.eventID + 1);
 
 
+
+
+  }
+  addSchedule() {
+    this.addSchedulePrepare();
     /* Create a temporary schedule obj */
     var tmp = {
       id: this.props.eventID,
@@ -208,7 +213,7 @@ export default class Calendar extends React.Component {
 
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
-    console.log("checkNULL typeof data: " + typeof data);
+    //console.log("checkNULL typeof data: " + typeof data);
     if (typeof data === "undefined"){
       return true;
     }

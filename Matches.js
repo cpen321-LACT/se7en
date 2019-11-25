@@ -13,7 +13,7 @@ import {
     Platform,
     FlatList,
 } from "react-native";
-import { ListItem } from "react-native-elements"
+import { ListItem } from "react-native-elements";
 
 /* -------------------------------------------------------------------------- */
 /* Styles */
@@ -317,7 +317,9 @@ export default class Matches extends React.Component {
                                             var tmpMatch = {
                                                 name: responseJson[0].request[i].toString(),
                                                 avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                                                subtitle: "[Incoming " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                                subtitle: "[Incoming " + i + "] " + "In event ID: " +
+                                                          responseJson[0].eventId + " at " +
+                                                          responseJson[0].time + ", " + responseJson[0].date
                                             }
                                             this.props.incomingMatchesAdd(tmpMatch);
                                         }
