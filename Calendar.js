@@ -190,7 +190,7 @@ export default class Calendar extends React.Component {
     })
       .then((response) => response.text())
       .then((responseJson) => {
-        console.log(responseJson)
+        console.log(responseJson);
         if (responseJson.includes("doesn't exist")) {
           Alert.alert("Cannot upload schedule, please try again");
         }
@@ -209,12 +209,7 @@ export default class Calendar extends React.Component {
   /* Helper functions that check whether or not any fields are NULL/empty */
   checkNULL(data) {
     console.log("checkNULL typeof data: " + typeof data);
-    if (typeof data === "undefined") {
-      return true;
-    }
-    else {
-      return false;
-    }
+    return (typeof data === "undefined")? true : false;
   }
 
   checkEmpty(data) {
@@ -455,7 +450,7 @@ export default class Calendar extends React.Component {
                 testID="calendarGoBackButton"
                 style={{ margin: 4 }}
                 titleColor="white"
-                color="black"	
+                color="black"
                 title="go back"
                 onPress={() => this.unrenderUserform()}
               />

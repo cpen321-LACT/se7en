@@ -180,7 +180,7 @@ export default class Matches extends React.Component {
             });
 
         var i;
-        for (i = 0; i < this.props.currentMatches.length; i++) {
+        for (i = 0; i < this.props.currentMatches.length; i += 1) {
             if (this.props.currentMatches[i].subtitle === inputString) {
                 this.props.deleteCurrentMatchesElement(i, 1);
                 return;
@@ -208,7 +208,7 @@ export default class Matches extends React.Component {
             });
 
         var i;
-        for (i = 0; i < this.props.incomingMatches.length; i++) {
+        for (i = 0; i < this.props.incomingMatches.length; i += 1) {
             if (this.props.incomingMatches[i].subtitle === inputString) {
                 var tmp = this.props.incomingMatches[i];
                 tmp.subtitle.replace("Incoming", "Current");
@@ -239,7 +239,7 @@ export default class Matches extends React.Component {
             });
 
         var i;
-        for (i = 0; i < this.props.potentialMatches.length; i++) {
+        for (i = 0; i < this.props.potentialMatches.length; i += 1) {
             if (this.props.potentialMatches[i].subtitle === inputString) {
                 console.log("here at: " + i);
                 var tmp = this.props.potentialMatches[i];
@@ -260,7 +260,7 @@ export default class Matches extends React.Component {
         this.props.waitingMatchesClear();
 
         var i;
-        for (i = 0; i < this.props.scheduleArray.length; i++) {
+        for (i = 0; i < this.props.scheduleArray.length; i += 1) {
             let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.props.scheduleArray[i].id;
             console.log("[matches refresh] fetchURL: " + fetchURL);
             fetch(fetchURL, {
@@ -309,7 +309,7 @@ export default class Matches extends React.Component {
                                     }
                                     else {
                                         var i;
-                                        for (i = 0; i < responseJson[0].request.length; i++) {
+                                        for (i = 0; i < responseJson[0].request.length; i += 1) {
                                             var tmpMatch = {
                                                 name: responseJson[0].request[i].toString(),
                                                 avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
@@ -325,7 +325,7 @@ export default class Matches extends React.Component {
                                     }
                                     else {
                                         var i;
-                                        for (i = 0; i < responseJson[0].potentialMatches.length; i++) {
+                                        for (i = 0; i < responseJson[0].potentialMatches.length; i += 1) {
                                             var tmpMatch = {
                                                 name: responseJson[0].potentialMatches[i].toString(),
                                                 avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
@@ -341,7 +341,7 @@ export default class Matches extends React.Component {
                                     }
                                     else {
                                         var i;
-                                        for (i = 0; i < responseJson[0].wait.length; i++) {
+                                        for (i = 0; i < responseJson[0].wait.length; i += 1) {
                                             var tmpMatch = {
                                                 name: responseJson[0].wait[i].toString(),
                                                 avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",

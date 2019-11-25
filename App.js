@@ -12,7 +12,7 @@ import TabNavigator from "react-native-tab-navigator";
 import Calendar from "./Calendar.js";
 import Profile from "./Profile.js";
 import Login from "./Login.js";
-import Matches from "./Matches.js"
+import Matches from "./Matches.js";
 import NotifService from "./NotifService";
 
 /* Suppress warnings for now */
