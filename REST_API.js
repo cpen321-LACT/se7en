@@ -170,7 +170,7 @@ function allWaitDelete(userId, request, t, d){
 function personMatchDelete(userId, eventId){
     var query = {"userId" : parseInt(userId, 10),
                  "eventId" : parseInt(eventId, 10)};
-    var newValues = {$set:{"match" : -1}};
+    var newValues = {$set:{"match" : -1, "flag" : 1}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
         if (err) {return 1;}
         return 0; 
@@ -549,6 +549,38 @@ app.delete("/user/:userId/info", async (req,res) => {
 
 /*---------------------------- Matches Collection ---------------------------- */
 
+/* 
+ * Push Notification checker function for matching, check for "flag" 
+ *
+ * NOTE: No need err checking here since we assume the frontend will handle this
+ */
+app.get("/user/:userId/matchesNotification", async (req,res) => {
+    //var array = [];
+    var ret = {flag : 0};
+    var query = {userId : parseInt(req.params.userId, 10)};
+    userDb.collection("matchesClt").find(query).toArray((err, matchArray) => {
+        if(err){res.send("SOMETHING WRONG").status(400);
+            return;}
+        for(var i = 0; i < matchArray.length; i++){
+            var matchEntry = matchArray[i];
+            /* Check if match is modified */
+            if(parseInt(matchEntry.flag, 10) === 1){
+                ret.flag = 1;
+            }
+        }
+        /* We need to set all flags to 0 now */
+        if(ret.flag === 1){
+            var newValues = {$set:{"flag" : 0}};
+            userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
+                if(err){res.send("SOMETHING WRONG").status(400);
+                    return;}
+            })
+        }
+        res.status(200).send(ret);
+    })
+})
+
+
 /*
  * Get a sorted list of the user with userId's potential,
  * waiting and current matches.
@@ -645,7 +677,8 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
                                     "request" : Matches[0]["request"],
                                     "matchName" : matchUser[0].name,
                                     "match" : Matches[0]["match"],
-                                    "eventMatch" : Matches[0]["eventMatch"]});
+                                    "eventMatch" : Matches[0]["eventMatch"],
+                                    "flag" : Matches[0]["flag"]});
             }
             else{
                 ret.push(      {"userId" : Matches[0]["userId"],
@@ -657,7 +690,8 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
                                 "request" : Matches[0]["request"],
                                 "matchName" : null,
                                 "match" : -1,
-                                "eventMatch" : -1});
+                                "eventMatch" : -1,
+                                "flag" : Matches[0]["flag"]});
             }
         res.status(200).send(ret);
     }) }) }) }) }) }) })
@@ -721,7 +755,7 @@ app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
                 if(userAMatchDoc.match !== -1){
                     var previous = {userId : parseInt(userAMatchDoc.match, 10),
                                     eventId : parseInt(userAMatchDoc.eventMatch, 10)};
-                    userDb.collection("matchesClt").updateOne(previous, {$set: {match : -1, eventMatch : -1, addNametoMatch : null}}, (err, updateResultA) => {
+                    userDb.collection("matchesClt").updateOne(previous, {$set: {match : -1, eventMatch : -1, addNametoMatch : null, flag : 1}}, (err, updateResultA) => {
                         if (err) { res.status(400).send({message : "User A previous matching Error"}); return err;}
                     })
                 }
@@ -754,11 +788,11 @@ app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
                             userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
                         }
                     /* Update userA's matches */
-                    userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
+                    userDb.collection("matchesClt").updateOne(queryUserA, {$set: {eventMatch: userAMatchDoc.eventMatch, match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait, flag : 1}}, (err, updateResultA) => {
                         if (err) { res.status(400).send({message : "User A Error"}); return err;}
 
                             /* Update userB's matches */
-                        userDb.collection("matchesClt").updateOne(queryUserB, {$set: {eventMatch: userBMatchDoc.eventMatch, match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait}}, (err, updateResultB) => {
+                        userDb.collection("matchesClt").updateOne(queryUserB, {$set: {eventMatch: userBMatchDoc.eventMatch, match : userBMatchDoc.match, request : userBMatchDoc.request, wait : userBMatchDoc.wait, flag : 1}}, (err, updateResultB) => {
                             if (err) { res.status(400).send({message : "User B Error"}); return err;}
 
                             res.status(200).send({message : "Successfully added matches."});
@@ -995,7 +1029,8 @@ app.post("/schedule/:userId", async (req,res) => {
              "wait" : [],
              "request" : [],
              "potentialMatches" : [],
-             "match" : -1},(err, result) => {
+             "match" : -1,
+             "flag" : 0},(err, result) => {
                if (err) {return err;}
             //    console.log('matches document init done')
                res.status(200.).send({message: "Schedule has been posted!! :)"});
@@ -1035,7 +1070,8 @@ app.put("/schedule/:userId/:eventId", async (req,res) => {
          "request" : [],
          "potentialMatches" : [],
          "match" : -1,
-         "eventMatch": -1},(err, result) => {
+         "eventMatch": -1,
+         "flag" : 1},(err, result) => {
            if (err) {return err;}
         //    console.log('matches document init done')
          //  res.send("Schedule has been posted");
