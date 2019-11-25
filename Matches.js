@@ -106,10 +106,9 @@ export default class Matches extends React.Component {
             bottomDivider
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to cancel this match?",
-                [
                     { text: "Yes", onPress: () => this.deleteCurrentMatch(item.subtitle) },
                     { text: "No", type: "cancel" }
-                ])}
+                    )}
         />
     )
 
@@ -121,10 +120,9 @@ export default class Matches extends React.Component {
             bottomDivider
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to accept this match?",
-                [
                     { text: "Yes", onPress: () => this.deleteIncomingMatch(item.name, item.subtitle) },
                     { text: "No", type: "cancel" }
-                ])}
+                    )}
         />
     )
 
@@ -136,10 +134,9 @@ export default class Matches extends React.Component {
             bottomDivider
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to request for this match?",
-                [
                     { text: "Yes", onPress: () => this.deletePotentialMatch(item.name, item.subtitle) },
                     { text: "No", type: "cancel" }
-                ])}
+                    )}
         />
     )
 
@@ -204,7 +201,7 @@ export default class Matches extends React.Component {
         })
             .then((response) => response.text())
             .then((responseJson) => {
-                console.log("[deleteMatch] " + responseJson)
+                console.log("[deleteMatch] " + responseJson);
             });
 
         var i;
@@ -335,7 +332,7 @@ export default class Matches extends React.Component {
                                             var tmpMatch = {
                                                 name: responseJson[0].potentialMatches[i].toString(),
                                                 avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                                                subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                                subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                                             }
                                             this.props.potentialMatchesAdd(tmpMatch);
                                         }
