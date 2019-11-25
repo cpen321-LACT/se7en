@@ -922,7 +922,7 @@ export default class Login extends Component {
                   else {
                     var tmpMatch = {
                       name: responseJson[0].matchName,
-                      avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                      avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                       subtitle: "[Current " + responseJson[0].eventMatch + "] " + "User ID: " + responseJson[0].match + " in event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                     };
                     this.props.currentMatchesAdd(tmpMatch);
@@ -937,7 +937,7 @@ export default class Login extends Component {
                     for (i = 0; i < responseJson[0].request.length; i++) {
                       var tmpMatch = {
                         name: responseJson[0].request[i].toString(),
-                        avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                        avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                         subtitle: "[Incoming " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                       }
                       this.props.incomingMatchesAdd(tmpMatch);
@@ -954,7 +954,7 @@ export default class Login extends Component {
                     for (i = 0; i < responseJson[0].potentialMatches.length; i++) {
                       var tmpMatch = {
                         name: responseJson[0].potentialMatches[i].toString(),
-                        avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                        avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                         subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                       }
                       this.props.potentialMatchesAdd(tmpMatch);
@@ -970,7 +970,7 @@ export default class Login extends Component {
                     for (i = 0; i < responseJson[0].wait.length; i++) {
                       var tmpMatch = {
                         name: responseJson[0].wait[i].toString(),
-                        avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                        avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                         subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                       }
                       this.props.waitingMatchesAdd(tmpMatch);

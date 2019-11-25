@@ -102,7 +102,7 @@ export default class Matches extends React.Component {
         <ListItem
             title={item.name}
             subtitle={item.subtitle}
-            leftAvatar={{ source: { uri: item.avatar_url } }}
+            leftAvatar={{ source: { uri: item.avatarURL } }}
             bottomDivider
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to cancel this match?",
@@ -116,7 +116,7 @@ export default class Matches extends React.Component {
         <ListItem
             title={item.name}
             subtitle={item.subtitle}
-            leftAvatar={{ source: { uri: item.avatar_url } }}
+            leftAvatar={{ source: { uri: item.avatarURL } }}
             bottomDivider
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to accept this match?",
@@ -130,7 +130,7 @@ export default class Matches extends React.Component {
         <ListItem
             title={item.name}
             subtitle={item.subtitle}
-            leftAvatar={{ source: { uri: item.avatar_url } }}
+            leftAvatar={{ source: { uri: item.avatarURL } }}
             bottomDivider
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to request for this match?",
@@ -144,7 +144,7 @@ export default class Matches extends React.Component {
         <ListItem
             title={item.name}
             subtitle={item.subtitle}
-            leftAvatar={{ source: { uri: item.avatar_url } }}
+            leftAvatar={{ source: { uri: item.avatarURL } }}
             bottomDivider
         />
     )
@@ -294,7 +294,7 @@ export default class Matches extends React.Component {
                                     else {
                                         var tmpMatch = {
                                             name: responseJson[0].matchName,
-                                            avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                            avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                                             subtitle: "[Current " + responseJson[0].eventMatch +
                                                       "] " + "User ID: " + responseJson[0].match +
 
@@ -313,7 +313,7 @@ export default class Matches extends React.Component {
                                         for (i = 0; i < responseJson[0].request.length; i += 1) {
                                             var tmpMatch = {
                                                 name: responseJson[0].request[i].toString(),
-                                                avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                                avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                                                 subtitle: "[Incoming " + i + "] " + "In event ID: " +
                                                           responseJson[0].eventId + " at " +
                                                           responseJson[0].time + ", " + responseJson[0].date
@@ -331,7 +331,7 @@ export default class Matches extends React.Component {
                                         for (i = 0; i < responseJson[0].potentialMatches.length; i += 1) {
                                             var tmpMatch = {
                                                 name: responseJson[0].potentialMatches[i].toString(),
-                                                avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                                avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                                                 subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                                             }
                                             this.props.potentialMatchesAdd(tmpMatch);
@@ -347,7 +347,7 @@ export default class Matches extends React.Component {
                                         for (i = 0; i < responseJson[0].wait.length; i += 1) {
                                             var tmpMatch = {
                                                 name: responseJson[0].wait[i].toString(),
-                                                avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                                avatarURL: "https://i.redd.it/q5d5fkvzqem31.jpg",
                                                 subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                                             }
                                             this.props.waitingMatchesAdd(tmpMatch);
