@@ -68,17 +68,23 @@ const styles = StyleSheet.create({
 
 /* -------------------------------------------------------------------------- */
 
-/* For emulator */
+/* For server uses */
 export const baseURL =
     Platform.OS === "android"
-        ? "http://10.0.2.2:3000/"
-        : "http://localhost:3000/";
+        ? "http://104.211.35.37:8081/"
+        : "http://104.211.35.37:8081/";
+
+/* For emulator */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://10.0.2.2:3000/"
+//     : "http://localhost:3000/";
 
 /* For physical device */
 // export const baseURL =
 //   Platform.OS === "android"
 //     ? "http://127.0.0.1:3000/"
-//     : "http://localhost:3000/"; 
+//     : "http://localhost:3000/";
 
 
 export default class Matches extends React.Component {
@@ -86,6 +92,7 @@ export default class Matches extends React.Component {
         super(props);
         this.state = {
             /* User info states */
+            matchesRefreshing: false,
         };
     }
 
@@ -115,7 +122,7 @@ export default class Matches extends React.Component {
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to accept this match?",
                 [
-                    { text: "Yes", onPress: () => this.deleteIncomingMatch(item.subtitle) },
+                    { text: "Yes", onPress: () => this.deleteIncomingMatch(item.name, item.subtitle) },
                     { text: "No", type: "cancel" }
                 ])}
         />
@@ -130,7 +137,7 @@ export default class Matches extends React.Component {
             chevron
             onPress={() => Alert.alert(item.name, "Do you want to request for this match?",
                 [
-                    { text: "Yes", onPress: () => this.deletePotentialMatch(item.subtitle) },
+                    { text: "Yes", onPress: () => this.deletePotentialMatch(item.name, item.subtitle) },
                     { text: "No", type: "cancel" }
                 ])}
         />
@@ -142,8 +149,6 @@ export default class Matches extends React.Component {
             subtitle={item.subtitle}
             leftAvatar={{ source: { uri: item.avatar_url } }}
             bottomDivider
-        //chevron
-        //onPress={}
         />
     )
 
@@ -153,46 +158,27 @@ export default class Matches extends React.Component {
 
     deleteCurrentMatch(inputString) {
         console.log("Input: " + inputString);
-        var partnerID = inputString.substring(9, inputString.indexOf("in") - 1);
+        var partnerID = inputString.substring(inputString.indexOf("User ID") + 9, inputString.indexOf("in") - 1);
         console.log("partnerID: " + partnerID);
-        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.length);
-        console.log("eventID: " + eventID);
+        var partnerEventID = inputString.substring(inputString.indexOf("Current") + 8, inputString.indexOf("]"));
+        console.log("partnerEventID: " + partnerEventID);
+        var myEventID = inputString.substring(inputString.indexOf("event ID:") + 10, inputString.indexOf("at") - 1);
+        console.log("myEventID: " + myEventID);
 
-        let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+        let fetchURL = baseURL + "user/" + this.props.userID + "/matches/" + partnerID + "/" + myEventID + "/" + partnerEventID;
         console.log(fetchURL);
-        // fetch(fetchURL, {
-        //     method: "DELETE",
-        //     headers: {
-        //         Accept: "application/json",
-        //         "Content-Type": "application/json",
-        //     },
-        // })
-        //     .then((response) => response.test())
-        //     .then((responseJson) => {
-        //         console.log("[deleteMatch] " + responseJson)
-        //         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-        //             this.props.yearLevelChange(responseJson[0].yearLevel);
-        //             this.props.coursesChange(responseJson[0].courses);
-        //             this.props.sexChange(responseJson[0].sex);
-        //             this.props.numberOfRatingsChange(
-        //                 responseJson[0].numberOfRatings
-        //             );
-        //             this.props.kindnessSelfRateChange(responseJson[0].kindness);
-        //             this.props.patienceSelfRateChange(responseJson[0].patience);
-        //             this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
-        //             this.props.authenticationTokenChange(
-        //                 responseJson[0].authenticationToken
-        //             );
-        //             this.props.passwordChange(responseJson[0].password);
-        //             this.props.emailChange(responseJson[0].email);
-        //             this.props.nameChange(responseJson[0].name);
-        //         }
-        //         else {
-        //             Alert.alert("Could not initialize user's info");
-        //         }
-        //     });
+        fetch(fetchURL, {
+            method: "DELETE",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.text())
+            .then((responseJson) => {
+                console.log("[deleteMatch] " + responseJson)
+            });
 
-        //this.props.currentMatchesClear();
         var i;
         for (i = 0; i < this.props.currentMatches.length; i++) {
             if (this.props.currentMatches[i].subtitle === inputString) {
@@ -202,107 +188,174 @@ export default class Matches extends React.Component {
         }
     }
 
-    deleteIncomingMatch(inputString) {
-        console.log("Input: " + inputString);
-        var partnerID = inputString.substring(9, inputString.indexOf("in") - 1);
-        console.log("partnerID: " + partnerID);
-        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.length);
+    deleteIncomingMatch(partnerID, inputString) {
+        console.log("Input: " + partnerID + inputString);
+        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.indexOf("at") - 1);
         console.log("eventID: " + eventID);
 
-        let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+        let fetchURL = baseURL + "user/" + this.props.userID + "/matches/" + partnerID + "/" + eventID;
         console.log(fetchURL);
-        // fetch(fetchURL, {
-        //     method: "DELETE",
-        //     headers: {
-        //         Accept: "application/json",
-        //         "Content-Type": "application/json",
-        //     },
-        // })
-        //     .then((response) => response.test())
-        //     .then((responseJson) => {
-        //         console.log("[deleteMatch] " + responseJson)
-        //         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-        //             this.props.yearLevelChange(responseJson[0].yearLevel);
-        //             this.props.coursesChange(responseJson[0].courses);
-        //             this.props.sexChange(responseJson[0].sex);
-        //             this.props.numberOfRatingsChange(
-        //                 responseJson[0].numberOfRatings
-        //             );
-        //             this.props.kindnessSelfRateChange(responseJson[0].kindness);
-        //             this.props.patienceSelfRateChange(responseJson[0].patience);
-        //             this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
-        //             this.props.authenticationTokenChange(
-        //                 responseJson[0].authenticationToken
-        //             );
-        //             this.props.passwordChange(responseJson[0].password);
-        //             this.props.emailChange(responseJson[0].email);
-        //             this.props.nameChange(responseJson[0].name);
-        //         }
-        //         else {
-        //             Alert.alert("Could not initialize user's info");
-        //         }
-        //     });
+        fetch(fetchURL, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.text())
+            .then((responseJson) => {
+                console.log("[deleteMatch] " + responseJson)
+            });
 
         var i;
         for (i = 0; i < this.props.incomingMatches.length; i++) {
             if (this.props.incomingMatches[i].subtitle === inputString) {
-                this.props.currentMatchesAdd(this.props.incomingMatches[i]);
+                var tmp = this.props.incomingMatches[i];
+                tmp.subtitle.replace("Incoming", "Current");
+                this.props.currentMatchesAdd(tmp);
                 this.props.deleteIncomingMatchesElement(i, 1);
                 return;
             }
         }
     }
 
-    deletePotentialMatch(inputString) {
-        console.log("Input: " + inputString);
-        var partnerID = inputString.substring(9, inputString.indexOf("in") - 1);
-        console.log("partnerID: " + partnerID);
-        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.length);
+    deletePotentialMatch(partnerID, inputString) {
+        console.log("Input: " + partnerID + inputString);
+        var eventID = inputString.substring(inputString.indexOf("event ID") + 10, inputString.indexOf("at") - 1);
         console.log("eventID: " + eventID);
 
-        let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+        let fetchURL = baseURL + "user/" + this.props.userID + "/matches/" + partnerID + "/" + eventID;
         console.log(fetchURL);
-        // fetch(fetchURL, {
-        //     method: "DELETE",
-        //     headers: {
-        //         Accept: "application/json",
-        //         "Content-Type": "application/json",
-        //     },
-        // })
-        //     .then((response) => response.test())
-        //     .then((responseJson) => {
-        //         console.log("[deleteMatch] " + responseJson)
-        //         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-        //             this.props.yearLevelChange(responseJson[0].yearLevel);
-        //             this.props.coursesChange(responseJson[0].courses);
-        //             this.props.sexChange(responseJson[0].sex);
-        //             this.props.numberOfRatingsChange(
-        //                 responseJson[0].numberOfRatings
-        //             );
-        //             this.props.kindnessSelfRateChange(responseJson[0].kindness);
-        //             this.props.patienceSelfRateChange(responseJson[0].patience);
-        //             this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
-        //             this.props.authenticationTokenChange(
-        //                 responseJson[0].authenticationToken
-        //             );
-        //             this.props.passwordChange(responseJson[0].password);
-        //             this.props.emailChange(responseJson[0].email);
-        //             this.props.nameChange(responseJson[0].name);
-        //         }
-        //         else {
-        //             Alert.alert("Could not initialize user's info");
-        //         }
-        //     });
+        fetch(fetchURL, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.text())
+            .then((responseJson) => {
+                console.log("[deleteMatch] " + responseJson)
+            });
 
         var i;
         for (i = 0; i < this.props.potentialMatches.length; i++) {
             if (this.props.potentialMatches[i].subtitle === inputString) {
                 console.log("here at: " + i);
-                this.props.waitingMatchesAdd(this.props.potentialMatches[i]);
+                var tmp = this.props.potentialMatches[i];
+                tmp.subtitle.replace("Potential", "Waiting");
+                this.props.waitingMatchesAdd(tmp);
                 this.props.deletePotentialMatchesElement(i, 1);
                 return;
             }
         }
+    }
+
+    _onRefresh = () => {
+        this.setState({ matchesRefreshing: true });
+
+        this.props.currentMatchesClear();
+        this.props.incomingMatchesClear();
+        this.props.potentialMatchesClear();
+        this.props.waitingMatchesClear();
+
+        var i;
+        for (i = 0; i < this.props.scheduleArray.length; i++) {
+            let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.props.scheduleArray[i].id;
+            console.log("[matches refresh] fetchURL: " + fetchURL);
+            fetch(fetchURL, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+            })
+                /* First check if user, especially newly created ones have any schedules to initialize */
+                .then((response) => response.text())
+                .then((responseJson) => {
+                    console.log("[matches refresh] responseJson: " + responseJson);
+                    if (responseJson.includes("doesn't have any")) {
+                        console.log("[matches refresh]: no matches for event " + i);
+                    }
+                    else {
+                        /* Otw, we do the actual fetch */
+                        fetch(fetchURL, {
+                            method: "GET",
+                            headers: {
+                                Accept: "application/json",
+                                "Content-Type": "application/json",
+                            },
+                        })
+                            .then((response) => response.json())
+                            .then((responseJson) => {
+                                //console.log("[initUserMatches] response: " + responseJson);
+                                if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+                                    /* Populate data for current matches */
+                                    if (responseJson[0].match === -1 || responseJson[0].match === null) {
+                                        console.log("No current match for event " + responseJson[0].eventId);
+                                    }
+                                    else {
+                                        var tmpMatch = {
+                                            name: responseJson[0].matchName,
+                                            avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                            subtitle: "[Current " + responseJson[0].eventMatch + "] " + "User ID: " + responseJson[0].match + " in event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                        };
+                                        this.props.currentMatchesAdd(tmpMatch);
+                                    }
+
+                                    /* Populate data for incoming matches */
+                                    if (responseJson[0].request.length === 0) {
+                                        console.log("No incoming match for event " + responseJson[0].eventId);
+                                    }
+                                    else {
+                                        var i;
+                                        for (i = 0; i < responseJson[0].request.length; i++) {
+                                            var tmpMatch = {
+                                                name: responseJson[0].request[i].toString(),
+                                                avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                                subtitle: "[Incoming " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                            }
+                                            this.props.incomingMatchesAdd(tmpMatch);
+                                        }
+                                    }
+
+                                    /* Populate data for potential matches */
+                                    if (responseJson[0].potentialMatches.length === 0) {
+                                        console.log("No potential match for event " + responseJson[0].eventId);
+                                    }
+                                    else {
+                                        var i;
+                                        for (i = 0; i < responseJson[0].potentialMatches.length; i++) {
+                                            var tmpMatch = {
+                                                name: responseJson[0].potentialMatches[i].toString(),
+                                                avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                                subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                            }
+                                            this.props.potentialMatchesAdd(tmpMatch);
+                                        }
+                                    }
+
+                                    /* Populate data for waiting matches */
+                                    if (responseJson[0].wait.length === 0) {
+                                        console.log("No waiting match for event " + responseJson[0].eventId);
+                                    }
+                                    else {
+                                        var i;
+                                        for (i = 0; i < responseJson[0].wait.length; i++) {
+                                            var tmpMatch = {
+                                                name: responseJson[0].wait[i].toString(),
+                                                avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                                                subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                            }
+                                            this.props.waitingMatchesAdd(tmpMatch);
+                                        }
+                                    }
+                                }
+                            });
+                    }
+                });
+        }
+        this.setState({ matchesRefreshing: false });
     }
 
     render() {
@@ -315,7 +368,7 @@ export default class Matches extends React.Component {
                             refreshControl={
                                 <RefreshControl
                                     testID="matchesRefresh"
-                                    refreshing={this.state.refreshing}
+                                    refreshing={this.state.matchesRefreshing}
                                     onRefresh={this._onRefresh}
                                 />
                             }>
@@ -329,7 +382,7 @@ export default class Matches extends React.Component {
                                 </View>
                             </View>
 
-                            <View style={styles.safeContainer}>
+                            <View style={styles.safeContainer, { backgroundColor: "#4286f4" }}>
                                 <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Current matches:</Text>
                             </View>
                             <FlatList
@@ -338,7 +391,7 @@ export default class Matches extends React.Component {
                                 renderItem={this.renderCurrentMatchesItem}
                             />
 
-                            <View style={styles.safeContainer}>
+                            <View style={styles.safeContainer, { backgroundColor: "#4286f4" }}>
                                 <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Incoming matches:</Text>
                             </View>
                             <FlatList
@@ -347,7 +400,7 @@ export default class Matches extends React.Component {
                                 renderItem={this.renderIncomingMatchesItem}
                             />
 
-                            <View style={styles.safeContainer}>
+                            <View style={styles.safeContainer, { backgroundColor: "#4286f4" }}>
                                 <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Potential matches:</Text>
                             </View>
                             <FlatList
@@ -356,7 +409,7 @@ export default class Matches extends React.Component {
                                 renderItem={this.renderPotentialMatchesItem}
                             />
 
-                            <View style={styles.safeContainer}>
+                            <View style={styles.safeContainer, { backgroundColor: "#4286f4" }}>
                                 <Text style={{ fontSize: 18, flex: 1, margin: 8 }}>Waiting matches:</Text>
                             </View>
                             <FlatList

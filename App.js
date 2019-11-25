@@ -7,7 +7,6 @@ import {
   Dimensions,
   Platform,
   Alert,
-  Text,
 } from "react-native";
 import TabNavigator from "react-native-tab-navigator";
 import Calendar from "./Calendar.js";
@@ -39,11 +38,17 @@ const styles = StyleSheet.create({
   },
 });
 
-/* For emulator */
+/* For server uses */
 export const baseURL =
   Platform.OS === "android"
-    ? "http://10.0.2.2:3000/"
-    : "http://localhost:3000/";
+    ? "http://104.211.35.37:8081/"
+    : "http://104.211.35.37:8081/";
+
+/* For emulator */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://10.0.2.2:3000/"
+//     : "http://localhost:3000/";
 
 /* For physical device */
 // export const baseURL =
@@ -79,29 +84,10 @@ export default class App extends Component {
       scheduleArray: [],
       eventID: 0,
 
-      currentMatches: [{
-        name: 'Current Match A',
-        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: "User ID: " + 111 + " in event ID: " + 123,
-      }],
-
-      incomingMatches: [{
-        name: 'Incoming Match A',
-        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: "User ID: " + 222 + " in event ID: " + 234,
-      },],
-
-      potentialMatches: [{
-        name: 'Potential Match A',
-        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: "User ID: " + 333 + " in event ID: " + 345,
-      },],
-
-      waitingMatches: [{
-        name: 'Waiting Match A',
-        avatar_url: 'https://ih1.redbubble.net/image.707852339.3013/flat,800x800,075,f.jpg',
-        subtitle: "User ID: " + 444 + " in event ID: " + 456,
-      },],
+      currentMatches: [],
+      incomingMatches: [],
+      potentialMatches: [],
+      waitingMatches: [],
 
       /* Transition states */
       loggedIn: false,
@@ -245,19 +231,19 @@ export default class App extends Component {
   }
 
   addCurrentMatches(data) {
-    this.setState({ currentMatches: this.state.currentMatches.concat(data) })
+    this.setState({ currentMatches: this.state.currentMatches.concat(data) });
   }
 
   addIncomingMatches(data) {
-    this.setState({ incomingMatches: this.state.incomingMatches.concat(data) })
+    this.setState({ incomingMatches: this.state.incomingMatches.concat(data) });
   }
 
   addPotentialMatches(data) {
-    this.setState({ potentialMatches: this.state.potentialMatches.concat(data) })
+    this.setState({ potentialMatches: this.state.potentialMatches.concat(data) });
   }
 
   addWaitingMatches(data) {
-    this.setState({ waitingMatches: this.state.waitingMatches.concat(data) })
+    this.setState({ waitingMatches: this.state.waitingMatches.concat(data) });
   }
 
   /* Helper functions that change the corresponding views of the app */
@@ -319,6 +305,9 @@ export default class App extends Component {
               incomingMatches={this.state.incomingMatches}
               potentialMatches={this.state.potentialMatches}
               waitingMatches={this.state.waitingMatches}
+              userID={this.state.userID}
+              scheduleArray={this.state.scheduleArray}
+
               /* Functions */
               deleteCurrentMatchesElement={this.deleteCurrentMatchesElement.bind(this)}
               deleteIncomingMatchesElement={this.deleteIncomingMatchesElement.bind(this)}
@@ -411,6 +400,7 @@ export default class App extends Component {
           incomingMatches={this.state.incomingMatches}
           potentialMatches={this.state.potentialMatches}
           waitingMathces={this.state.waitingMatches}
+
           /* Functions */
           yearLevelChange={this.changeYearLevel.bind(this)}
           coursesChange={this.changeCourses.bind(this)}

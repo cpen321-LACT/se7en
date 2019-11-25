@@ -105,11 +105,17 @@ const styles = StyleSheet.create({
 
 /* -------------------------------------------------------------------------- */
 
-/* For emulator */
+/* For server uses */
 export const baseURL =
   Platform.OS === "android"
-    ? "http://10.0.2.2:3000/"
-    : "http://localhost:3000/";
+    ? "http://104.211.35.37:8081/"
+    : "http://104.211.35.37:8081/";
+
+/* For emulator */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://10.0.2.2:3000/"
+//     : "http://localhost:3000/";
 
 /* For physical device */
 // export const baseURL =
@@ -348,9 +354,9 @@ export default class Profile extends React.Component {
           this.props.numberOfRatingsChange(
             responseJson[0].numberOfRatings
           );
-          this.props.kindnessPrefChange(responseJson[0].kindness);
-          this.props.patiencePrefChange(responseJson[0].patience);
-          this.props.hardWorkingPrefChange(responseJson[0].hardWorking);
+          this.props.kindnessSelfRateChange(responseJson[0].kindness);
+          this.props.patienceSelfRateChange(responseJson[0].patience);
+          this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
           this.props.authenticationTokenChange(
             responseJson[0].authenticationToken
           );
@@ -501,6 +507,13 @@ export default class Profile extends React.Component {
           return;
         }
         else {
+          this.props.sexPrefChange(this.state.tmpSexPref);
+          this.props.yearLevelPrefChange(this.state.tmpYearLevelPref);
+          this.props.coursesPrefChange(this.state.tmpCoursesPref);
+          this.props.kindnessPrefChange(this.state.tmpKindnessPref);
+          this.props.patiencePrefChange(this.state.tmpPatiencePref);
+          this.props.hardWorkingPrefChange(this.state.tmpHardWorkingPref);
+
           Alert.alert("Updated successfully!");
           /* Render the Profile view again */
           this.unrenderUserform();

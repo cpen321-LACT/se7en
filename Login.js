@@ -66,11 +66,17 @@ const styles = StyleSheet.create({
 
 /* -------------------------------------------------------------------------- */
 
-/* For emulator */
+/* For server uses */
 export const baseURL =
   Platform.OS === "android"
-    ? "http://10.0.2.2:3000/"
-    : "http://localhost:3000/";
+    ? "http://104.211.35.37:8081/"
+    : "http://104.211.35.37:8081/";
+
+/* For emulator */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://10.0.2.2:3000/"
+//     : "http://localhost:3000/";
 
 /* For physical device */
 // export const baseURL =
@@ -97,6 +103,7 @@ export default class Login extends Component {
       tmpAuthenticationToken: "",
       tmpCurrentMatches: [],
       tmpIncomingMatches: [],
+      tmpIncomingMatchesCompare: [],
       tmpPotentialMatches: [],
       tmpScheduleArray: [],
 
@@ -266,6 +273,7 @@ export default class Login extends Component {
               <TextField
                 testID="signUpKindnessSelfRateInput"
                 label="Kindness self-rating: "
+                title="Self-ratings reflect the ratio of how you assess yourself upon the 3 characteristics, must add up to exactly 12"
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
                 onChangeText={data => this.setState({ tmpKindnessSelfRate: parseInt(data, 10) })}
@@ -321,6 +329,7 @@ export default class Login extends Component {
               <TextField
                 testID="signUpKindnessSelfRateInput"
                 label="Kindness preference: "
+                title="Preferences reflect the ratio of how you want others to be like upon the 3 characteristics, must add up to exactly 12"
                 clearTextOnFocus={true}
                 keyboardType='number-pad'
                 onChangeText={data => this.setState({ tmpKindnessPref: parseInt(data, 10) })}
@@ -387,6 +396,7 @@ export default class Login extends Component {
 
     /* If no errors, we do a fetch */
     let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+    //console.log(fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -457,7 +467,7 @@ export default class Login extends Component {
     /* Split course string -> array first */
     this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
     let fetchURL = baseURL + "user/info";
-    console.log("[signUp] url request: " + fetchURL);
+    //console.log("[signUp] url request: " + fetchURL);
     fetch(fetchURL, {
       method: "POST",
       headers: {
@@ -499,7 +509,7 @@ export default class Login extends Component {
     /* Split course string -> array first */
     this.setState({ tmpCoursesPref: this.state.tmpCoursesPrefString.split(",") });
     let fetchURL = baseURL + "user/" + this.state.tmpUserID + "/preferences";
-    console.log("[signUpPreferences] url request: " + fetchURL);
+    //console.log("[signUpPreferences] url request: " + fetchURL);
     fetch(fetchURL, {
       method: "POST",
       headers: {
@@ -534,7 +544,7 @@ export default class Login extends Component {
 
   signInFb() {
     // Attempt a login using the Facebook login dialog asking for default permissions.
-    LoginManager.logInWithPermissions(["public_profile"]).then((result) => {
+    LoginManager.logInWithPermissions(["public_profile", "email"]).then((result) => {
       if (result.isCancelled) {
         console.log("Login cancelled");
       }
@@ -547,7 +557,6 @@ export default class Login extends Component {
           this.setState({ tmpPassword: accessToken.userID })
           this.props.userIDChange(accessToken.userID);
           this.props.passwordChange(accessToken.userID);
-          //console.log(this.state.tmpAuthenticationToken);
           this.signInAuthToken();
         });
         console.log("Login success with permissions: " + result.grantedPermissions.toString());
@@ -557,7 +566,7 @@ export default class Login extends Component {
 
   signInAuthToken() {
     let fetchURL = baseURL + "user/" + this.props.userID + "/info";
-    console.log("[signUpAuthToken]: " + fetchURL);
+    //console.log("[signUpAuthToken]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -569,11 +578,11 @@ export default class Login extends Component {
       .then((response) => response.text())
       .then((responseJson) => {
         if (responseJson.includes("does not exist")) {
-          console.log("going to signUpAuthToken");
+          //console.log("going to signUpAuthToken");
           this.signUpAuthToken();
         } else {
           /* If user ID does exist, we do the actual call */
-          console.log("signInAuthToken ok")
+          //console.log("signInAuthToken ok")
           fetch(fetchURL, {
             method: "GET",
             headers: {
@@ -600,62 +609,64 @@ export default class Login extends Component {
   }
 
   signUpAuthToken() {
-    fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + this.state.tmpAuthenticationToken)
-      .then((response) => response.text())
-      .then((responseJson) => {
-        console.log("[signUpAuthToken]: " + responseJson);
-        this.setState({ tmpName: responseJson.name })
-        this.setState({ tmpEmail: responseJson.email })
-      })
-      .catch(() => {
-        reject('ERROR GETTING DATA FROM FACEBOOK')
-      })
-
-    this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
-    let fetchURL = baseURL + "user/info";
-    console.log("[signUpAuthToken] url request: " + fetchURL);
-    fetch(fetchURL, {
-      method: "POST",
+    fetch("https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=" + this.state.tmpAuthenticationToken, {
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        yearLevel: this.state.tmpYearLevel,
-        courses: this.state.tmpCourses,
-        sex: this.state.tmpSex,
-        numberOfRatings: "0",
-        kindness: 4,
-        patience: 4,
-        hardWorking: 4,
-        authenticationToken: this.state.tmpAuthenticationToken,
-        userId: this.state.tmpUserID,
-        password: this.state.tmpPassword,
-        email: this.state.tmpEmail,
-        name: this.state.tmpName,
-      }),
     })
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
-        /* Check if user ID already exists or not */
-        if (responseJson.includes("already exists")) {
-          Alert.alert("User ID already exists!");
-        }
-        else if (responseJson.includes("Cannot POST")) {
-          Alert.alert("Cannot sign up, please try again");
-        }
-        else {
-          this.signUpPreferencesAuthToken();
-        }
-      });
+        this.state.tmpName = responseJson.name;
+        this.state.tmpEmail = responseJson.email;
+        this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
+
+        let fetchURL = baseURL + "user/info";
+        //console.log("[signUpAuthToken] url request: " + fetchURL);
+        fetch(fetchURL, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            yearLevel: this.state.tmpYearLevel,
+            courses: this.state.tmpCourses,
+            sex: this.state.tmpSex,
+            numberOfRatings: "0",
+            kindness: 4,
+            patience: 4,
+            hardWorking: 4,
+            authenticationToken: this.state.tmpAuthenticationToken,
+            userId: this.props.userID,
+            password: this.props.password,
+            email: this.state.tmpEmail,
+            name: this.state.tmpName,
+          }),
+        })
+          .then((response) => response.text())
+          .then((responseJson) => {
+            console.log(responseJson);
+            /* Check if user ID already exists or not */
+            if (responseJson.includes("already exists")) {
+              Alert.alert("User ID already exists!");
+            }
+            else if (responseJson.includes("Cannot POST")) {
+              Alert.alert("Cannot sign up, please try again");
+            }
+            else {
+              this.signUpPreferencesAuthToken();
+            }
+          });
+      })
   }
 
   signUpPreferencesAuthToken() {
     /* Split course string -> array first */
     this.setState({ tmpCoursesPref: this.state.tmpCoursesPrefString.split(",") });
-    let fetchURL = baseURL + "user/" + this.state.tmpUserID + "/preferences";
-    console.log("[signUpPreferences] url request: " + fetchURL);
+    let fetchURL = baseURL + "user/" + this.props.userID + "/preferences";
+    //console.log("[signUpPreferences] url request: " + fetchURL);
     fetch(fetchURL, {
       method: "POST",
       headers: {
@@ -682,8 +693,6 @@ export default class Login extends Component {
           Alert.alert("Cannot sign up, please try again");
         }
         else {
-          this.props.userIDChange(this.state.tmpUserID);
-          this.props.passwordChange(this.state.tmpPassword);
           this.signIn();
         }
       });
@@ -724,7 +733,7 @@ export default class Login extends Component {
    */
   initUserInfo() {
     let fetchURL = baseURL + "user/" + this.props.userID + "/info";
-    console.log("[initUserInfo]: " + fetchURL);
+    //console.log("[initUserInfo]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -734,7 +743,7 @@ export default class Login extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log("[initUserInfo] " + responseJson)
+        //console.log("[initUserInfo] " + responseJson)
         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
           this.props.yearLevelChange(responseJson[0].yearLevel);
           this.props.coursesChange(responseJson[0].courses);
@@ -761,7 +770,7 @@ export default class Login extends Component {
   /* Helper function that populates data of user"s preferences on Init Sequence */
   initUserPreferences() {
     let fetchURL = baseURL + "user/" + this.props.userID + "/preferences";
-    console.log("[initUserPreferences]: " + fetchURL);
+    //console.log("[initUserPreferences]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -771,7 +780,7 @@ export default class Login extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log("[initUserPreferences] " + responseJson[0]);
+        //console.log("[initUserPreferences] " + responseJson[0]);
         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
           this.props.kindnessPrefChange(responseJson[0].kindness);
           this.props.patiencePrefChange(responseJson[0].patience);
@@ -788,9 +797,8 @@ export default class Login extends Component {
 
   /* Helper function that populates data of user"s schedule on Init Sequence */
   initUserSchedule() {
-    //console.log("[initUserSchedule]")
     let fetchURL = baseURL + "schedule/" + this.props.userID;
-    console.log("[initUserSchedule] fetchURL: " + fetchURL);
+    //console.log("[initUserSchedule] fetchURL: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -801,8 +809,11 @@ export default class Login extends Component {
       /* First check if user, especially newly created ones have any schedules to initialize */
       .then((response) => response.text())
       .then((responseJson) => {
-        console.log("[initUserSchedule]: " + responseJson);
+        //console.log("[initUserSchedule]: " + responseJson);
+        this.props.scheduleArrayClear();
+        this.setState({ tmpScheduleArray: [] });
         if (responseJson.includes("doesn't have any")) {
+          console.log("no event to add");
           return;
         }
         else {
@@ -817,7 +828,6 @@ export default class Login extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
               if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-                this.props.scheduleArrayClear();
                 /* Traverse through each item to populate needed fields of scheduleArray for rendering */
                 var i;
                 for (i = 0; i < responseJson.length; i++) {
@@ -858,54 +868,107 @@ export default class Login extends Component {
 
   /* Helper function that populates data of user's matches on Init Sequence */
   initUserMatches() {
-    // var i;
-    // for (i = 0; i < this.state.tmpScheduleArray.length; i++) {
-    //   let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.state.tmpScheduleArray[i].id;
-    //   //console.log("[initUserMatches] fetchURL: " + fetchURL);
-    //   fetch(fetchURL, {
-    //     method: "GET",
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //     },
-    //   })
-    //     /* First check if user, especially newly created ones have any schedules to initialize */
-    //     .then((response) => response.text())
-    //     .then((responseJson) => {
-    //       //console.log("[initUserMatches] responseJson: " + responseJson);
-    //       if (responseJson.includes("doesn't have any")) {
-    //         return;
-    //       }
-    //       else {
-    //         /* Otw, we do the actual fetch */
-    //         fetch(fetchURL, {
-    //           method: "GET",
-    //           headers: {
-    //             Accept: "application/json",
-    //             "Content-Type": "application/json",
-    //           },
-    //         })
-    //           .then((response) => response.json())
-    //           .then((responseJson) => {
-    //             if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
-    //               this.props.currentMatchesClear();
-    //               /* Traverse through each  */
-    //               if (responseJson[0].match === -1) {
-    //                 console.log("No current match for event");
-    //               }
-    //               else {
-    //                 var tmpMatch = {
-    //                   name: "User " + "A",
-    //                   avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-    //                   subtitle: "User ID: " + 10101 + " in event ID: " + 99999,
-    //                 };
-    //                 this.props.currentMatchesAdd(tmpMatch);
-    //               }
-    //             }
-    //           });
-    //       }
-    //     });
-    // }
+    this.props.currentMatchesClear();
+    this.props.incomingMatchesClear();
+    this.props.potentialMatchesClear();
+    this.props.waitingMatchesClear();
+    var i;
+    for (i = 0; i < this.state.tmpScheduleArray.length; i++) {
+      let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.state.tmpScheduleArray[i].id;
+      console.log("[initUserMatches] fetchURL: " + fetchURL);
+      fetch(fetchURL, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        /* First check if user, especially newly created ones have any schedules to initialize */
+        .then((response) => response.text())
+        .then((responseJson) => {
+          console.log("[initUserMatches] responseJson: " + responseJson);
+          if (responseJson.includes("doesn't have any")) {
+            console.log("[initUserMatches]: no matches for event " + i);
+          }
+          else {
+            /* Otw, we do the actual fetch */
+            fetch(fetchURL, {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            })
+              .then((response) => response.json())
+              .then((responseJson) => {
+                //console.log("[initUserMatches] response: " + responseJson);
+                if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+                  /* Populate data for current matches */
+                  if (responseJson[0].match === -1 || responseJson[0].match === null) {
+                    console.log("No current match for event " + responseJson[0].eventId);
+                  }
+                  else {
+                    var tmpMatch = {
+                      name: responseJson[0].matchName,
+                      avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                      subtitle: "[Current " + responseJson[0].eventMatch + "] " + "User ID: " + responseJson[0].match + " in event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                    };
+                    this.props.currentMatchesAdd(tmpMatch);
+                  }
+
+                  /* Populate data for incoming matches */
+                  if (responseJson[0].request.length === 0) {
+                    console.log("No incoming match for event " + responseJson[0].eventId);
+                  }
+                  else {
+                    var i;
+                    for (i = 0; i < responseJson[0].request.length; i++) {
+                      var tmpMatch = {
+                        name: responseJson[0].request[i].toString(),
+                        avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                        subtitle: "[Incoming " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                      }
+                      this.props.incomingMatchesAdd(tmpMatch);
+                      this.state.tmpIncomingMatches.push(tmpMatch);
+                    }
+                  }
+
+                  /* Populate data for potential matches */
+                  if (responseJson[0].potentialMatches.length === 0) {
+                    console.log("No potential match for event " + responseJson[0].eventId);
+                  }
+                  else {
+                    var i;
+                    for (i = 0; i < responseJson[0].potentialMatches.length; i++) {
+                      var tmpMatch = {
+                        name: responseJson[0].potentialMatches[i].toString(),
+                        avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                        subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                      }
+                      this.props.potentialMatchesAdd(tmpMatch);
+                    }
+                  }
+
+                  /* Populate data for waiting matches */
+                  if (responseJson[0].wait.length === 0) {
+                    console.log("No waiting match for event " + responseJson[0].eventId);
+                  }
+                  else {
+                    var i;
+                    for (i = 0; i < responseJson[0].wait.length; i++) {
+                      var tmpMatch = {
+                        name: responseJson[0].wait[i].toString(),
+                        avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+                        subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                      }
+                      this.props.waitingMatchesAdd(tmpMatch);
+                    }
+                  }
+                }
+              });
+          }
+        });
+    }
   }
 
   /* Init Sequence after successully signing in */
@@ -915,28 +978,7 @@ export default class Login extends Component {
     this.initUserPreferences();
     /* Start a timer for checking potential matches notify user using Push Notification */
     BackgroundTimer.runBackgroundTimer(() => {
-      let url =
-        baseURL + 'user/:' + this.props.user_id + '/matches/potential_matches';
-      fetch(url, {
-        method: 'GET',
-      })
-        .then(response => response.text()) // CHECK THIS LATER
-        .then(responseJson => {
-          /* Gotta check if the potential matches change or not */
-          if (this.checkNULL(responseJson[0].potential_matches) || this.checkEmpty(responseJson[0].potential_matches) || responseJson[0].potential_matches === this.state.tmpPotentialMatches) {
-            console.log("In if");
-            return;
-          }
-          /* If they do, we send a push notification and change the current potential matches array */
-          else {
-            console.log("In else");
-            this.setState({ tmpPotentialMatches: responseJson[0].potential_matches });
-            this.props.push_noti.localNotif(responseJson[0].potential_matches, responseJson[0].event_id, responseJson[0].time, responseJson[0].date);
-          }
-        })
-        .catch(error => {
-          console.error(error);
-        });
+      /* Something goes here */
     }, 10000); /* This is in miliseconds. We repeat this for every 10 seconds. Can be a smaller time interval as well */
   }
 

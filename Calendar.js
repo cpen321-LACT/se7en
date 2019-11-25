@@ -14,7 +14,6 @@ import {
   Platform,
 } from "react-native";
 import ActionButton from "react-native-action-button";
-import Icon from "react-native-vector-icons/Ionicons";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
 
@@ -85,11 +84,17 @@ addLocale("en", {
   weekdaysShort: "Sun_Mon_Tue_Wed_Thur_Fri_Sat".split("_"),
 });
 
-/* For emulator */
+/* For server uses */
 export const baseURL =
   Platform.OS === "android"
-    ? "http://10.0.2.2:3000/"
-    : "http://localhost:3000/";
+    ? "http://104.211.35.37:8081/"
+    : "http://104.211.35.37:8081/";
+
+/* For emulator */
+// export const baseURL =
+//   Platform.OS === "android"
+//     ? "http://10.0.2.2:3000/"
+//     : "http://localhost:3000/";
 
 /* For physical device */
 // export const baseURL =
@@ -102,7 +107,6 @@ export default class Calendar extends React.Component {
     super(props);
     this.state = {
       /* Input states */
-      tmpId: this.props.eventID,
       tmpColor: "rgba(66,134,244,1)",
       tmpDate: "",
       tmpStartTimeString: "",
@@ -148,13 +152,12 @@ export default class Calendar extends React.Component {
     this.setState({ tmpEndTime: eventEnd });
 
     /* Increase the event ID and update accordingly */
-    this.setState({ tmpId: this.state.tmpId + 1 });
-    var tmpIDUpdate = this.state.tmpId;
-    this.props.eventIDChange({ tmpIDUpdate });
+    this.props.eventIDChange(this.props.eventID + 1);
+
 
     /* Create a temporary schedule obj */
     var tmp = {
-      id: this.state.tmpId,
+      id: this.props.eventID,
       startDate: this.state.tmpStartTime,
       endDate: this.state.tmpEndTime,
       color: this.state.tmpColor,
@@ -172,7 +175,7 @@ export default class Calendar extends React.Component {
       },
       body: JSON.stringify({
         userId: this.props.userID,
-        eventId: this.state.tmpId,
+        eventId: this.props.eventID,
         time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
         date:
           this.state.tmpStartTime.getUTCMonth() +
@@ -226,23 +229,6 @@ export default class Calendar extends React.Component {
   }
 
   /* -------------------------------------------------------------------------- */
-
-  /* Function that shows all the possible matches of an user */
-  getMatches() {
-    let url =
-      baseURL + "user/:" + this.props.userID + "/matches/potential_matches";
-    //console.log(url);
-    fetch(url, {
-      method: "GET",
-    })
-      .then((response) => response.text()) // CHECK LATER
-      .then((responseJson) => {
-        Alert.alert(
-          "Potential matches:\n" + responseJson[0].potential_matches
-        );
-      });
-  }
-
 
   /* Functions handling refreshes */
   _onRefresh = () => {
@@ -379,24 +365,10 @@ export default class Calendar extends React.Component {
               </ScrollView>
             </SafeAreaView>
           }
-          <ActionButton testID="calendarMainButton" buttonColor="crimson">
-            <ActionButton.Item
-              testID="calendarNewScheduleButton"
-              buttonColor="palegreen"
-              title="New Schedule"
-              onPress={() => this.renderUserform()}>
-              <Icon name="md-create" style={styles.actionButtonIcon} />
-            </ActionButton.Item>
-            <ActionButton.Item
-              testID="calendarGetMatchesButton"
-              buttonColor="lemonchiffon"
-              title="Get Matches"
-              onPress={() => this.getMatches()}>
-              <Icon
-                name="md-person-add"
-                style={styles.actionButtonIcon}
-              />
-            </ActionButton.Item>
+          <ActionButton
+            testID="calendarMainButton"
+            buttonColor="crimson"
+            onPress={() => this.renderUserform()}>>
           </ActionButton>
         </View>
       );
@@ -416,7 +388,7 @@ export default class Calendar extends React.Component {
                 testID="calendarDateInput"
                 label="Date: "
                 value={""}
-                title="Enter 1 - 7 (1 = TODAY, 7 = LAST DAY OF WEEK)"
+                title="Enter 0 - 7 (0 = TODAY, 7 = THE NEXT 7 DAYS)"
                 characterRestriction={1}
                 keyboardType='number-pad'
                 clearTextOnFocus={true}
@@ -487,13 +459,13 @@ export default class Calendar extends React.Component {
                 title="go back"
                 onPress={() => this.unrenderUserform()}
               />
-              <TextButton
+              {/* <TextButton
                 style={{ margin: 4 }}
                 titleColor="#4286f4"
                 color="rgba(0, 0, 0, .05)"
                 title="log"
-                onPress={() => console.log(this.props.scheduleArray.length)}
-              />
+                onPress={() => console.log(this.props.eventID)}
+              /> */}
             </View>
           </ScrollView>
         </SafeAreaView>
