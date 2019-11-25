@@ -235,7 +235,7 @@ export default class Matches extends React.Component {
         })
             .then((response) => response.text())
             .then((responseJson) => {
-                console.log("[deleteMatch] " + responseJson)
+                console.log("[deleteMatch] " + responseJson);
             });
 
         var i;
@@ -298,7 +298,11 @@ export default class Matches extends React.Component {
                                         var tmpMatch = {
                                             name: responseJson[0].matchName,
                                             avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                                            subtitle: "[Current " + responseJson[0].eventMatch + "] " + "User ID: " + responseJson[0].match + " in event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                                            subtitle: "[Current " + responseJson[0].eventMatch +
+                                                      "] " + "User ID: " + responseJson[0].match +
+
+                                                      " in event ID: " + responseJson[0].eventId +
+                                                      " at " + responseJson[0].time + ", " + responseJson[0].date
                                         };
                                         this.props.currentMatchesAdd(tmpMatch);
                                     }
