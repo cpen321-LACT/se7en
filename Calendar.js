@@ -11,12 +11,12 @@ import {
   RefreshControl,
   SafeAreaView,
   ScrollView,
-  Platform,
+  Platform
 } from "react-native";
 import ActionButton from "react-native-action-button";
 import { TextField } from "react-native-material-textfield";
 import { TextButton } from "react-native-material-buttons";
-
+import { Picker, DatePicker } from 'react-native-wheel-datepicker';
 /* -------------------------------------------------------------------------- */
 /* Styles */
 const fontFamily = Platform.OS === "ios" ? "Avenir" : "sans-serif";
@@ -30,13 +30,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
   },
   headerCalendar: {
-    backgroundColor: "#4286f4",
+    backgroundColor: "rgba(25,110,227,0.5)",
   },
   navBar: {
-    backgroundColor: "#4286f4",
+    backgroundColor: "rgba(25,110,227,0.7)",
     height: 44 + statusBarHeight,
     alignSelf: "stretch",
-    paddingTop: statusBarHeight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -68,6 +67,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
+  safeContainer2: {
+   flex: 1,
+   backgroundColor: "rgba(211,211,211,1)",
+ }
 });
 
 /* -------------------------------------------------------------------------- */
@@ -109,9 +112,7 @@ export default class Calendar extends React.Component {
       /* Input states */
       tmpColor: "rgba(66,134,244,1)",
       tmpDate: "",
-      tmpStartTimeString: "",
       tmpStartTime: new Date(),
-      tmpEndTimeString: "",
       tmpEndTime: new Date(),
       tmpSubject: "",
       tmpLocation: "",
@@ -124,7 +125,7 @@ export default class Calendar extends React.Component {
   /* Add a schedule object to the backend */
   addSchedule() {
     /* First check for errors (NULL/empty) */
-    var toCheck = [this.state.tmpDate, this.state.tmpStartTimeString, this.state.tmpEndTimeString, this.state.tmpSubject, this.state.tmpLocation];
+    var toCheck = [this.state.tmpDate, this.state.tmpStartTime, this.state.tmpEndTime, this.state.tmpSubject, this.state.tmpLocation];
     for (var i = 0; i < toCheck.length; i++) {
       if (this.checkNULL(toCheck[i]) || this.checkEmpty(toCheck[i])) {
         Alert.alert("One of the fields must not be NULL or empty");
@@ -137,15 +138,14 @@ export default class Calendar extends React.Component {
 
     /* Start time */
     var eventStart = new Date();
-    eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10));
-    var tempTime = this.state.tmpStartTimeString.split(" ");
-    eventStart.setHours(parseInt(tempTime[0], 10), parseInt(tempTime[1], 10));
+    eventStart.setUTCDate(eventStart.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+    eventStart.setUTCHours(tmpStartTime.getUTCHours(), tmpStartTime.getUTCMinutes());
+
 
     /* End time */
     var eventEnd = new Date();
-    eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10));
-    var tempTime2 = this.state.tmpEndTimeString.split(" ");
-    eventEnd.setHours(parseInt(tempTime2[0], 10), parseInt(tempTime2[1], 10));
+    eventEnd.setUTCDate(eventEnd.getUTCDate() + parseInt(this.state.tmpDate, 10) - 1);
+    eventEnd.setUTCHours(tmpEndTime.getUTCHours(), tmpEndTime.getUTCMinutes());
 
     /* Setting the temporary states */
     this.setState({ tmpStartTime: eventStart });
@@ -324,7 +324,7 @@ export default class Calendar extends React.Component {
                 <View style={styles.containerCalendar}>
                   <StatusBar
                     barStyle="light-content"
-                    backgroundColor="#4286f4"
+                    backgroundColor="rgba(25,110,227,1)"
                   />
                   <View style={styles.navBar}>
                     <Text style={styles.navBarTitle}>Calendar</Text>
@@ -384,57 +384,57 @@ export default class Calendar extends React.Component {
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
-              <TextField
-                testID="calendarDateInput"
-                label="Date: "
-                value={""}
-                title="Enter 0 - 7 (0 = TODAY, 7 = THE NEXT 7 DAYS)"
-                characterRestriction={1}
-                keyboardType='number-pad'
-                clearTextOnFocus={true}
-                onChangeText={(data) => this.setState({ tmpDate: data })}
-              />
-              <TextField
-                testID="calendarStartTimeInput"
-                label="Start Time: "
-                value={""}
-                title="Enter in form 'hh mm'"
-                keyboardType='number-pad'
-                characterRestriction={5}
-                clearTextOnFocus={true}
-                onChangeText={(data) =>
-                  this.setState({ tmpStartTimeString: data })
-                }
-              />
-
-              <TextField
-                testID="calendarEndTimeInput"
-                label="End Time: "
-                value={""}
-                title="Enter in form 'hh mm'"
-                keyboardType='number-pad'
-                characterRestriction={5}
-                clearTextOnFocus={true}
-                onChangeText={(data) => this.setState({ tmpEndTimeString: data })}
-              />
-              <TextField
-                testID="calendarSubjectInput"
-                label="Subject: "
-                value={""}
-                title="This is a required field"
-                clearTextOnFocus={true}
-                characterRestriction={10}
-                onChangeText={(data) => this.setState({ tmpSubject: data })}
-              />
-
-              <TextField
-                testID="calendarLocationInput"
-                label="Location: "
-                value={""}
-                clearTextOnFocus={true}
-                characterRestriction={20}
-                onChangeText={(data) => this.setState({ tmpLocation: data })}
-              />
+            <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
+              Date:{this.state.tmpDate}
+            </Text>
+            <Picker
+              style={{ flex: 1 }}
+              selectedValue={this.state.tmpDate}
+              textSize={16}
+              backgroundColor="white"
+              style={{width: '100%', height: 100}}
+              pickerData={[1, 2, 3, 4, 5, 6, 7]}
+              onValueChange={value => this.setState({ tmpDate:value })}
+            />
+            <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
+              Start time:{this.state.tmpStartTime.getHours()}:{this.state.tmpStartTime.getMinutes()}
+            </Text>
+            <DatePicker
+              date={this.state.tmpStartTime}
+              mode="time"
+              backgroundColor="white"
+              textSize={16}
+              style={{width: '100%', height: 100}}
+              onDateChange={time => this.setState({ tmpStartTime:time })}
+            />
+            <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
+              End time:{this.state.tmpEndTime.getHours()}:{this.state.tmpEndTime.getMinutes()}
+            </Text>
+            <DatePicker
+              date={this.state.tmpEndTime}
+              mode="time"
+              backgroundColor="white"
+              textSize={16}
+              style={{width: '100%', height: 100}}
+              onDateChange={time => this.setState({ tmpEndTime: time })}
+            />
+            <TextField
+              label="Subject: "
+              value={""}
+              textColor="black"
+              baseColor="black"
+              clearTextOnFocus={true}
+              characterRestriction={10}
+              onChangeText={(data) => this.setState({ tmpSubject: data })}
+            />
+            <TextField
+              label="Location: "
+              value={""}
+              textColor="black"
+              clearTextOnFocus={true}
+              characterRestriction={20}
+              onChangeText={(data) => this.setState({ tmpLocation: data })}
+            />
             </View>
 
             <View style={{
@@ -447,15 +447,15 @@ export default class Calendar extends React.Component {
                 testID="calendarAddButton"
                 style={{ margin: 4 }}
                 titleColor="white"
-                color="#4286f4"
+                color="black"
                 title="add schedule"
                 onPress={() => this.addSchedule()}
               />
               <TextButton
                 testID="calendarGoBackButton"
                 style={{ margin: 4 }}
-                titleColor="#4286f4"
-                color="rgba(0, 0, 0, .05)"
+                titleColor="white"
+                color="black"	
                 title="go back"
                 onPress={() => this.unrenderUserform()}
               />
