@@ -803,9 +803,8 @@ export default class Login extends Component {
           this.props.sexPrefChange(responseJson[0].sex);
           this.props.yearLevelPrefChange(responseJson[0].yearLevel);
         }
-        else {
-          Alert.alert("Could not initialize user's preferences");
-        }
+        else Alert.alert("Could not initialize user's preferences");
+
       });
   }
 
@@ -872,9 +871,8 @@ export default class Login extends Component {
                 this.props.eventIDChange(responseJson[responseJson.length - 1].eventId);
                 this.initUserMatches();
               }
-              else {
-                Alert.alert("Could not initialize user's schedule");
-              }
+              else Alert.alert("Could not initialize user's schedule");
+
             });
         }
       });
