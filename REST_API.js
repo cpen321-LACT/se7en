@@ -167,11 +167,10 @@ function allWaitDelete(userId, request, t, d){
     }
 }
 /* Delete the matching of 2 people */
-function personMatchDelete(userId, t, d){
+function personMatchDelete(userId, eventId){
     var query = {"userId" : parseInt(userId, 10),
-                 "time" : t,
-                 "date" : d};
-    var newValues = {$set:{"match" : null}};
+                 "eventId" : parseInt(eventId, 10)};
+    var newValues = {$set:{"match" : -1}};
     userDb.collection("matchesClt").updateOne(query, newValues,(err, result) => {
         if (err) {return 1;}
         return 0; 
@@ -576,9 +575,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
     /* Filter all standard criteria to an array */
     userDb.collection("infoClt").find(stdQuery).toArray((err,inforArray) => {
         if (err) {return err;}
-        console.log(inforArray);
         var info = inforArray;
-        console.log(info);
 
     var timeDateQuery = {userId : parseInt(req.params.userId, 10),
                            eventId : parseInt(req.params.eventId, 10)};
@@ -706,8 +703,8 @@ app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
                     userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
 
                     userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
-                    //Adam: I don't think we need the next line since "request" never have userIdB before
-                    //userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
+                    
+                    userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
 
                 }
                 else {
@@ -787,14 +784,17 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
  * Tung: Can you test this
  */
 app.delete("/user/:userId/matches/:matchId/:eventId", async (req,res) => {
-    userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10), eventId: parseInt(req.params.eventId, 10)}).toArray((err, result) => {
+    var query = { userId : parseInt(req.params.userId, 10), 
+                  eventId: parseInt(req.params.eventId, 10)}
+    userDb.collection("matchesClt").find(query).toArray((err, result) => {
         if (err) {return err;}
-        if(parseInt(result[0]["wait"], 10) !== parseInt(req.params.matchId, 10)){
+        console.log(result);
+        if(parseInt(result[0]["match"], 10) !== parseInt(req.params.matchId, 10)){
             res.status(400).send({message: "Two people are not matched, something is wrong here :<"});
         }
 
-    var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
-    var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
+    var err1 = personMatchDelete(req.params.userId, req.params.eventId);
+    var err2 = 0; // personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
     if(err1 || err2) {return (err1 || err2);} 
     res.send({message: "Successfully unmatch."});
     })
@@ -881,7 +881,6 @@ app.get("/schedule/:userId/:eventId", async (req,res) => {
 
     scheduleDb.collection("scheduleClt").find(query).toArray((err, result) => {
         if (doesntExist(result)){
-            console.log("HERE");
             res.status(400).send({message: "The study event with eventId for user with userId doesn't exist"});
             return err;
         }
