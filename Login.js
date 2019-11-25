@@ -776,9 +776,8 @@ export default class Login extends Component {
           this.props.emailChange(responseJson[0].email);
           this.props.nameChange(responseJson[0].name);
         }
-        else {
-          Alert.alert("Could not initialize user's info");
-        }
+        else Alert.alert("Could not initialize user's info");
+
       });
   }
 
@@ -958,7 +957,7 @@ export default class Login extends Component {
                       var tmpMatch = {
                         name: responseJson[0].potentialMatches[i].toString(),
                         avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                        subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                        subtitle: "[Potential " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                       }
                       this.props.potentialMatchesAdd(tmpMatch);
                     }
@@ -974,7 +973,7 @@ export default class Login extends Component {
                       var tmpMatch = {
                         name: responseJson[0].wait[i].toString(),
                         avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                        subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                        subtitle: "[Waiting " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                       }
                       this.props.waitingMatchesAdd(tmpMatch);
                     }
