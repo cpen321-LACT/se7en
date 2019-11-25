@@ -6,15 +6,20 @@ class Fire {
   messagesRef = null;
 
     constructor() {
-
+	
+    if (!firebase.apps.length) {
             firebase.initializeApp({
-                apiKey: "AIzaSyAG6zporpVrS6FdMBZ_2I_Q9ifkH4ur2pw",
-                authDomain: "se7en-63e1b.firebaseapp.com",
-                databaseURL: "https://se7en-63e1b.firebaseio.com",
-                projectId: "se7en-63e1b",
-                storageBucket: "se7en-63e1b.appspot.com",
+                export const firebaseConfig = {
+  apiKey: "AIzaSyAG6zporpVrS6FdMBZ_2I_Q9ifkH4ur2pw",
+  authDomain: "se7en-63e1b.firebaseapp.com",
+  databaseURL: "https://se7en-63e1b.firebaseio.com",
+  projectId: "se7en-63e1b",
+  storageBucket: "se7en-63e1b.appspot.com",
+  messagingSenderId: "849644814206",
+}
 
             });
+}
             firebase.auth().onAuthStateChanged(user => {
               if(user){
                 this.setUid(user.uid);

@@ -166,11 +166,11 @@ export default class Calendar extends React.Component {
       location: this.state.tmpLocation,
     };
 
-    /* Add it to the local scheduleArray for rendering */
+    
 
 
     /* Post the schedle obj to the database */
-    fetch(fetchURL, {
+     fetch(fetchURL, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -179,7 +179,7 @@ export default class Calendar extends React.Component {
       body: JSON.stringify({
         userId: this.props.userID,
         eventId: this.state.tmpId,
-        time: this.state.tmpStartTime.getUTCHours()+" "+ this.state.tmpStartTime.getUTCMinutes()+ "-" +this.state.tmpEndTime.getUTCHours()+" "+ this.state.tmpEndTime.getUTCMinutes(),
+        time: this.state.tmpStartTimeString + "-" + this.state.tmpEndTimeString,
         date:
           this.state.tmpStartTime.getUTCMonth() +
           1 +
@@ -191,21 +191,21 @@ export default class Calendar extends React.Component {
         location: this.state.tmpLocation,
       }),
     })
-    .then((response) => response.text())
-   .then((responseJson) => {
-     console.log(responseJson)
-     if (responseJson.includes("doesn't exist")) {
-       Alert.alert("Cannot upload schedule, please try again");
-     }
-     else if (responseJson.includes("Cannot POST")) {
-       Alert.alert("Cannot upload schedule, please try again");
-     }
-     else {
-       /* Add it to the local scheduleArray for rendering */
-       this.props.scheduleArrayAdd(tmp);
-       Alert.alert("Added schedule successfully!");
-       this.unrenderUserform();
-     }
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson)
+        if (responseJson.includes("doesn't exist")) {
+          Alert.alert("Cannot upload schedule, please try again");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot upload schedule, please try again");
+        }
+        else {
+          /* Add it to the local scheduleArray for rendering */
+          this.props.scheduleArrayAdd(tmp);
+          Alert.alert("Added schedule successfully!");
+          this.unrenderUserform();
+        }
       });
   }
 
@@ -255,9 +255,11 @@ export default class Calendar extends React.Component {
     this.refreshSchedule();
   };
 
-  refreshSchedule() {
+   refreshSchedule() {
     this.setState({ calendarRefreshing: true });
-    let fetchURL = baseURL + "schedule/:" + this.props.userID;
+   
+    let fetchURL = baseURL + "schedule/" + this.props.userID;
+    console.log("[refreshSchedule] fetchURL: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -267,6 +269,7 @@ export default class Calendar extends React.Component {
     })
       .then((response) => response.text())
       .then((responseJson) => {
+        console.log(responseJson);
         /* First check if user has any schedule to fetch or not */
         if (responseJson.includes("doesn't have any")) {
           return;
@@ -311,7 +314,6 @@ export default class Calendar extends React.Component {
       });
     this.setState({ calendarRefreshing: false });
   }
-
 
   /* Helper functions for (un)rendering user input forms */
   renderUserform() {
@@ -479,6 +481,13 @@ export default class Calendar extends React.Component {
                 color="black"
                 title="add"
                 onPress={() => this.addSchedule()}
+              />
+ 	      <TextButton
+                style={{ margin: 4 }}
+                titleColor="#4286f4"
+                color="rgba(0, 0, 0, .05)"
+ 		title="log"
+                onPress={() => console.log(this.props.scheduleArray.length)}
               />
 
 

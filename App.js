@@ -12,7 +12,6 @@ import TabNavigator from "react-native-tab-navigator";
 import Calendar from "./Calendar.js";
 import Profile from "./Profile.js";
 import Login from "./Login.js";
-import Chat from "./chat.js";
 import NotifService from './NotifService';
 import Matches from "./Matches.js"
 
@@ -301,27 +300,7 @@ export default class App extends Component {
              potentialMatchesAdd={this.addPotentialMatches.bind(this)}
            />
          </TabNavigator.Item>
-          <TabNavigator.Item
-            selected={this.state.selectedTab === "chat"}
-            title="Chat"
-            selectedTitleStyle={{ color: "#3496f0" }}
-            renderIcon={() => (
-              <Icon name="envelope" size={px2dp(22)} color="#666" />
-            )}
-            renderSelectedIcon={() => (
-              <Icon name="envelope" size={px2dp(22)} color="#3496f0" />
-            )}
-            onPress={() => this.setState({ selectedTab: "chat" })}>
-            <Chat
-
-              /* States */
-              userID={this.state.userID}
-              name={this.state.name}
-
-            /* Push notification */
-              push_noti={this.notif}
-            />
-          </TabNavigator.Item>
+         
 
           <TabNavigator.Item
             selected={this.state.selectedTab === "profile"}

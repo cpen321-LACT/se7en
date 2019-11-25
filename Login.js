@@ -89,23 +89,35 @@ export default class Login extends Component {
     super(props);
     this.state = {
       /* Input states */
-      tmpYearLevel: "",
+     tmpYearLevel: "",
       tmpCoursesString: "",
       tmpCourses: [],
       tmpSex: "",
-      tmpKindness: 0,
-      tmpPatience: 0,
-      tmpHardWorking: 0,
+      tmpKindnessSelfRate: 4,
+      tmpPatienceSelfRate: 4,
+      tmpHardWorkingSelfRate: 4,
       tmpUserID: "",
       tmpPassword: "",
       tmpEmail: "",
       tmpName: "",
+      tmpAuthenticationToken: "",
+      tmpCurrentMatches: [],
+      tmpIncomingMatches: [],
       tmpPotentialMatches: [],
+      tmpScheduleArray: [],
+
+      tmpSexPref: "",
+      tmpYearLevelPref: "",
+      tmpCoursesPrefString: "",
+      tmpCoursesPref: [],
+      tmpKindnessPref: 0,
+      tmpPatiencePref: 0,
+      tmpHardWorkingPref: 0,
 
       /* Transition states */
       loginSecureTextEntry: true,
       signUp: false,
-    };
+      };
   }
 
   render() {
@@ -113,7 +125,7 @@ export default class Login extends Component {
       return (
         
           
-         <SafeAreaView testID="loginView" style={styles.safeContainer}>
+      <SafeAreaView testID="loginView" style={styles.safeContainer}>
 	<ImageBackground source={require('./pic/app.jpg')} style={{width: '100%', height: '100%'}}>
 
 	<ScrollView
@@ -125,7 +137,7 @@ export default class Login extends Component {
               <TextField
                 testID="userIDInput"
 		textColor="white"
-                label="Phone: "
+                label="User ID: "
 		baseColor="rgba(255,255,255,0.5)"
                 characterRestriction={10}
                 clearTextOnFocus={true}
@@ -187,10 +199,10 @@ export default class Login extends Component {
                 titleColor="white"
                 color="rgba(255,255,255,0.3)"
                 title="Facebook login"
-                onPress={() => this.signFacebook()}
+                onPress={() => this.signInFb()}
               />
-            </View>
-		</ScrollView>
+            	</View>
+	     </ScrollView>
 
 	   </ImageBackground>
           </SafeAreaView>
@@ -208,58 +220,7 @@ export default class Login extends Component {
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled">
             <View style={styles.inputContainer}>
-              <TextField
-                testID="signUpYearLevelInput"
-                label="Year level: "
-                clearTextOnFocus={true}
-                characterRestriction={1}
-                keyboardType='number-pad'
-                onChangeText={(data) => this.setState({ tmpYearLevel: data })}
-              />
-
-              <TextField
-                testID="signUpCoursesInput"
-                label="Courses: "
-                clearTextOnFocus={true}
-                title="Please input in form: 'Course A,Course B,Course C'"
-                onChangeText={(data) => this.setState({ tmpCoursesString: data })}
-              />
-
-              <TextField
-                testID="signUpSexInput"
-                label="Sex: "
-                clearTextOnFocus={true}
-                characterRestriction={1}
-                keyboardType='number-pad'
-                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
-                onChangeText={(data) => this.setState({ tmpSex: data })}
-              />
-
-              <TextField
-                testID="signUpKindnessPrefInput"
-                label="Kindness preference: "
-                clearTextOnFocus={true}
-                keyboardType='number-pad'
-                onChangeText={data => this.setState({ tmpKindness: parseInt(data, 10) })}
-              />
-
-              <TextField
-                testID="signUpPatiencePrefInput"
-                label="Patience preference: "
-                clearTextOnFocus={true}
-                keyboardType='number-pad'
-                onChangeText={data => this.setState({ tmpPatience: parseInt(data, 10) })}
-              />
-
-              <TextField
-                testID="signUpHardworkingPrefInput"
-                label="Hardworking preference: "
-                clearTextOnFocus={true}
-                keyboardType='number-pad'
-                onChangeText={data => this.setState({ tmpHardWorking: parseInt(data, 10) })}
-              />
-
-              <TextField
+               <TextField
                 testID="signUpUserIDInput"
                 label="User ID: "
                 characterRestriction={10}
@@ -279,6 +240,14 @@ export default class Login extends Component {
               />
 
               <TextField
+                testID="signUpNameInput"
+                label="Name: "
+                clearTextOnFocus={true}
+                characterRestriction={30}
+                onChangeText={(data) => this.setState({ tmpName: data })}
+              />
+
+              <TextField
                 testID="signUpEmailInput"
                 label="Email: "
                 clearTextOnFocus={true}
@@ -287,11 +256,110 @@ export default class Login extends Component {
               />
 
               <TextField
-                testID="signUpNameInput"
-                label="Name: "
+                testID="signUpSexInput"
+                label="Sex: "
                 clearTextOnFocus={true}
-                characterRestriction={30}
-                onChangeText={(data) => this.setState({ tmpName: data })}
+                characterRestriction={1}
+                keyboardType='number-pad'
+                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
+                onChangeText={(data) => this.setState({ tmpSex: data })}
+              />
+
+              <TextField
+                testID="signUpYearLevelInput"
+                label="Year level: "
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpYearLevel: data })}
+              />
+
+              <TextField
+                testID="signUpCoursesInput"
+                label="Courses: "
+                clearTextOnFocus={true}
+                title="Please input in form: 'Course A,Course B,Course C'"
+                onChangeText={(data) => this.setState({ tmpCoursesString: data })}
+              />
+
+              <TextField
+                testID="signUpKindnessSelfRateInput"
+                label="Kindness self-rating: "
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpKindnessSelfRate: parseInt(data, 10) })}
+              />
+
+              <TextField
+                testID="signUpPatienceSelfRateInput"
+                label="Patience self-rating: "
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpPatienceSelfRate: parseInt(data, 10) })}
+              />
+
+              <TextField
+                testID="signUpHardworkingSelfRateInput"
+                label="Hardworking self-rating: "
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpHardWorkingSelfRate: parseInt(data, 10) })}
+              />
+            
+            </View>
+<View style={styles.safeContainer}>
+              <Text style={{ fontSize: 18, flex: 1, margin: 8, textDecorationLine: "underline" }}>Preferences:</Text>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextField
+                testID="signUpSexInput"
+                label="Sex: "
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                keyboardType='number-pad'
+                title="Please input as an integer (0 - Male, 1 - Female, 2 - Both)"
+                onChangeText={(data) => this.setState({ tmpSexPref: data })}
+              />
+
+              <TextField
+                testID="signUpYearLevelInput"
+                label="Year level: "
+                clearTextOnFocus={true}
+                characterRestriction={1}
+                keyboardType='number-pad'
+                onChangeText={(data) => this.setState({ tmpYearLevelPref: data })}
+              />
+
+              <TextField
+                testID="signUpCoursesInput"
+                label="Courses: "
+                clearTextOnFocus={true}
+                title="Please input in form: 'Course A,Course B,Course C'"
+                onChangeText={(data) => this.setState({ tmpCoursesPrefString: data })}
+              />
+
+              <TextField
+                testID="signUpKindnessSelfRateInput"
+                label="Kindness preference: "
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpKindnessPref: parseInt(data, 10) })}
+              />
+
+              <TextField
+                testID="signUpPatienceSelfRateInput"
+                label="Patience preference: "
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpPatiencePref: parseInt(data, 10) })}
+              />
+
+              <TextField
+                testID="signUpHardworkingSelfRateInput"
+                label="Hardworking preference: "
+                clearTextOnFocus={true}
+                keyboardType='number-pad'
+                onChangeText={data => this.setState({ tmpHardWorkingPref: parseInt(data, 10) })}
               />
             </View>
 
@@ -326,7 +394,6 @@ export default class Login extends Component {
 
   //---------------------------------------------------------------------------//
 
-  /* Helper function that executes the Sign In sequence */
   signIn() {
     /* We first check for error (NULL/empty) */
     var signInCheck = [this.props.userID, this.props.password];
@@ -338,7 +405,7 @@ export default class Login extends Component {
     }
 
     /* If no errors, we do a fetch */
-    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
+    let fetchURL = baseURL + "user/" + this.props.userID + "/info";
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -366,7 +433,7 @@ export default class Login extends Component {
               /* Then check if the data got from database matches the password typed */
               if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
                 && responseJson[0].password === this.props.password) {
-                Alert.alert("Signed in successfully!");
+                Alert.alert("Signed in successfully!", "If you are signing in via Facebook, please remember to update your information and preferences in Profile -> Modify Profile for matching uses");
                 /* Do the Initialize sequence after signing in successfully */
                 this.initSequence();
                 this.props.logVisibleChange();
@@ -379,54 +446,10 @@ export default class Login extends Component {
       });
   }
 
-    signFacebook(){
-        LoginManager.logInWithPermissions(['public_profile']).then(
-        function (result) {
-          if (result.isCancelled) {
-            console.log('Login cancelled')
-          } else {
-          //  AccessToken.getCurrentAccessToken().then((data) => {
-          //  const { accessToken } = data;
-
-          //  fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + accessToken)
-          //  .then((response) => response.json())
-        //    .then((json) => {
-
-        //      this.props.nameChange( json.name);
-              this.props.userIDChange( "7783204195");
-
-              this.props.yearLevelChange("1");
-              this.props.coursesChange("CPEN321");
-              this.props.sexChange("1");
-              this.props.numberOfRatingsChange(
-                "0"
-              );
-              this.props.kindnessPrefChange("4");
-              this.props.patiencePrefChange("4");
-              this.props.hardWorkingPrefChange("4");
-
-              this.props.passwordChange("12345678");
-              this.props.emailChange("regurgamz@gmail.com");
-              this.props.nameChange("hi");
-            //  this.signUp();
-            this.initSequence();
-            this.props.logVisibleChange();
-
-
-            }
-        /*    .catch(() => {
-              reject('ERROR GETTING DATA FROM FACEBOOK')
-            });
-          })*/
-
-      }.bind(this))
-    }
-
-
   /* Helper function that executes the Sign Up sequence */
   signUp() {
     /* We first check for error (NULL/empty) */
-    var signUpCheck = [this.state.tmpYearLevel, this.state.tmpCoursesString, this.state.tmpSex, this.state.tmpUserID, this.state.tmpPassword, this.state.tmpEmail, this.state.tmpName];
+    var signUpCheck = [this.state.tmpYearLevel, this.state.tmpCoursesString, this.state.tmpSex, this.state.tmpUserID, this.state.tmpPassword, this.state.tmpEmail, this.state.tmpName, this.state.tmpKindnessSelfRate, this.state.tmpPatienceSelfRate, this.state.tmpHardWorkingSelfRate, this.state.tmpSexPref, this.state.tmpYearLevelPref, this.state.tmpCoursesPrefString, this.state.tmpKindnessPref, this.state.tmpPatiencePref, this.state.tmpHardWorkingPref];
     for (var i = 0; i < signUpCheck.length; i++) {
       if (this.checkNULL(signUpCheck[i]) || this.checkEmpty(signUpCheck[i])) {
         Alert.alert("One of the fields must not be NULL or empty");
@@ -435,9 +458,16 @@ export default class Login extends Component {
     }
 
     /* Check for sum of prefs */
-    if (this.checkSumPrefs()) {
+    if (this.checkSumPrefs(this.state.tmpKindnessSelfRate, this.state.tmpPatienceSelfRate, this.state.tmpHardWorkingSelfRate)) {
       Alert.alert(
-        "The sum of Kindness, Patience and Hardworking must be at least 12"
+        "The sum of Kindness, Patience and Hardworking Self-ratings must be exactly 12"
+      );
+      return;
+    }
+
+    if (this.checkSumPrefs(this.state.tmpKindnessPref, this.state.tmpPatiencePref, this.state.tmpHardWorkingPref)) {
+      Alert.alert(
+        "The sum of Kindness, Patience and Hardworking Preferences must be exactly 12"
       );
       return;
     }
@@ -445,8 +475,9 @@ export default class Login extends Component {
     /* If no errors, we do the request */
     /* Split course string -> array first */
     this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
-    let fetchURL = baseURL + "user/:" + this.props.userID;
-    fetch(fetchURL, {/* Split course string -> array first */
+    let fetchURL = baseURL + "user/info";
+    console.log("[signUp] url request: " + fetchURL);
+    fetch(fetchURL, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -457,10 +488,11 @@ export default class Login extends Component {
         courses: this.state.tmpCourses,
         sex: this.state.tmpSex,
         numberOfRatings: "0",
-        kindness: this.state.tmpKindness,
-        patience: this.state.tmpPatience,
-        hardWorking: this.state.tmpHardWorking,
+        kindness: this.state.tmpKindnessSelfRate,
+        patience: this.state.tmpPatienceSelfRate,
+        hardWorking: this.state.tmpHardWorkingSelfRate,
         authenticationToken: "",
+        userId: this.state.tmpUserID,
         password: this.state.tmpPassword,
         email: this.state.tmpEmail,
         name: this.state.tmpName,
@@ -468,13 +500,210 @@ export default class Login extends Component {
     })
       .then((response) => response.text())
       .then((responseJson) => {
-        //console.log(responseJson);
+        console.log(responseJson);
         /* Check if user ID already exists or not */
         if (responseJson.includes("already exists")) {
           Alert.alert("User ID already exists!");
-        } else {
-          Alert.alert("Signed up successfully!");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot sign up, please try again");
+        }
+        else {
+          this.signUpPreferences();
+        }
+      });
+  }
+
+  signUpPreferences() {
+    /* Split course string -> array first */
+    this.setState({ tmpCoursesPref: this.state.tmpCoursesPrefString.split(",") });
+    let fetchURL = baseURL + "user/" + this.state.tmpUserID + "/preferences";
+    console.log("[signUpPreferences] url request: " + fetchURL);
+    fetch(fetchURL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        kindness: this.state.tmpKindnessPref,
+        patience: this.state.tmpPatiencePref,
+        hardWorking: this.state.tmpHardWorkingPref,
+        courses: this.state.tmpCoursesPref,
+        sex: this.state.tmpSexPref,
+        yearLevel: this.state.tmpYearLevelPref
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson);
+        /* Check if user ID already exists or not */
+        if (responseJson.includes("does not exists")) {
+          Alert.alert("User ID already exists!");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot sign up, please try again");
+        }
+        else {
+          Alert.alert("Signed up succesfully")
           this.unrenderSignUpForm();
+        }
+      });
+  }
+
+  signInFb() {
+    // Attempt a login using the Facebook login dialog asking for default permissions.
+    LoginManager.logInWithPermissions(["public_profile"]).then((result) => {
+      if (result.isCancelled) {
+        console.log("Login cancelled");
+      }
+      else {
+        AccessToken.getCurrentAccessToken().then((accessToken) => {
+          //console.log(accessToken);
+          //console.log(accessToken.accessToken);
+          this.setState({ tmpAuthenticationToken: accessToken.accessToken });
+          this.setState({ tmpUserID: accessToken.userID })
+          this.setState({ tmpPassword: accessToken.userID })
+          this.props.userIDChange(accessToken.userID);
+          this.props.passwordChange(accessToken.userID);
+          //console.log(this.state.tmpAuthenticationToken);
+          this.signInAuthToken();
+        });
+        console.log("Login success with permissions: " + result.grantedPermissions.toString());
+      }
+    });
+  }
+
+  signInAuthToken() {
+    let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+    console.log("[signUpAuthToken]: " + fetchURL);
+    fetch(fetchURL, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+      /* First check if this user ID exists or not */
+      .then((response) => response.text())
+      .then((responseJson) => {
+        if (responseJson.includes("does not exist")) {
+          console.log("going to signUpAuthToken");
+          this.signUpAuthToken();
+        } else {
+          /* If user ID does exist, we do the actual call */
+          console.log("signInAuthToken ok")
+          fetch(fetchURL, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((responseJson) => {
+              /* Then check if the data got from database matches the password typed */
+              if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined"
+                && responseJson[0].password === this.props.password) {
+                Alert.alert("Signed in successfully!", "If you are signing in via Facebook, please remember to update your information and preferences in Profile -> Modify Profile for matching uses");
+                /* Do the Initialize sequence after signing in successfully */
+                this.initSequence();
+                this.props.logVisibleChange();
+              } else {
+                Alert.alert("Cannot sign in with this Facebook account");
+                return;
+              }
+            });
+        }
+      });
+  }
+
+  signUpAuthToken() {
+    fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + this.state.tmpAuthenticationToken)
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log("[signUpAuthToken]: " + responseJson);
+        this.setState({ tmpName: responseJson.name })
+        this.setState({ tmpEmail: responseJson.email })
+      })
+      .catch(() => {
+        reject('ERROR GETTING DATA FROM FACEBOOK')
+      })
+
+    this.setState({ tmpCourses: this.state.tmpCoursesString.split(",") });
+    let fetchURL = baseURL + "user/info";
+    console.log("[signUpAuthToken] url request: " + fetchURL);
+    fetch(fetchURL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        yearLevel: this.state.tmpYearLevel,
+        courses: this.state.tmpCourses,
+        sex: this.state.tmpSex,
+        numberOfRatings: "0",
+        kindness: 4,
+        patience: 4,
+        hardWorking: 4,
+        authenticationToken: this.state.tmpAuthenticationToken,
+        userId: this.state.tmpUserID,
+        password: this.state.tmpPassword,
+        email: this.state.tmpEmail,
+        name: this.state.tmpName,
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson);
+        /* Check if user ID already exists or not */
+        if (responseJson.includes("already exists")) {
+          Alert.alert("User ID already exists!");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot sign up, please try again");
+        }
+        else {
+          this.signUpPreferencesAuthToken();
+        }
+      });
+  }
+
+  signUpPreferencesAuthToken() {
+    /* Split course string -> array first */
+    this.setState({ tmpCoursesPref: this.state.tmpCoursesPrefString.split(",") });
+    let fetchURL = baseURL + "user/" + this.state.tmpUserID + "/preferences";
+    console.log("[signUpPreferences] url request: " + fetchURL);
+    fetch(fetchURL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        kindness: 4,
+        patience: 4,
+        hardWorking: 4,
+        courses: this.state.tmpCoursesPref,
+        sex: this.state.tmpSexPref,
+        yearLevel: this.state.tmpYearLevelPref
+      }),
+    })
+      .then((response) => response.text())
+      .then((responseJson) => {
+        console.log(responseJson);
+        /* Check if user ID already exists or not */
+        if (responseJson.includes("does not exists")) {
+          Alert.alert("User ID already exists!");
+        }
+        else if (responseJson.includes("Cannot POST")) {
+          Alert.alert("Cannot sign up, please try again");
+        }
+        else {
+          this.props.userIDChange(this.state.tmpUserID);
+          this.props.passwordChange(this.state.tmpPassword);
+          this.signIn();
         }
       });
   }
@@ -498,8 +727,8 @@ export default class Login extends Component {
     }
   }
 
-  checkSumPrefs() {
-    if (this.state.tmpKindness + this.state.tmpPatience + this.state.tmpHardWorking < 12) {
+  checkSumPrefs(pref1, pref2, pref3) {
+    if (pref1 + pref2 + pref3 !== 12) {
       return true;
     }
     else {
@@ -510,10 +739,11 @@ export default class Login extends Component {
   /* -------------------------------------------------------------------------- */
 
   /* Helper function that populates data of user"s info on Init Sequence
-   * Assumes that user must be created before calling this function
+   * Assumes that user must be created before calling this function 
    */
   initUserInfo() {
-    let fetchURL = baseURL + "user/:" + this.props.userID + "/info";
+    let fetchURL = baseURL + "user/" + this.props.userID + "/info";
+    console.log("[initUserInfo]: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -523,7 +753,7 @@ export default class Login extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        //console.log("initUserInfo: " + responseJson)
+        console.log("[initUserInfo] " + responseJson)
         if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
           this.props.yearLevelChange(responseJson[0].yearLevel);
           this.props.coursesChange(responseJson[0].courses);
@@ -531,9 +761,9 @@ export default class Login extends Component {
           this.props.numberOfRatingsChange(
             responseJson[0].numberOfRatings
           );
-          this.props.kindnessPrefChange(responseJson[0].kindness);
-          this.props.patiencePrefChange(responseJson[0].patience);
-          this.props.hardWorkingPrefChange(responseJson[0].hardWorking);
+          this.props.kindnessSelfRateChange(responseJson[0].kindness);
+          this.props.patienceSelfRateChange(responseJson[0].patience);
+          this.props.hardWorkingSelfRateChange(responseJson[0].hardWorking);
           this.props.authenticationTokenChange(
             responseJson[0].authenticationToken
           );
@@ -541,12 +771,45 @@ export default class Login extends Component {
           this.props.emailChange(responseJson[0].email);
           this.props.nameChange(responseJson[0].name);
         }
+        else {
+          Alert.alert("Could not initialize user's info");
+        }
+      });
+  }
+
+  /* Helper function that populates data of user"s preferences on Init Sequence */
+  initUserPreferences() {
+    let fetchURL = baseURL + "user/" + this.props.userID + "/preferences";
+    console.log("[initUserPreferences]: " + fetchURL);
+    fetch(fetchURL, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log("[initUserPreferences] " + responseJson[0]);
+        if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+          this.props.kindnessPrefChange(responseJson[0].kindness);
+          this.props.patiencePrefChange(responseJson[0].patience);
+          this.props.hardWorkingPrefChange(responseJson[0].hardWorking);
+          this.props.coursesPrefChange(responseJson[0].courses);
+          this.props.sexPrefChange(responseJson[0].sex);
+          this.props.yearLevelPrefChange(responseJson[0].yearLevel);
+        }
+        else {
+          Alert.alert("Could not initialize user's preferences");
+        }
       });
   }
 
   /* Helper function that populates data of user"s schedule on Init Sequence */
   initUserSchedule() {
-    let fetchURL = baseURL + "schedule/:" + this.props.userID;
+    //console.log("[initUserSchedule]")
+    let fetchURL = baseURL + "schedule/" + this.props.userID;
+    console.log("[initUserSchedule] fetchURL: " + fetchURL);
     fetch(fetchURL, {
       method: "GET",
       headers: {
@@ -557,6 +820,7 @@ export default class Login extends Component {
       /* First check if user, especially newly created ones have any schedules to initialize */
       .then((response) => response.text())
       .then((responseJson) => {
+        console.log("[initUserSchedule]: " + responseJson);
         if (responseJson.includes("doesn't have any")) {
           return;
         }
@@ -574,8 +838,10 @@ export default class Login extends Component {
               if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
                 this.props.scheduleArrayClear();
                 /* Traverse through each item to populate needed fields of scheduleArray for rendering */
-                responseJson.forEach((item) => {
+                var i;
+                for (i = 0; i < responseJson.length; i++) {
                   /* Start time of a schedule */
+                  var item = responseJson[i];
                   var startTimeToAdd = new Date(item.date);
                   startTimeToAdd.setHours(item.time.substring(0, 2));
                   startTimeToAdd.setMinutes(item.time.substring(3, 5));
@@ -595,19 +861,77 @@ export default class Login extends Component {
                   };
                   /* Now we add this schedule obj to scheduleArray */
                   this.props.scheduleArrayAdd(tmpSchedule);
-                });
+                  this.state.tmpScheduleArray.push(tmpSchedule);
+                };
                 /* Update event ID accordingly */
                 this.props.eventIDChange(responseJson[responseJson.length - 1].eventId);
+                this.initUserMatches();
+              }
+              else {
+                Alert.alert("Could not initialize user's schedule");
               }
             });
         }
       });
   }
 
+  /* Helper function that populates data of user's matches on Init Sequence */
+  initUserMatches() {
+    // var i;
+    // for (i = 0; i < this.state.tmpScheduleArray.length; i++) {
+    //   let fetchURL = baseURL + "user/" + this.props.userID + "/matches/potentialMatches/" + this.state.tmpScheduleArray[i].id;
+    //   //console.log("[initUserMatches] fetchURL: " + fetchURL);
+    //   fetch(fetchURL, {
+    //     method: "GET",
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //     },
+    //   })
+    //     /* First check if user, especially newly created ones have any schedules to initialize */
+    //     .then((response) => response.text())
+    //     .then((responseJson) => {
+    //       //console.log("[initUserMatches] responseJson: " + responseJson);
+    //       if (responseJson.includes("doesn't have any")) {
+    //         return;
+    //       }
+    //       else {
+    //         /* Otw, we do the actual fetch */
+    //         fetch(fetchURL, {
+    //           method: "GET",
+    //           headers: {
+    //             Accept: "application/json",
+    //             "Content-Type": "application/json",
+    //           },
+    //         })
+    //           .then((response) => response.json())
+    //           .then((responseJson) => {
+    //             if (typeof responseJson !== "undefined" && typeof responseJson[0] !== "undefined") {
+    //               this.props.currentMatchesClear();
+    //               /* Traverse through each  */
+    //               if (responseJson[0].match === -1) {
+    //                 console.log("No current match for event");
+    //               }
+    //               else {
+    //                 var tmpMatch = {
+    //                   name: "User " + "A",
+    //                   avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
+    //                   subtitle: "User ID: " + 10101 + " in event ID: " + 99999,
+    //                 };
+    //                 this.props.currentMatchesAdd(tmpMatch);
+    //               }
+    //             }
+    //           });
+    //       }
+    //     });
+    // }
+  }
+
   /* Init Sequence after successully signing in */
-  async initSequence() {
+  initSequence() {
     this.initUserSchedule();
-  //  this.initUserInfo();
+    this.initUserInfo();
+    this.initUserPreferences();
     /* Start a timer for checking potential matches notify user using Push Notification */
     BackgroundTimer.runBackgroundTimer(() => {
       let url =
@@ -666,5 +990,4 @@ export default class Login extends Component {
   }
 
   /* -------------------------------------------------------------------------- */
-
 }
