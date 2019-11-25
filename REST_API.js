@@ -656,8 +656,8 @@ app.get("/user/:userId/matches/potentialMatches/:eventId", async (req,res) => {
                                 "wait" : Matches[0].wait,
                                 "request" : Matches[0]["request"],
                                 "matchName" : null,
-                                "match" : null,
-                                "eventMatch" : null});
+                                "match" : -1,
+                                "eventMatch" : -1});
             }
         res.status(200).send(ret);
     }) }) }) }) }) }) })
@@ -716,7 +716,15 @@ app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
                     return err;
                 }
                 userAMatchDoc = a[0];
-
+                
+                /* Handle previous match of A */
+                if(userAMatchDoc.match !== -1){
+                    var previous = {userId : parseInt(userAMatchDoc.match, 10),
+                                    eventId : parseInt(userAMatchDoc.eventMatch, 10)};
+                    userDb.collection("matchesClt").updateOne(previous, {$set: {match : -1, eventMatch : -1, addNametoMatch : null}}, (err, updateResultA) => {
+                        if (err) { res.status(400).send({message : "User A previous matching Error"}); return err;}
+                    })
+                }
                 /* Get user_b's match document for a specific time and date */
                 userDb.collection("matchesClt").find(queryUserB).toArray((err, b) => {
                     if (err) {return err;}
