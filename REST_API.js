@@ -720,7 +720,7 @@ app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
                       date : thisDate,
                       userId: parseInt(req.params.userIdB, 10)};
         userDb.collection("matchesClt").find(queryB).toArray((err, event) => {
-            if (err) {return err;}
+            if (err){return;}
 
             var eventIdA = parseInt(req.params.eventIdA, 10);
             var eventIdB = parseInt(event[0].eventId, 10);
@@ -822,7 +822,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
     var i;
     /* Find all the match documents for a specified user */
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, matches) => {
-        if (err) {return err;}
+        if (err){return;}
         if (parseInt(matches[0].match, 10) === -1){
             res.status(400).send({message:"The user with userId doesnt have any matches"});
             return;
