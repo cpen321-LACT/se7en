@@ -19,7 +19,7 @@ public class DetoxTest {
 
     @Test
     public void runDetoxTests() {
-        // assertNotNull("rule not found", mActivityRule);
+        assertNotNull("rule not found", mActivityRule);
         Detox.runTests(mActivityRule);
     }
 }
