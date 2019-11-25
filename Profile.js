@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   },
   navBar: {
     backgroundColor: "#4286f4",
@@ -40,12 +40,12 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     paddingTop: statusBarHeight,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   },
   navBarTitle: {
     color: "#FFF",
     fontFamily,
-    fontSize: 17,
+    fontSize: 17
   },
   heroContainer: {
     marginTop: 0,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: "#4286f4",
-    flexDirection: "row",
+    flexDirection: "row"
   },
   heroImage: {
     width: 80,
@@ -65,42 +65,42 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     borderWidth: 3,
     borderColor: "#4286f4",
-    marginHorizontal: 20,
+    marginHorizontal: 20
   },
   heroTitle: {
     fontFamily,
     color: "black",
-    fontSize: 24,
+    fontSize: 24
   },
   heroSubtitle: {
     fontFamily,
     color: "#999",
-    fontSize: 14,
+    fontSize: 14
   },
 
   scroll: {
-    backgroundColor: "transparent",
+    backgroundColor: "transparent"
   },
 
   inputContainer: {
     margin: 8,
     marginTop: Platform.select({ ios: 2, android: 2 }),
-    flex: 1,
+    flex: 1
   },
 
   contentContainer: {
-    padding: 8,
+    padding: 8
   },
 
   buttonContainer: {
     paddingTop: 8,
-    margin: 8,
+    margin: 8
   },
 
   safeContainer: {
     flex: 1,
-    backgroundColor: "white",
-  },
+    backgroundColor: "white"
+  }
 });
 
 /* -------------------------------------------------------------------------- */
@@ -149,7 +149,7 @@ export default class Profile extends React.Component {
 
       /* Transition states */
       userEdit: false,
-      secureTextEntry: true,
+      secureTextEntry: true
     };
   }
 
@@ -319,7 +319,7 @@ export default class Profile extends React.Component {
             color: "#999",
             marginBottom: 40,
             marginTop: -30,
-            fontFamily,
+            fontFamily
           }}>
           v2.0.0
         </Text>
@@ -440,7 +440,7 @@ export default class Profile extends React.Component {
         authenticationToken: this.props.authenticationToken,
         password: this.state.tmpPassword,
         email: this.state.tmpEmail,
-        name: this.state.tmpName,
+        name: this.state.tmpName
       }),
     })
       .then((response) => response.text())
@@ -484,7 +484,7 @@ export default class Profile extends React.Component {
       method: "PUT",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         kindness: this.state.tmpKindnessPref,
@@ -493,7 +493,7 @@ export default class Profile extends React.Component {
         courses: this.state.tmpCoursesPref,
         sex: this.state.tmpSexPref,
         yearLevel: this.state.tmpYearLevelPref
-      }),
+      })
     })
       .then((response) => response.text())
       .then((responseJson) => {
