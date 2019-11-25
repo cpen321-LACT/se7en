@@ -397,8 +397,7 @@ export default class Calendar extends React.Component {
               onValueChange={value => this.setState({ tmpDate:value })}
             />
             <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
-              Start time:{this.state.tmpStartTime.getHours()}  {this.state.tmpStartTime.getMinutes()}
-            </Text>
+              Start time:{this.state.tmpStartTime.getHours()}:{this.state.tmpStartTime.getMinutes()}</Text>
             <DatePicker
               date={this.state.tmpStartTime}
               mode="time"
@@ -408,8 +407,7 @@ export default class Calendar extends React.Component {
               onDateChange={time => this.setState({ tmpStartTime:time })}
             />
             <Text style={{margin: 4, color: "black", textAlign: 'center'}}>
-              End time:{this.state.tmpEndTime.getHours()}  {this.state.tmpEndTime.getMinutes()}
-            </Text>
+              End time:{this.state.tmpEndTime.getHours()}:{this.state.tmpEndTime.getMinutes()}</Text>
             <DatePicker
               date={this.state.tmpEndTime}
               mode="time"

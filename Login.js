@@ -863,7 +863,7 @@ export default class Login extends Component {
                     color: "rgba(66,134,244,1)",
                     description: item.course,
                     subject: item.course,
-                    location: item.location,
+                    location: item.location
                   };
                   /* Now we add this schedule obj to scheduleArray */
                   this.props.scheduleArrayAdd(tmpSchedule);
@@ -895,7 +895,7 @@ export default class Login extends Component {
         method: "GET",
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         }
       })
         /* First check if user, especially newly created ones have any schedules to initialize */
@@ -926,7 +926,7 @@ export default class Login extends Component {
                     var tmpMatch = {
                       name: responseJson[0].matchName,
                       avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                      subtitle: "[Current " + responseJson[0].eventMatch + "] " + "User ID: " + responseJson[0].match + " in event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                      subtitle: "[Current " + responseJson[0].eventMatch + "] " + "User ID: " + responseJson[0].match + " in event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                     };
                     this.props.currentMatchesAdd(tmpMatch);
                   }
@@ -941,7 +941,7 @@ export default class Login extends Component {
                       var tmpMatch = {
                         name: responseJson[0].request[i].toString(),
                         avatar_url: "https://i.redd.it/q5d5fkvzqem31.jpg",
-                        subtitle: "[Incoming " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date,
+                        subtitle: "[Incoming " + i + "] " + "In event ID: " + responseJson[0].eventId + " at " + responseJson[0].time + ", " + responseJson[0].date
                       }
                       this.props.incomingMatchesAdd(tmpMatch);
                       this.state.tmpIncomingMatches.push(tmpMatch);
