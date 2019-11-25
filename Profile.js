@@ -11,7 +11,7 @@ import {
   RefreshControl,
   SafeAreaView,
   ScrollView,
-  Platform,
+  Platform
 } from "react-native";
 import ActionButton from "react-native-action-button";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
@@ -168,9 +168,7 @@ export default class Profile extends React.Component {
           />
           <View style={{ flex: 1 }}>
             <Text style={styles.heroTitle}>{this.props.name}</Text>
-            <Text style={styles.heroSubtitle}>
-              User ID: {this.props.userID}
-            </Text>
+            <Text style={styles.heroSubtitle}>User ID: {this.props.userID}</Text>
           </View>
         </View>
       ),
@@ -565,9 +563,8 @@ export default class Profile extends React.Component {
     if (typeof data === "undefined") {
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
+
   }
 
   checkEmpty(data) {
@@ -575,18 +572,16 @@ export default class Profile extends React.Component {
     if (data === "") {
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
+
   }
 
   checkSumPrefs(pref1, pref2, pref3) {
     if (pref1 + pref2 + pref3 !== 12) {
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
+
   }
 
   /* -------------------------------------------------------------------------- */
