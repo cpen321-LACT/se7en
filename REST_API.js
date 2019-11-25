@@ -562,9 +562,8 @@ app.get("/user/:userId/matchesNotification", async (req,res) => {
         if(err){res.send("SOMETHING WRONG").status(400);
             return;}
         for(var i = 0; i < matchArray.length; i++){
-            var matchEntry = matchArray[i];
             /* Check if match is modified */
-            if(parseInt(matchEntry.flag, 10) === 1){
+            if(parseInt(matchArray[i].flag, 10) === 1){
                 ret.flag = 1;
             }
         }
@@ -1117,8 +1116,8 @@ app.delete("/schedule/:userId/all/:numEvents", async (req,res) => {
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.send({message: "deleted the schedule"});
-    }) })
-})
+    }); });
+});
 
 /*
  * Delete a study event with of the user with userId at a certain time and date.
@@ -1142,7 +1141,7 @@ app.delete("/schedule/:userId/:eventId", async (req,res) => {
             return err;
         }
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
-        if (err) {return err;}
+        if (err){return err;}
         res.status(200).send({message: "deleted the specific time"});
-        }) });
+        }); });
     });
