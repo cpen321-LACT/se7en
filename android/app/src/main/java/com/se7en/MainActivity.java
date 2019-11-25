@@ -1,6 +1,10 @@
 package com.se7en;
 
 import com.facebook.react.ReactActivity;
+/**
+ * project: se7en
+*/
+
 
 public class MainActivity extends ReactActivity {
 
