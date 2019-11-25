@@ -359,7 +359,7 @@ app.put("/user/:userId/preferences", async (req,res) => {
  */
 app.get("/user/:userId/info", async (req,res) => {
         if(parseInt(req.params.userId, 10) < 0){
-            res.status(400).json({message: 'The user id is less tahn 0 (┛ಠ_ಠ)┛彡┻━┻'});
+            res.status(400).json({message: "The user id is less tahn 0 (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
         userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
@@ -374,7 +374,7 @@ app.get("/user/:userId/info", async (req,res) => {
 /* Get user infor with authentication Token */
 app.get("/user/:authenticationToken/authentication/info", async (req,res) => {
     if(req.params.authenticationToken === null){
-        res.status(400).json({message: 'The Token is null (┛ಠ_ಠ)┛彡┻━┻'});
+        res.status(400).json({message: "The Token is null (┛ಠ_ಠ)┛彡┻━┻"});
         return;
     }
     userDb.collection("infoClt").find({ userId : parseInt(req.params.authenticationToken, 10)}).toArray((err, userInfo) => {
@@ -770,8 +770,8 @@ app.post("/user/:userIdA/matches/:userIdB/:eventIdA", async (req,res) => {
 
                         /* If user_b has already requested to match with user_a and is waiting */
                         if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
-                            userAMatchDoc["eventMatch"] = parseInt(eventIdB);
-                            userBMatchDoc["eventMatch"] = parseInt(eventIdA);
+                            userAMatchDoc["eventMatch"] = parseInt(eventIdB, 10);
+                            userBMatchDoc["eventMatch"] = parseInt(eventIdA, 10);
                             /* user_b is user_a's match */
                             userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
                             /* user_a to user_b's match */
@@ -826,7 +826,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
         if (err) {return err;}
         if (parseInt(matches[0].match, 10) === -1){
             res.status(400).send({message:"The user with userId doesnt have any matches"});
-            return
+            return;
         }
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
@@ -862,7 +862,7 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
  */
 app.delete("/user/:userId/matches/:matchId/:eventId/:eventMatchId", async (req,res) => {
     var query = { userId : parseInt(req.params.userId, 10), 
-                  eventId: parseInt(req.params.eventId, 10)}
+                  eventId: parseInt(req.params.eventId, 10)};
     userDb.collection("matchesClt").find(query).toArray((err, result) => {
         if (err) {return err;}
         if(parseInt(result[0]["match"], 10) !== parseInt(req.params.matchId, 10)){
@@ -1144,5 +1144,5 @@ app.delete("/schedule/:userId/:eventId", async (req,res) => {
     scheduleDb.collection("scheduleClt").deleteOne(query, (err, result) => {
         if (err) {return err;}
         res.status(200).send({message: "deleted the specific time"});
-        }) })
-    })
+        }) });
+    });
