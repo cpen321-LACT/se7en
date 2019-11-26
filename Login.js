@@ -560,10 +560,8 @@ export default class Login extends Component {
   signInFb() {
     // Attempt a login using the Facebook login dialog asking for default permissions.
     LoginManager.logInWithPermissions(["public_profile", "email"]).then((result) => {
-      if (result.isCancelled) {
-        console.log("Login cancelled");
-      }
-      else {
+      if (!result.isCancelled) {
+
         AccessToken.getCurrentAccessToken().then((accessToken) => {
           //console.log(accessToken);
           //console.log(accessToken.accessToken);
@@ -576,6 +574,8 @@ export default class Login extends Component {
         });
         console.log("Login success with permissions: " + result.grantedPermissions.toString());
       }
+      else console.log("Login cancelled");
+
     });
   }
 
