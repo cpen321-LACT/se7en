@@ -718,27 +718,22 @@ export default class Login extends Component {
     if (typeof data === "undefined") {
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
   }
 
   checkEmpty(data) {
     if (data === "" || data === []) {
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
   }
 
   checkSumPrefs(pref1, pref2, pref3) {
     if (pref1 + pref2 + pref3 !== 12) {
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
+
   }
 
   /* -------------------------------------------------------------------------- */
