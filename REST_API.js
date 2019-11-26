@@ -44,9 +44,9 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
     //  console.log("Schedule collection created!");
   });
 
-//    app.listen(3000, function() {
-//       console.log("server is up!");
-//    })
+   app.listen(3000, function() {
+      console.log("server is up!");
+   })
 
 })
 module.exports = app;
