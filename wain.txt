@@ -1,0 +1,363 @@
+
+> @ test:watch /Users/adamdixon/cpen321/testing
+> jest --watchAll
+
+(node:71652) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+(node:71653) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+(node:71651) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+FAIL __tests__/matchesTest.js
+  ● insert › Good match POST
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Successfully added matches."
+    Received: undefined
+
+      28 |     const wain = await request.post('/user/1/matches/2').send(event1);
+      29 | 
+    > 30 |     expect(wain.message).toBe("Successfully added matches.");
+         |                          ^
+      31 |     expect(wain.status).toBe(200);
+      32 | 
+      33 |     done();
+
+      at Object.it (__tests__/matchesTest.js:30:26)
+
+  ● insert › Bad match themself POST
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Cannot match the user with themselves."
+    Received: undefined
+
+      48 | 
+      49 |     expect(matchSelfResponse.status).toBe(400);
+    > 50 |     expect(matchSelfResponse.message).toBe("Cannot match the user with themselves.");
+         |                                       ^
+      51 | 
+      52 |     done();
+      53 |   })
+
+      at Object.it (__tests__/matchesTest.js:50:39)
+
+  ● insert › Bad match negative POST
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Negative userId"
+    Received: undefined
+
+      62 | 
+      63 |     expect(negativeMatchResponse.status).toBe(400);
+    > 64 |     expect(negativeMatchResponse.message).toBe("Negative userId");
+         |                                           ^
+      65 | 
+      66 |     done();
+      67 |   })
+
+      at Object.it (__tests__/matchesTest.js:64:43)
+
+  ● insert › Bad match POST A
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "User A doesn't exist"
+    Received: undefined
+
+      76 | 
+      77 |     expect(userAWrongResponse.status).toBe(400);
+    > 78 |     expect(userAWrongResponse.message).toBe("User A doesn't exist");
+         |                                        ^
+      79 | 
+      80 |     done();
+      81 |   })
+
+      at Object.it (__tests__/matchesTest.js:78:40)
+
+  ● insert › Bad match POST B
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "User B doesn't exist"
+    Received: undefined
+
+      90 | 
+      91 |     expect(userBWrongResponse.status).toBe(400);
+    > 92 |     expect(userBWrongResponse.message).toBe("User B doesn't exist");
+         |                                        ^
+      93 | 
+      94 |     done();
+      95 |   })
+
+      at Object.it (__tests__/matchesTest.js:92:40)
+
+  ● insert › Bad no matches GET
+
+    Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+
+      706 |         }
+      707 |         /* Return JSON object*/
+    > 708 |         res.send({"current_matches" : curMatches});
+          |             ^
+      709 |     })
+      710 | })
+      711 | 
+
+      at ServerResponse.header (node_modules/express/lib/response.js:771:10)
+      at ServerResponse.send (node_modules/express/lib/response.js:170:12)
+      at ServerResponse.json (node_modules/express/lib/response.js:267:15)
+      at ServerResponse.send (node_modules/express/lib/response.js:158:21)
+      at userDb.collection.find.toArray (REST_API.js:708:13)
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:68:9)
+      at handleCallback (node_modules/mongodb/lib/utils.js:129:55)
+      at cursor.close (node_modules/mongodb/lib/operations/to_array.js:36:13)
+
+  ● insert › Bad userId POST
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "The user with userId doesnt have any matches"
+    Received: undefined
+
+      104 | 
+      105 |     expect(badCurMatchResponse.status).toBe(400);
+    > 106 |     expect(badCurMatchResponse.message).toBe("The user with userId doesnt have any matches");
+          |                                         ^
+      107 | 
+      108 |     done();
+      109 |   })
+
+      at Object.it (__tests__/matchesTest.js:106:41)
+
+  ● insert › Good user matches GET
+
+    connect ECONNRESET 127.0.0.1:49918
+
+
+
+  ● insert › Bad userId POST
+
+    ReferenceError: response is not defined
+
+      240 |     
+      241 | 
+    > 242 |     expect(response.status).toBe(400);
+          |            ^
+      243 |     expect(response.message).toBe("Negative userId");
+      244 | 
+      245 |     done();
+
+      at Object.it (__tests__/matchesTest.js:242:12)
+
+(node:71652) UnhandledPromiseRejectionWarning: Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 400
+(node:71652) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 9)
+(node:71652) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
+FAIL __tests__/userPreferencesTests.js
+  ● insert › Good GET user preferences
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      169 |     const response = await request.post('/user/2000');
+      170 |   
+    > 171 |     expect(response.status).toBe(200);
+          |                             ^
+      172 |     expect(response.body.message).toBe("The user has been added to the database!");
+      173 | 
+      174 |     const goodBodyResponseB = await request.post('/user/2000/preferences').send(goodPreferencesBody);
+
+      at Object.it (__tests__/userPreferencesTests.js:171:29)
+
+  ● insert › Good PUT user preferences
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      221 |     const response = await request.post('/user/2222');
+      222 |   
+    > 223 |     expect(response.status).toBe(200);
+          |                             ^
+      224 |     expect(response.body.message).toBe("The user has been added to the database!");
+      225 | 
+      226 |     const goodBodyResponseC = await request.post('/user/2222/preferences').send(goodPreferencesBody);
+
+      at Object.it (__tests__/userPreferencesTests.js:223:29)
+
+FAIL __tests__/userInfoTests.js
+  ● insert › Post User
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      144 |     const response = await request.post('/user/3').send(preferencesBody);
+      145 |   
+    > 146 |     expect(response.status).toBe(200);
+          |                             ^
+      147 |     expect(response.body.message).toBe("The user has been added to the database!");
+      148 |     done();
+      149 |   })
+
+      at Object.it (__tests__/userInfoTests.js:146:29)
+
+  ● insert › Bad PUT user info body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      204 | 
+      205 |     expect(response.status).toBe(400);
+    > 206 |     expect(response.message).toBe("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻");
+          |                              ^
+      207 | 
+      208 |     done();
+      209 |   })
+
+      at Object.it (__tests__/userInfoTests.js:206:30)
+
+  ● insert › Bad PUT user kindness, etc. info
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      233 | 
+      234 |     expect(response.status).toBe(400);
+    > 235 |     expect(response.message).toBe("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻");
+          |                              ^
+      236 | 
+      237 |     done();
+      238 |   })
+
+      at Object.it (__tests__/userInfoTests.js:235:30)
+
+  ● insert › Bad PUT user info sex
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      261 | 
+      262 |     expect(response.status).toBe(400);
+    > 263 |     expect(response.message).toBe("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻");
+          |                              ^
+      264 | 
+      265 |     done();
+      266 |   })
+
+      at Object.it (__tests__/userInfoTests.js:263:30)
+
+  ● insert › Bad PUT user
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      289 |     const response = await request.put('/user/200/info').send(body);
+      290 | 
+    > 291 |     expect(response.status).toBe(400);
+          |                             ^
+      292 |     expect(response.message).toBe("The user with this userId doesn't exists in the database (┛ಠ_ಠ)┛彡┻━┻");
+      293 | 
+      294 |     done();
+
+      at Object.it (__tests__/userInfoTests.js:291:29)
+
+  ● insert › post and put user
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      336 |     const response3 = await request.put('/user/11/info').send(body1);
+      337 | 
+    > 338 |     expect(response3.status).toBe(200);
+          |                              ^
+      339 |     expect(response3.body.message).toBe("The user info has been updated! ヽ(＾Д＾)ﾉ");
+      340 | 
+      341 |     done();
+
+      at Object.it (__tests__/userInfoTests.js:338:30)
+
+  ● insert › Bad PUT user info body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      350 |     const response = await request.delete('/user/-2/info');
+      351 | 
+    > 352 |     expect(response.status).toBe(400);
+          |                             ^
+      353 |     expect(response.message).toBe("Invalid userId");
+      354 | 
+      355 |     done();
+
+      at Object.it (__tests__/userInfoTests.js:352:29)
+
+  ● insert › Bad PUT user info body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "deleted the user"
+    Received: undefined
+
+      365 | 
+      366 |     expect(response.status).toBe(200);
+    > 367 |     expect(response.message).toBe("deleted the user");
+          |                              ^
+      368 | 
+      369 |     done();
+      370 |   })
+
+      at Object.it (__tests__/userInfoTests.js:367:30)
+
+  ● insert › Adding to schedule use case integration test
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      393 |     /* Create a user (sign up) */
+      394 |     const user1 = await request.post('/user/1111').send(userBody);
+    > 395 |     expect(user1.status).toBe(200);
+          |                          ^
+      396 |     expect(user1.message).toBe("The user has been added to the database!");
+      397 | 
+      398 |     const schedule1 = 
+
+      at Object.it (__tests__/userInfoTests.js:395:26)
+
+FAIL __tests__/REST_API_TEST.js
+  ● Test suite failed to run
+
+    Your test suite must contain at least one test.
+
+      at ../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/core/build/TestScheduler.js:242:24
+
+PASS __tests__/test.js
+
+Test Suites: 4 failed, 1 passed, 5 total
+Tests:       20 failed, 12 passed, 32 total
+Snapshots:   0 total
+Time:        2.454s, estimated 3s
+Ran all test suites.
+
+

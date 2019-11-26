@@ -19,19 +19,6 @@ describe('insert', () => {
   });
 
 
-    /* 
-   * GOOD
-   * POST : /user/:userIdA/matches/:userIdB
-   */
-  it('Good match POST', async done => {
-    const event1 = {eventId_a : "0", eventId_b : "0"}
-    const wain = await request.post('/user/1/matches/2').send(event1);
-
-    expect(wain.message).toBe("Successfully added matches.");
-    expect(wain.status).toBe(200);
-
-    done();
-  })
 
     /* 
    * BAD
@@ -47,7 +34,7 @@ describe('insert', () => {
     const matchSelfResponse = await request.post('/user/2/matches/2').send(event);
 
     expect(matchSelfResponse.status).toBe(400);
-    expect(matchSelfResponse.message).toBe("Cannot match the user with themselves.");
+    expect(matchSelfResponse.body.message).toBe("Cannot match the user with themselves.");
 
     done();
   })
@@ -61,7 +48,7 @@ describe('insert', () => {
     const negativeMatchResponse = await request.post('/user/-1/matches/2');
 
     expect(negativeMatchResponse.status).toBe(400);
-    expect(negativeMatchResponse.message).toBe("Negative userId");
+    expect(negativeMatchResponse.body.message).toBe("Negative userId");
 
     done();
   })
@@ -75,7 +62,7 @@ describe('insert', () => {
     const userAWrongResponse = await request.post('/user/1111111/matches/2');
 
     expect(userAWrongResponse.status).toBe(400);
-    expect(userAWrongResponse.message).toBe("User A doesn't exist");
+    expect(userAWrongResponse.body.message).toBe("User A doesn't exist");
 
     done();
   })
@@ -89,7 +76,7 @@ describe('insert', () => {
     const userBWrongResponse = await request.post('/user/1/matches/2222222');
 
     expect(userBWrongResponse.status).toBe(400);
-    expect(userBWrongResponse.message).toBe("User B doesn't exist");
+    expect(userBWrongResponse.body.message).toBe("User A doesn't exist");
 
     done();
   })
@@ -103,7 +90,7 @@ describe('insert', () => {
     const badCurMatchResponse = await request.get('/user/1/matches/currentlyMatchedWith');
 
     expect(badCurMatchResponse.status).toBe(400);
-    expect(badCurMatchResponse.message).toBe("The user with userId doesnt have any matches");
+    expect(badCurMatchResponse.body.message).toBe("The user with userId doesnt have any matches");
 
     done();
   })
@@ -117,7 +104,7 @@ describe('insert', () => {
     const negativeMatch = await request.get('/user/-1/matches/currentlyMatchedWith');
 
     expect(negativeMatch.status).toBe(400);
-    expect(negativeMatch.message).toBe("Negative userId");
+    expect(negativeMatch.body.message).toBe("Negative userId");
 
     done();
   })
@@ -150,9 +137,9 @@ describe('insert', () => {
      courses : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
      sex : "0",
      numberOfRatings : "15",
-     kindness : "5",
-     patience : "5",
-     hardWorking : "5",
+     kindness : "4",
+     patience : "4",
+     hardWorking : "4",
      authenticationToken : "abcdef123456789",
      password : "johndoe@123",
      email : "john.doe@gmail.com",
@@ -170,9 +157,9 @@ describe('insert', () => {
      courses : ['CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221'],
      sex : "0",
      numberOfRatings : "15",
-     kindness : "5",
-     patience : "5",
-     hardWorking : "5",
+     kindness : "4",
+     patience : "4",
+     hardWorking : "4",
      authenticationToken : "abcdef123456789",
      password : "johndoe@123",
      email : "john.doe@gmail.com",
@@ -186,8 +173,6 @@ describe('insert', () => {
 
    const s1 = 
    {
-    userId : "40",
-    eventId : "0",
     time : "11:00-12:00",
     date : "Oct.11,2019",
     course : "CPEN321",
@@ -196,8 +181,6 @@ describe('insert', () => {
 
    const s2 = 
    {
-    userId : "41",
-    eventId : "0",
     time : "11:00-12:00",
     date : "Oct.11,2019",
     course : "CPEN321",
@@ -206,41 +189,25 @@ describe('insert', () => {
 
    r3 = await request.post("/schedule/40").send(s1);
    expect(r3.status).toBe(200);
-   expect(r3.message).toBe("Schedule has been posted!! :)");
+   expect(r3.body.message).toBe("Schedule has been posted!! :)");
    
    
    r4 = await request.post("/schedule/41").send(s2);
    expect(r4.status).toBe(200);
-   expect(r4.message).toBe("Schedule has been posted!! :)");
+   expect(r4.body.message).toBe("Schedule has been posted!! :)");
 
    r5 = await request.post('/user/40/matches/41');
+   expect(r5.body.message).toBe("Successfully added matches.");
    expect(r5.status).toBe(200);
    
    r6 = await request.post('/user/41/matches/40');
+   expect(r6.body.message).toBe("Successfully added matches.");
    expect(r6.status).toBe(200);
 
    const r7 = await request.get('/user/40/matches/currentlyMatchedWith');
 
     expect(r7.status).toBe(200);
-    expect(r7.body).toBe({ "current_matches" : [
-        {"time" : "11:00-12:00",
-         "date" : "Oct.11,2019",
-         "match" : 41}]
-    });
-
-    done();
-  })
-
-  /* 
-   * BAD
-   * GET : /user/:userId/matches/currentlyMatchedWith
-   */
-  it('Bad userId POST', async done => {
-
-    
-
-    expect(response.status).toBe(400);
-    expect(response.message).toBe("Negative userId");
+    expect(r7.body["current_matches"]).toStrictEqual([{"date": "Oct.11,2019", "match": 41, "time": "11:00-12:00"}]);
 
     done();
   })

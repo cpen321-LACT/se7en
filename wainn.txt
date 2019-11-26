@@ -1,0 +1,473 @@
+
+> @ test:watch /Users/adamdixon/cpen321/testing
+> jest --watchAll
+
+PASS __tests__/test.js
+FAIL __tests__/matchesTest.js
+  ● Test suite failed to run
+
+    Your test suite must contain at least one test.
+
+      at ../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/core/build/TestScheduler.js:242:24
+
+(node:80186) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+(node:80185) DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+FAIL __tests__/REST_API_TEST.js
+  ● Test suite failed to run
+
+    Your test suite must contain at least one test.
+
+      at ../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/core/build/TestScheduler.js:242:24
+
+FAIL __tests__/schedule_TEST.js
+  ● Test suite failed to run
+
+    Your test suite must contain at least one test.
+
+      at ../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/core/build/TestScheduler.js:242:24
+
+FAIL __tests__/nontrivial_TEST.js
+  ● Console
+
+    console.log REST_API.js:31
+      Info collection created!
+    console.log REST_API.js:35
+      Peferences collection created!
+    console.log REST_API.js:44
+      Schedule collection created!
+    console.log REST_API.js:914
+      Schedule added
+    console.log REST_API.js:914
+      Schedule added
+    console.log REST_API.js:914
+      Schedule added
+
+  ● insert › Generate and get matches for user 203
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 203
+    Received: undefined
+
+      185 |         const response = await request.get("/user/200/matches/potentialMatches/0/CPEN321");
+      186 |         expect(response.status).toBe(200);
+    > 187 |         expect(response.body.userId).toBe(203);
+          |                                      ^
+      188 |         expect(response.body.eventId).toBe(0);
+      189 |         expect(response.body.time).toBe("15:00 - 16:30");
+      190 |         expect(response.body.date).toBe("Nov, 18");
+
+      at Object.it (__tests__/nontrivial_TEST.js:187:38)
+
+FAIL __tests__/userInfoTests.js
+  ● Test suite failed to run
+
+    Your test suite must contain at least one test.
+
+      at ../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/core/build/TestScheduler.js:242:24
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Info collection created!".
+
+      38 |     if (err) {throw err;}
+      39 |   });
+    > 40 | 
+         | ^
+      41 |   /* Schedule Database */
+      42 |   scheduleDb.createCollection("scheduleClt", function(err, res) {
+      43 |     if (err) {throw err;}
+
+      at BufferedConsole.log (../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/console/build/BufferedConsole.js:199:10)
+      at REST_API.js:40:13
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at session.endSession (node_modules/mongodb/lib/operations/execute_operation.js:64:11)
+      at ClientSession.endSession (node_modules/mongodb/lib/core/sessions.js:135:41)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:59:17)
+      at handleCallback (node_modules/mongodb/lib/utils.js:129:55)
+      at db.listCollections.setReadPreference.toArray (node_modules/mongodb/lib/operations/create_collection.js:88:20)
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:68:9)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Peferences collection created!".
+
+      45 |   });
+      46 | 
+    > 47 | //    app.listen(3000, function() {
+         |             ^
+      48 | //       console.log("server is up!");
+      49 | //    })
+      50 | 
+
+      at BufferedConsole.log (../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/console/build/BufferedConsole.js:199:10)
+      at REST_API.js:47:13
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at session.endSession (node_modules/mongodb/lib/operations/execute_operation.js:64:11)
+      at ClientSession.endSession (node_modules/mongodb/lib/core/sessions.js:135:41)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:59:17)
+      at handleCallback (node_modules/mongodb/lib/utils.js:129:55)
+      at db.listCollections.setReadPreference.toArray (node_modules/mongodb/lib/operations/create_collection.js:88:20)
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:68:9)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Schedule collection created!".
+
+      59 | function insertionSort(array, score){
+      60 |     for(var i = 0; i < array.length; i++){
+    > 61 |         var sc = score[parseInt(i, 10)][0]; //score
+         |             ^
+      62 |         var id = score[parseInt(i, 10)][1]; //userId
+      63 |         var j = i;
+      64 |         while(j>0 && score[j-1][0] > sc){
+
+      at BufferedConsole.log (../../../../usr/local/lib/node_modules/jest-cli/node_modules/@jest/console/build/BufferedConsole.js:199:10)
+      at REST_API.js:61:13
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at session.endSession (node_modules/mongodb/lib/operations/execute_operation.js:64:11)
+      at ClientSession.endSession (node_modules/mongodb/lib/core/sessions.js:135:41)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:59:17)
+      at handleCallback (node_modules/mongodb/lib/utils.js:129:55)
+      at db.listCollections.setReadPreference.toArray (node_modules/mongodb/lib/operations/create_collection.js:88:20)
+      at result (node_modules/mongodb/lib/operations/execute_operation.js:75:17)
+      at executeCallback (node_modules/mongodb/lib/operations/execute_operation.js:68:9)
+
+FAIL __tests__/userPreferencesTests.js
+  ● Console
+
+    console.log REST_API.js:31
+      Info collection created!
+    console.log REST_API.js:35
+      Peferences collection created!
+    console.log REST_API.js:44
+      Schedule collection created!
+    console.log REST_API.js:356
+      HEY
+    console.log REST_API.js:357
+      -1
+    console.log REST_API.js:356
+      HEY
+    console.log REST_API.js:357
+      200000000
+    console.log REST_API.js:395
+      0
+    console.log REST_API.js:396
+      5
+    console.log REST_API.js:397
+      5
+    console.log REST_API.js:356
+      HEY
+    console.log REST_API.js:357
+      1
+    console.log REST_API.js:466
+      old:
+    console.log REST_API.js:467
+      true
+    console.log REST_API.js:468
+      false
+    console.log REST_API.js:469
+      {}
+    console.log REST_API.js:470
+      new:
+    console.log REST_API.js:471
+      { '$set':
+         { yearLevel: NaN,
+           sex: NaN,
+           courses: undefined,
+           numberOfRatings: NaN,
+           kindness: NaN,
+           patience: NaN,
+           hardWorking: NaN,
+           authenticationToken: undefined,
+           password: undefined,
+           email: undefined,
+           name: undefined } }
+    console.log REST_API.js:472
+      done
+    console.log REST_API.js:466
+      old:
+    console.log REST_API.js:467
+      false
+    console.log REST_API.js:468
+      false
+    console.log REST_API.js:469
+      { yearLevel: '8888888',
+        courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+        sex: '0',
+        numberOfRatings: '15',
+        kindness: '0',
+        patience: '0',
+        hardWorking: '0',
+        authenticationToken: 'abcdef123456789',
+        password: 'johndoe@123',
+        email: 'john.doe@gmail.com',
+        name: 'John Doe' }
+    console.log REST_API.js:470
+      new:
+    console.log REST_API.js:471
+      { '$set':
+         { yearLevel: 8888888,
+           sex: 0,
+           courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+           numberOfRatings: 15,
+           kindness: 0,
+           patience: 0,
+           hardWorking: 0,
+           authenticationToken: 'abcdef123456789',
+           password: 'johndoe@123',
+           email: 'john.doe@gmail.com',
+           name: 'John Doe' } }
+    console.log REST_API.js:472
+      done
+    console.log REST_API.js:466
+      old:
+    console.log REST_API.js:467
+      false
+    console.log REST_API.js:468
+      false
+    console.log REST_API.js:469
+      { yearLevel: '8888888',
+        courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+        sex: '200',
+        numberOfRatings: '15',
+        kindness: '3.4',
+        patience: '7.6',
+        hardWorking: '1.0',
+        authenticationToken: 'abcdef123456789',
+        password: 'johndoe@123',
+        email: 'john.doe@gmail.com',
+        name: 'John Doe' }
+    console.log REST_API.js:470
+      new:
+    console.log REST_API.js:471
+      { '$set':
+         { yearLevel: 8888888,
+           sex: 200,
+           courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+           numberOfRatings: 15,
+           kindness: 3.4,
+           patience: 7.6,
+           hardWorking: 1,
+           authenticationToken: 'abcdef123456789',
+           password: 'johndoe@123',
+           email: 'john.doe@gmail.com',
+           name: 'John Doe' } }
+    console.log REST_API.js:472
+      done
+    console.log REST_API.js:466
+      old:
+    console.log REST_API.js:467
+      false
+    console.log REST_API.js:468
+      false
+    console.log REST_API.js:469
+      { yearLevel: '8888888',
+        courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+        sex: '0',
+        numberOfRatings: '15',
+        kindness: '3.4',
+        patience: '7.6',
+        hardWorking: '1.0',
+        authenticationToken: 'abcdef123456789',
+        password: 'johndoe@123',
+        email: 'john.doe@gmail.com',
+        name: 'John Doe' }
+    console.log REST_API.js:470
+      new:
+    console.log REST_API.js:471
+      { '$set':
+         { yearLevel: 8888888,
+           sex: 0,
+           courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+           numberOfRatings: 15,
+           kindness: 3.4,
+           patience: 7.6,
+           hardWorking: 1,
+           authenticationToken: 'abcdef123456789',
+           password: 'johndoe@123',
+           email: 'john.doe@gmail.com',
+           name: 'John Doe' } }
+    console.log REST_API.js:472
+      done
+    console.log REST_API.js:466
+      old:
+    console.log REST_API.js:467
+      false
+    console.log REST_API.js:468
+      false
+    console.log REST_API.js:469
+      { yearLevel: '8888888',
+        courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+        sex: '0',
+        numberOfRatings: '15',
+        kindness: '5',
+        patience: '5',
+        hardWorking: '5',
+        authenticationToken: 'abcdef123456789',
+        password: 'johndoe@123',
+        email: 'john.doe@gmail.com',
+        name: 'John Doe' }
+    console.log REST_API.js:470
+      new:
+    console.log REST_API.js:471
+      { '$set':
+         { yearLevel: 8888888,
+           sex: 0,
+           courses: [ 'CPEN 321', 'CPEN 331', 'CPEN 311', 'ELEC 221' ],
+           numberOfRatings: 15,
+           kindness: 5,
+           patience: 5,
+           hardWorking: 5,
+           authenticationToken: 'abcdef123456789',
+           password: 'johndoe@123',
+           email: 'john.doe@gmail.com',
+           name: 'John Doe' } }
+    console.log REST_API.js:472
+      done
+
+  ● insert › Bad PUT user info body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      559 |     const wain1 = await request.put('/user/12345/info').send({});
+      560 |     expect(wain1.status).toBe(400);
+    > 561 |     expect(wain1.message).toBe("The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻");
+          |                           ^
+      562 | 
+      563 |     done();
+      564 |   })
+
+      at Object.it (__tests__/userPreferencesTests.js:561:27)
+
+  ● insert › Bad PUT user kindness, etc. info
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      588 | 
+      589 |     expect(response.status).toBe(400);
+    > 590 |     expect(response.message).toBe("kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻");
+          |                              ^
+      591 | 
+      592 |     done();
+      593 |   })
+
+      at Object.it (__tests__/userPreferencesTests.js:590:30)
+
+  ● insert › Bad PUT user info sex
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      616 | 
+      617 |     expect(response.status).toBe(400);
+    > 618 |     expect(response.message).toBe("THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻");
+          |                              ^
+      619 | 
+      620 |     done();
+      621 |   })
+
+      at Object.it (__tests__/userPreferencesTests.js:618:30)
+
+  ● insert › Bad PUT user
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "The user with this userId doesn't exists in the database (┛ಠ_ಠ)┛彡┻━┻"
+    Received: undefined
+
+      645 | 
+      646 |     expect(response.status).toBe(400);
+    > 647 |     expect(response.message).toBe("The user with this userId doesn't exists in the database (┛ಠ_ಠ)┛彡┻━┻");
+          |                              ^
+      648 | 
+      649 |     done();
+      650 |   })
+
+      at Object.it (__tests__/userPreferencesTests.js:647:30)
+
+  ● insert › post and put user
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      691 |     const response3 = await request.put('/user/11/info').send(body1);
+      692 | 
+    > 693 |     expect(response3.status).toBe(200);
+          |                              ^
+      694 |     expect(response3.body.message).toBe("The user info has been updated! ヽ(＾Д＾)ﾉ");
+      695 | 
+      696 |     done();
+
+      at Object.it (__tests__/userPreferencesTests.js:693:30)
+
+  ● insert › Bad DELETE user info body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      705 |     const response = await request.delete('/user/-2/info');
+      706 | 
+    > 707 |     expect(response.status).toBe(400);
+          |                             ^
+      708 |     expect(response.message).toBe("Invalid userId");
+      709 | 
+      710 |     done();
+
+      at Object.it (__tests__/userPreferencesTests.js:707:29)
+
+  ● insert › Bad PUT user info body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "deleted the user"
+    Received: undefined
+
+      720 | 
+      721 |     expect(response.status).toBe(200);
+    > 722 |     expect(response.message).toBe("deleted the user");
+          |                              ^
+      723 | 
+      724 |     done();
+      725 |   })
+
+      at Object.it (__tests__/userPreferencesTests.js:722:30)
+
+  ● insert › Adding to schedule use case integration test
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      748 |     /* Create a user (sign up) */
+      749 |     const user1 = await request.post('/user/1111').send(userBody);
+    > 750 |     expect(user1.status).toBe(200);
+          |                          ^
+      751 |     expect(user1.message).toBe("The user has been added to the database!");
+      752 | 
+      753 |     const schedule1 = 
+
+      at Object.it (__tests__/userPreferencesTests.js:750:26)
+
+Test Suites: 6 failed, 1 passed, 7 total
+Tests:       9 failed, 22 passed, 31 total
+Snapshots:   0 total
+Time:        2.898s, estimated 3s
+Ran all test suites.
+
+

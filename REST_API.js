@@ -28,11 +28,11 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* User Database */
   userDb.createCollection("infoClt", function(err, res) {
     if (err) {throw err;}
-     console.log("Info collection created!");
+    //  console.log("Info collection created!");
   });
   userDb.createCollection("preferencesClt", function(err, res) {
     if (err) {throw err;}
-     console.log("Peferences collection created!");
+    //  console.log("Peferences collection created!");
   });
   userDb.createCollection("matchesClt", function(err, res) {
     if (err) {throw err;}
@@ -41,11 +41,11 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
   /* Schedule Database */
   scheduleDb.createCollection("scheduleClt", function(err, res) {
     if (err) {throw err;}
-     console.log("Schedule collection created!");
+    //  console.log("Schedule collection created!");
   });
 
 //    app.listen(3000, function() {
-//     //   console.log("server is up!");
+//       console.log("server is up!");
 //    })
 
 })
@@ -355,7 +355,7 @@ app.put("/user/:userId/preferences", async (req,res) => {
 app.get("/user/:userId/info", async (req,res) => {
     if(parseInt(req.params.userId, 10) < 0){
         res.status(400).json({message: 'The user id is less tahn 0 (┛ಠ_ಠ)┛彡┻━┻'});
-        return;
+        return 0;
     }
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
         if (doesntExist(userInfo)){
@@ -446,48 +446,50 @@ app.post("/user/:userId", async (req,res) => {
  */
 app.put("/user/:userId/info", async (req,res) => {
     var query = {userId : parseInt(req.params.userId, 10)};
-    var newValues = {$set: {yearLevel           : parseInt(req.body.yearLevel, 10),
-                            sex                  : parseInt(req.body.sex, 10),
-                            courses              : req.body.courses,
-                            numberOfRatings    : parseInt(req.body.numberOfRatings, 10),
-                            kindness             : parseFloat(req.body.kindness, 10),
-                            patience             : parseFloat(req.body.patience, 10),
-                            hardWorking         : parseFloat(req.body.hardWorking, 10),
-                            authenticationToken : req.body.authenticationToken,
-                            password             : req.body.password,
-                            email                : req.body.email,
-                            name                 : req.body.name}};
+    var newValues = {$set: {"yearLevel"           : parseInt(req.body.yearLevel, 10),
+                            "sex"                  : parseInt(req.body.sex, 10),
+                            "courses"              : req.body.courses,
+                            "numberOfRatings"    : parseInt(req.body.numberOfRatings, 10),
+                            "kindness"             : parseFloat(req.body.kindness, 10),
+                            "patience"             : parseFloat(req.body.patience, 10),
+                            "hardWorking"         : parseFloat(req.body.hardWorking, 10),
+                            "authenticationToken" : req.body.authenticationToken,
+                            "password"             : req.body.password,
+                            "email"                : req.body.email,
+                            "name"                 : req.body.name}};
+    if (doesntExist(req.body)){
+        res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
+        return;
+    }
+    if (req.body == null){
+        res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
+        return;
+    }
+    if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
+        res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
+        return;
+    }
+
+    if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
+        res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
+        return;
+    }
 
     userDb.collection("infoClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, userInfo) => {
-        if (doesntExist(req.body)){
-            res.status(400).send({message : "The body sent has a null element (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
 
-        if (!isAcceptablePreferences(parseFloat(req.body.kindness, 10), parseFloat(req.body.patience, 10), parseFloat(req.body.hardWorking, 10)) ){
-            res.status(400).send({message : "kindness, patience and hardWorking do not add up to 12 (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
-
-        if (parseInt(req.body.sex, 10) < 0 || parseInt(req.body.sex, 10) > 1) {
-            res.status(400).send({message : "THERE ARE ONLY 2 SEXES (┛ಠ_ಠ)┛彡┻━┻"});
-            return;
-        }
-
-        if (!doesntExist(userInfo)){
+        if (doesntExist(userInfo)){
             res.status(400).send({message : "The user with this userId doesn't exists in the database (┛ಠ_ಠ)┛彡┻━┻"});
             return;
         }
 
         userDb.collection("infoClt").updateOne(query, newValues,(err, result) => {
-             if (err) {return err;}
              res.send({message : "The user info has been updated! ヽ(＾Д＾)ﾉ"});
         })
     })
 })
 
 /*
- *  Delete an user - delete all information of that user
+ *  Delete a user - delete all information of that user
  *  This take no arguments
  *
  *  NOTE: Either
@@ -500,13 +502,13 @@ app.delete("/user/:userId/info", async (req,res) => {
     var query = {"userId" : parseInt(req.params.userId, 10)};
 
     if (parseInt(req.params.userId, 10) < 0) {
-        res.send({message : "Invalid userId"});
+        res.status(400).send({message : "Invalid userId"});
         return;
     }
 
-    scheduleDb.collection("infoClt").deleteOne(query, (err, result) => {
-        if (err) {return err;}
-        res.send({message : "deleted the user"});
+    userDb.collection("infoClt").deleteOne(query, (err, result) => {
+        if (err) {res.send({message : "wain"}).status(400); return err;}
+        res.send({message : "deleted the user"}).status(200);
     })
 })
 
@@ -613,7 +615,7 @@ app.get("/user/:userId/matches/potentialMatches/:eventId/:course", async (req,re
  * { "eventId_a : 0, "eventId_b" : 2}
  * Adam: to test
  */
-function updateRequestWait(userAMatchDoc, userBMatchDoc){
+function updateRequestWait(userAMatchDoc, userBMatchDoc, req){
 
     /* If user_b has already requested to match with user_a and is waiting */
     if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
@@ -674,7 +676,27 @@ app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
             }
             userBMatchDoc = b[0];
 
-            updateRequestWait(userAMatchDoc, userBMatchDoc);
+            // updateRequestWait(userAMatchDoc, userBMatchDoc, req);
+                /* If user_b has already requested to match with user_a and is waiting */
+            if (userBMatchDoc["wait"].includes(parseInt(req.params.userIdA, 10))) {
+            
+                /* user_b is user_a's match */
+                userAMatchDoc["match"] = parseInt(req.params.userIdB, 10);
+                /* user_a to user_b's match */
+                userBMatchDoc["match"] = parseInt(req.params.userIdA, 10);
+            
+                userBMatchDoc["wait"].splice(userBMatchDoc["wait"].indexOf(parseInt(req.params.userIdA, 10)), 1);
+                userAMatchDoc["request"].splice(userAMatchDoc["request"].indexOf(parseInt(req.params.userIdB, 10)), 1);
+            
+            }
+            else {
+                /* user_a has requested to match with user_b*/
+                userBMatchDoc["request"].push(parseInt(req.params.userIdA, 10));
+            
+                /* user_a is waiting to match with user_b */
+                userAMatchDoc["wait"].push(parseInt(req.params.userIdB, 10));
+            
+            }
 
             /* Update user_a's matches */
             userDb.collection("matchesClt").updateOne(queryUserA, {$set: {match : userAMatchDoc.match, request : userAMatchDoc.request, wait : userAMatchDoc.wait}}, (err, updateResultA) => {
@@ -685,6 +707,7 @@ app.post("/user/:userIdA/matches/:userIdB", async (req,res) => {
                     if (err) { res.status(400).send({message : "User B Error"}); return err;}
 
                     res.status(200).send({message : "Successfully added matches."});
+                    return 0;
                 })
             })
         })
@@ -699,7 +722,7 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
 
     if (parseInt(req.params.userId, 10) < 0){
         res.status(400).send({message:"Negative userId"});
-        return;
+        return 0;
     }
 
     var curMatches = [];
@@ -709,20 +732,22 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
         if (err) {return err;}
         if (doesntExist(matches)){
             res.status(400).send({message:"The user with userId doesnt have any matches"});
+            return 0;
         }
         /* Generate the current matches */
         for (i = 0; i < matches.length-1; i++){
             /* if the user has a match */
-            if (matches[parseInt(i, 10)]["match"] != null) {
+            if (matches[parseInt(i, 10)]["match"] != -1) {
                 /* Add the match to the list */
-                curMatches.append(
+                curMatches.push(
                     {"time" : matches[parseInt(i, 10)]["time"],
                     "date" : matches[parseInt(i, 10)]["date"],
                     "match" : matches[parseInt(i, 10)]["match"]});
             }
         }
         /* Return JSON object*/
-        res.send({"current_matches" : curMatches});
+        res.send({"current_matches" : curMatches}).status(200);
+        return 0;
     })
 })
 
@@ -732,8 +757,8 @@ app.get("/user/:userId/matches/currentlyMatchedWith", async (req,res) => {
  */
 app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
-        if (err) {return err;}
-        res.send(result["wait"]);
+        if (err) {res.status(400).send({message : "Error getting waiting to match with"}); return err;}
+        res.status(200).send(result["wait"]); return 0;
     })
 })
 
@@ -744,15 +769,18 @@ app.get("/user/:userId/matches/userIsWaitingToMatchWith", async (req,res) => {
  */
 app.delete("/user/:userId/matches/:matchId", async (req,res) => {
     userDb.collection("matchesClt").find({ userId : parseInt(req.params.userId, 10)}).toArray((err, result) => {
-        if (err) {return err;}
+        if (err) {res.status(400).send({message: "An error has occured."}); return err;}
         if(parseInt(result["wait"], 10) !== parseInt(req.params.matchId, 10)){
             res.status(400).send({message: "Two people are not matched, something is wrong here :<"});
+            return 0;
         }
 
     var err1 = personMatchDelete(req.param.userIdA, req.body.time, req.body.date);
     var err2 = personMatchDelete(req.param.userIdB, req.body.time, req.body.date);
-    if(err1 || err2) {return (err1 || err2);} 
-    res.send({message: "Successfully unmatch."});
+
+    if(err1 || err2) {res.status(400).send({message: "An error has occured."}); return (err1 || err2);} 
+        res.send.status(200).send({message: "Successfully unmatch."});
+        return 0;
     })
 })
 
@@ -837,7 +865,6 @@ app.get("/schedule/:userId/:eventId", async (req,res) => {
 
     scheduleDb.collection("scheduleClt").find(query).toArray((err, result) => {
         if (doesntExist(result)){
-            console.log("HERE");
             res.status(400).send({message: "The study event with eventId for user with userId doesn't exist"});
             return err;
         }
@@ -896,7 +923,7 @@ app.post("/schedule/:userId/", async (req,res) => {
              "course" : req.body.course,
              "location" : req.body.location},(err, result) => {
             if (err) {return err;}
-             console.log('Schedule added')
+            //  console.log('Schedule added')
         })
         /* Create a match object for that schedule */
         userDb.collection("matchesClt").insertOne(
