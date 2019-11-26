@@ -47,9 +47,9 @@ mongocli.connect("mongodb://localhost:27017", {useNewUrlParser: true, useUnified
    app.listen(3000, function() {
       console.log("server is up!");
    })
+   module.exports = app;
 
 })
-// module.exports = app;
 
 
 /*______________________________________________________________________________________
